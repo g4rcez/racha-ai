@@ -1,0 +1,39 @@
+{
+  "name": "frontend-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development vite --port 3000 --host",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "brouther": "4.5.0",
+    "class-variance-authority": "0.7.0",
+    "clsx": "2.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "tailwind-merge": "2.0.0",
+    "the-mask-input": "3.3.3",
+    "use-typed-reducer": "3.3.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/container-queries": "0.1.1",
+    "@tailwindcss/forms": "0.5.7",
+    "@tailwindcss/typography": "0.5.10",
+    "@types/node": "20.10.0",
+    "@types/react": "18.2.37",
+    "@types/react-dom": "18.2.15",
+    "@vitejs/plugin-react-swc": "3.5.0",
+    "autoprefixer": "10.4.16",
+    "postcss": "8.4.31",
+    "prettier": "3.1.0",
+    "prettier-plugin-tailwindcss": "0.5.7",
+    "tailwindcss": "3.3.5",
+    "tailwindcss-animate": "1.0.7",
+    "typescript": "5.2.2",
+    "vite": "5.0.0"
+  }
+}
