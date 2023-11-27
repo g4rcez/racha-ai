@@ -14,12 +14,11 @@ async function start() {
 }
 
 const Layout = () => {
-    console.log(useHref());
     const path = useHref();
     if (path === "/") return <Outlet />;
     if (path.startsWith("/app"))
         return (
-            <div>
+            <div className="p-8">
                 <Outlet />
             </div>
         );

@@ -52,8 +52,8 @@ export default {
         form({ strategy: "class" }),
         plugin(function({ addVariant }) {
             addVariant("link", ["&:hover", "&:focus"]);
-            addVariant("group-error", ":merge(.group):invalid:has(input:not(:focus):invalid[data-initialized=true]) &");
-            addVariant("group-assert", [":merge(.group):valid:has(input:valid:not(:placeholder-shown)) &"]);
+            addVariant("group-error", ":merge(.group):invalid:has(.input:not(:focus):invalid[data-initialized=true]) &");
+            addVariant("group-assert", [":merge(.group):valid:has(.input:valid:not(:placeholder-shown)) &"]);
         })
     ]
 };

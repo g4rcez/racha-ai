@@ -11,3 +11,6 @@ const getEntries = (o: object, prefix = ""): [any, any][] =>
     Object.entries(o).flatMap(([k, v]) => (Object(v) === v ? getEntries(v, `${prefix}${k}.`) : [[`${prefix}${k}`, v]]));
 
 export const flatTuples = <K, V>(input: object): [K, V][] => getEntries(input);
+
+export const noop = <T>(a: T): T => a;
+
