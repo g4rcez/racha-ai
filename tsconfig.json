@@ -4,7 +4,7 @@
     "useDefineForClassFields": true,
     "lib": [
       "ESNext",
-      "DOM",
+      "DOM"
     ],
     "module": "ESNext",
     "skipLibCheck": true,
@@ -25,7 +25,10 @@
       "~/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": [
+      "vite-plugin-pwa/client"
+    ]
   },
   "include": [
     "src"

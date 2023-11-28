@@ -1,29 +1,33 @@
-import { Brouther, Outlet, useHref } from "brouther";
+import { Brouther } from "brouther";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { registerSW } from "virtual:pwa-register";
+import { Layout } from "~/components/layout";
+import { Preferences } from "~/models/preferences";
 import { routerConfig } from "~/router";
+import { initialPreferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
 import "~/styles/index.css";
 import { setupTheme } from "~/styles/setup";
+
+const updateSW = registerSW({
+    onNeedRefresh() {
+        if (confirm("New content available. Reload?")) {
+            updateSW(true);
+        }
+    },
+    onOfflineReady() {
+        console.log("offline ready");
+    }
+});
 
 async function start() {
     const html = document.documentElement;
     const head = html.querySelector("head")!;
     setupTheme(head, DefaultTheme, DefaultTheme.name as any);
+    Preferences.setup(initialPreferences);
     return document.getElementById("root")!;
 }
-
-const Layout = () => {
-    const path = useHref();
-    if (path === "/") return <Outlet />;
-    if (path.startsWith("/app"))
-        return (
-            <div className="p-8">
-                <Outlet />
-            </div>
-        );
-    return <Outlet />;
-};
 
 start().then((root) => {
     requestIdleCallback(() =>

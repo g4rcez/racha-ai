@@ -1,4 +1,3 @@
-import React from "react";
 import { Polymorph, PolymorphicProps } from "~/components/polymorph";
 import { css } from "~/lib/dom";
 

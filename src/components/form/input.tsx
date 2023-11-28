@@ -8,7 +8,7 @@ import { mergeRefs } from "~/lib/react";
 export type InputProps = InputFieldProps<"input"> & TheMaskProps;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ type = "text", container, ...props }: InputProps, ref) => {
+    ({ type = "text", container, optionalText, ...props }: InputProps, ref) => {
         const id = props.id ?? props.name;
         const inputRef = useRef<HTMLInputElement>(null);
 
@@ -21,13 +21,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         }, []);
 
         return (
-            <InputField<"input"> {...(props as any)} container={css("group inline-block w-full", container)}>
+            <InputField<"input">
+                {...(props as any)}
+                optionalText={optionalText}
+                container={css("group inline-block w-full", container)}
+            >
                 <MaskInput
                     {...props}
                     type={type}
                     ref={mergeRefs(ref, inputRef)}
                     className={css(
-                        "input group h-10 w-full flex-1 rounded-md p-2 placeholder-input-mask outline-none transition-colors group-error:text-danger group-error:placeholder-danger-mask",
+                        "input group h-10 w-full flex-1 rounded-md bg-transparent p-2 placeholder-input-mask outline-none transition-colors group-error:text-danger group-error:placeholder-danger-mask",
                         props.className
                     )}
                     id={id}

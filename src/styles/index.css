@@ -4,7 +4,7 @@
 
 
 html, body, #root {
-    @apply bg-body-bg text-body;
+    @apply bg-body-bg text-body min-h-full min-w-full;
 }
 
 select.select {

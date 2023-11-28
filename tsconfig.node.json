@@ -1,11 +1,33 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"],
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    "allowJs": false,
+    "allowSyntheticDefaultImports": true,
+    "allowUmdGlobalAccess": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "alwaysStrict": true,
     "composite": true,
-    "skipLibCheck": true,
+    "downlevelIteration": false,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
+    "preserveConstEnums": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true,
+    "types": [
+      "vite-plugin-pwa/client"
+    ]
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts"
+  ]
 }
