@@ -1,4 +1,5 @@
 import { Entity } from "~/models/entity";
+import { User } from "~/models/user";
 import { ColorThemes } from "~/store/preferences.store";
 import DarkTheme from "~/styles/dark.json";
 import DefaultTheme from "~/styles/default.json";
@@ -6,18 +7,20 @@ import { changeTheme, createCssVariables, CssVariables, overwriteConfig } from "
 import { ThemeConfig } from "~/styles/styles.type";
 import { DeepPartial } from "~/types";
 
-export class Preferences implements Entity {
+export class Preferences extends Entity {
     public theme: ColorThemes;
     public devMode: boolean;
     public nickname: string;
     public colors: DeepPartial<ThemeConfig["colors"]>;
+    public user: User;
 
-    constructor(preferences?: Partial<Preferences>) {
+    constructor(preferences?: DeepPartial<Preferences>) {
+        super(preferences);
         this.theme = preferences?.theme ?? Preferences.getPreferMode();
         this.colors = preferences?.colors ?? {};
         this.devMode = preferences?.devMode ?? false;
         this.nickname = preferences?.nickname ?? "Usuário";
-        console.log(preferences, this);
+        this.user = new User({ name: this.nickname, id: this.id, createdAt: this.createdAt });
     }
 
     public static setMode(colorTheme: ColorThemes) {

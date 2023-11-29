@@ -8,15 +8,26 @@ import { getHtmlInput } from "~/lib/dom";
 import { sanitize, sortUuidList } from "~/lib/fn";
 import { User } from "~/models/user";
 import { useFriends } from "~/store/friends.store";
+import { usePreferences } from "~/store/preferences.store";
 
-type EditUserProps = { user: User; onChangeUser: (user: User) => void; onDeleteUser: (user: User) => void };
-const EditUser = ({ user, onChangeUser, onDeleteUser }: EditUserProps) => {
+type EditUserProps = {
+    user: User;
+    onChangeYourself: (user: User) => void;
+    onChangeUser: (user: User) => void;
+    onDeleteUser: (user: User) => void;
+    ownerId: string;
+};
+
+const EditUser = (props: EditUserProps) => {
     const i18n = useTranslations();
-    const onReset = () => onDeleteUser(user);
+    const isOwner = props.user.id === props.ownerId;
+    const onReset = () => props.onDeleteUser(props.user);
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const name = getHtmlInput(e.currentTarget.form!, "user");
-        user.name = name.value;
-        onChangeUser(user.clone());
+        const name = getHtmlInput(e.currentTarget.form!, "user").value;
+        const clone = props.user.clone();
+        clone.name = name;
+        const fn = isOwner ? props.onChangeYourself : props.onChangeUser;
+        fn(clone);
     };
 
     return (
@@ -25,10 +36,11 @@ const EditUser = ({ user, onChangeUser, onDeleteUser }: EditUserProps) => {
                 <Input
                     required
                     name="user"
-                    value={user.name}
+                    value={props.user.name}
                     onChange={onChange}
                     title={i18n.get("updateFriendInput")}
                     placeholder={i18n.get("userInputPlaceholder")}
+                    rightLabel={isOwner ? i18n.get("yourself") : undefined}
                 />
                 <Button theme="danger" type="reset" aria-label={i18n.get("addFriend")}>
                     <Trash2Icon absoluteStrokeWidth strokeWidth={2} size={16} />
@@ -41,6 +53,7 @@ const EditUser = ({ user, onChangeUser, onDeleteUser }: EditUserProps) => {
 export default function FriendsPage() {
     const i18n = useTranslations();
     const [state, dispatchers] = useFriends();
+    const [preferences, dispatch] = usePreferences();
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         const form = e.currentTarget;
         const input = getHtmlInput(form, "user");
@@ -75,6 +88,8 @@ export default function FriendsPage() {
                 </li>
                 {users.map((user) => (
                     <EditUser
+                        onChangeYourself={dispatch.user}
+                        ownerId={preferences.id}
                         key={user.id}
                         onChangeUser={dispatchers.update}
                         onDeleteUser={dispatchers.delete}

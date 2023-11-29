@@ -23,22 +23,30 @@ const buttonVariants = cva(
     }
 );
 
-export type ButtonProps = PolymorphicProps<VariantProps<typeof buttonVariants> & Partial<{ icon: Label }>, "button">;
+export type ButtonProps<T extends React.ElementType = "button"> = PolymorphicProps<
+    VariantProps<typeof buttonVariants> &
+        Partial<{
+            icon: Label;
+        }>,
+    T
+>;
 
-export const Button = forwardRef(function Button(
-    { className, icon, theme, type = "button", size, rounded, ...props }: ButtonProps,
-    ref: React.ForwardedRef<HTMLButtonElement>
-) {
-    return (
-        <Polymorph
-            {...props}
-            as="button"
-            type={type}
-            ref={ref}
-            className={css(buttonVariants({ theme, size, className, rounded }))}
-        >
-            {props.children}
-            {icon}
-        </Polymorph>
-    );
-});
+export const Button: <T extends React.ElementType = "button">(props: ButtonProps<T>) => any = forwardRef(
+    function Button(
+        { className, icon, theme, type = "button", size, rounded, ...props }: ButtonProps,
+        ref: React.ForwardedRef<HTMLButtonElement>
+    ) {
+        return (
+            <Polymorph
+                {...props}
+                as={props.as ?? "button"}
+                type={type}
+                ref={ref}
+                className={css(buttonVariants({ theme, size, className, rounded }))}
+            >
+                {props.children}
+                {icon}
+            </Polymorph>
+        );
+    }
+) as never;

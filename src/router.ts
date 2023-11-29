@@ -16,7 +16,7 @@ const router = createMappedRouter({
             title: i18n.get("appPageTitle")
         }
     },
-    colleagues: {
+    friends: {
         path: "/app/friends",
         element: asyncComponent(() => import("~/pages/app/friends.page")),
         data: {

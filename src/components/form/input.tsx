@@ -8,7 +8,7 @@ import { mergeRefs } from "~/lib/react";
 export type InputProps = InputFieldProps<"input"> & TheMaskProps;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ type = "text", container, optionalText, ...props }: InputProps, ref) => {
+    ({ type = "text", container, rightLabel, optionalText, ...props }: InputProps, ref) => {
         const id = props.id ?? props.name;
         const inputRef = useRef<HTMLInputElement>(null);
 
@@ -23,6 +23,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         return (
             <InputField<"input">
                 {...(props as any)}
+                rightLabel={rightLabel}
                 optionalText={optionalText}
                 container={css("group inline-block w-full", container)}
             >

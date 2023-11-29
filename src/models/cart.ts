@@ -1,9 +1,10 @@
 import { Entity } from "~/models/entity";
 
-export class Cart implements Entity {
+export class Cart extends Entity {
     public name: string;
 
     public constructor(cart?: Cart) {
+        super(cart);
         this.name = cart?.name ?? "";
     }
 

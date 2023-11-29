@@ -21,6 +21,8 @@ const native = createPolyglotNative("pt-BR", () => ({
     landingPageTitle: "Bem vindo ao Divide aí",
     welcomeInputTitle: "Como devo te chamar?",
     welcomeInputPlaceholder: "Meu nome",
+    welcomeCustomizeTitle: "Customizar",
+    yourself: "Você mesmo",
     welcome: (props: { nickname: string }) => (
         <Fragment>
             Olá, <span className="text-main-bg">{props.nickname}</span>

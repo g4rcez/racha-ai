@@ -1,15 +1,12 @@
-import { uuid } from "~/lib/fn";
 import { Entity } from "~/models/entity";
+import { DeepPartial } from "~/types";
 
-export class User implements Entity {
+export class User extends Entity {
     public name: string;
-    public readonly id: string;
-    public readonly createdAt: Date;
 
-    public constructor(user?: User) {
+    public constructor(user?: DeepPartial<User>) {
+        super(user);
         this.name = user?.name ?? "";
-        this.id = user?.id ?? uuid();
-        this.createdAt = user?.createdAt ?? new Date();
     }
 
     public static new(name: string) {

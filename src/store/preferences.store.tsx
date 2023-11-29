@@ -5,6 +5,8 @@ import { Button } from "~/components/button";
 import { useTranslations } from "~/i18n";
 import { deepMerge, parseFromSchema } from "~/lib/fn";
 import { Preferences } from "~/models/preferences";
+import { User } from "~/models/user";
+import { useFriends } from "~/store/friends.store";
 import { createStorageMiddleware } from "~/store/middleware";
 import DarkTheme from "~/styles/dark.json";
 import DefaultTheme from "~/styles/default.json";
@@ -17,6 +19,7 @@ export type ColorThemes = "light" | "dark";
 const schemas = {
     v1: z
         .object({
+            id: z.string().uuid(),
             devMode: z.boolean(),
             nickname: z.string().min(1),
             colors: z.record(z.any()),
@@ -42,6 +45,8 @@ const storage = createStorageMiddleware("preferences", currentVersion, versions)
 
 export const initialPreferences: State = storage.get();
 
+const friends = useFriends.dispatchers;
+
 export const usePreferences = createGlobalReducer(
     initialPreferences,
     (get) => ({
@@ -50,9 +55,18 @@ export const usePreferences = createGlobalReducer(
             state.devMode = developerMode;
             return state;
         },
+        user: (user: User) => {
+            const state = get.state();
+            state.nickname = user.name;
+            friends.upsert(user);
+            return state;
+        },
         nickname: (nickname: string) => {
             const state = get.state();
             state.nickname = nickname;
+            const user = state.user;
+            user.name = nickname;
+            friends.upsert(user);
             return state;
         },
         colors: (colors: DeepPartial<ThemeConfig["colors"]>) => {
@@ -77,7 +91,7 @@ export const usePreferences = createGlobalReducer(
         }
     }),
     undefined,
-    [storage.middleware, Preferences.new]
+    [storage.middleware]
 );
 
 export const ThemeToggle = () => {
