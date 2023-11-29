@@ -54,8 +54,8 @@ dependencies:
     specifier: 1.2.0
     version: 1.2.0(react@18.2.0)
   use-typed-reducer:
-    specifier: 3.3.4-2
-    version: 3.3.4-2(react@18.2.0)
+    specifier: 3.3.5
+    version: 3.3.5(react@18.2.0)
   zod:
     specifier: 3.22.4
     version: 3.22.4
@@ -4284,8 +4284,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /use-typed-reducer@3.3.4-2(react@18.2.0):
-    resolution: {integrity: sha512-4DmyRA328tCbEunYLoTu/r5qEmcee6rkzn00NcR0cAvbq6e9uLdocwR/jN+OLq23NE8meD5eG848MlCwsiWhgA==}
+  /use-typed-reducer@3.3.5(react@18.2.0):
+    resolution: {integrity: sha512-o9G4F7uiJ+636Hxyh7iCnKNa9R3l2WKJQPoVj8c7knt7gzV7GlZECrgBsrs8swBTzhDbfNvzTwogjjRfkJW3aQ==}
     engines: {node: '>=8', npm: '>=5'}
     peerDependencies:
       react: '>= 16.8.3'
