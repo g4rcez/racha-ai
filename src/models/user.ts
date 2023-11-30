@@ -8,7 +8,7 @@ export class User extends Entity {
             ...Entity._schema,
             name: z.string().default("")
         })
-        .transform((user) => new User(user as any));
+        .transform((user) => new User(user));
     public name: string;
 
     public constructor(user?: DeepPartial<User>) {

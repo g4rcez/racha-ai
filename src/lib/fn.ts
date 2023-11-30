@@ -24,6 +24,7 @@ export const sanitize = (str: string) => str.trim().normalize("NFKD");
 
 export const parseFromSchema = <Z extends z.ZodDefault<z.ZodType>>(a: any, schema: Z) => {
     const result = schema.safeParse(a);
+    console.log(result);
     return result.success ? result.data : schema._def.defaultValue();
 };
 

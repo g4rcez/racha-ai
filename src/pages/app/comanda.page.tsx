@@ -1,4 +1,4 @@
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { z } from "zod";
 import { Button } from "~/components/button";
 import { Form } from "~/components/form/form";
@@ -14,7 +14,7 @@ import { useReducer } from "~/use-typed-reducer";
 
 const schema = z
     .object({
-        name: z.string().min(1),
+        name: z.string(),
         products: z.array(Product.schema).transform((list) => list.map((x) => new Product(x))),
         users: z.array(User.schema).transform((list) => list.map((x) => new User(x)))
     })
@@ -69,7 +69,7 @@ export default function ComandaPage() {
                     {friends.map((friend) => {
                         return (
                             <li key={friend.id}>
-                                <Form onSubmit={dispatch.addUser}>
+                                <Form onSubmit={dispatch.addUser} className="flex flex-nowrap gap-2 items-end">
                                     <Input
                                         autoFocus
                                         required
@@ -82,6 +82,10 @@ export default function ComandaPage() {
                                             dispatch.updateUser(clone);
                                         }}
                                     />
+                                    <Button
+                                        theme="danger"
+                                        icon={<Trash2Icon absoluteStrokeWidth strokeWidth={2} />}
+                                    ></Button>
                                 </Form>
                             </li>
                         );

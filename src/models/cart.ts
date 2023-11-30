@@ -1,7 +1,7 @@
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { User } from "~/models/user";
-import {DeepPartial} from "~/types";
+import { DeepPartial } from "~/types";
 
 export class Cart extends Entity {
     public name: string;
