@@ -3,7 +3,7 @@ import { createGlobalReducer } from "use-typed-reducer";
 import { z } from "zod";
 import { Button } from "~/components/button";
 import { useTranslations } from "~/i18n";
-import { deepMerge, parseFromSchema } from "~/lib/fn";
+import { deepMerge } from "~/lib/fn";
 import { Preferences } from "~/models/preferences";
 import { User } from "~/models/user";
 import { useFriends } from "~/store/friends.store";
@@ -31,17 +31,13 @@ const schemas = {
 
 type Versions = keyof typeof schemas;
 
-const versions = {
-    v1: (a: any) => parseFromSchema(a, schemas.v1)
-} satisfies Record<Versions, (a: any) => State>;
-
 const currentVersion: Versions = "v1";
 
 const currentSchema = schemas[currentVersion];
 
 type State = z.infer<typeof currentSchema>;
 
-const storage = createStorageMiddleware("preferences", currentVersion, versions);
+const storage = createStorageMiddleware("preferences", schemas, "v1");
 
 export const initialPreferences: State = storage.get();
 

@@ -10,6 +10,6 @@ export type NullToUndefined<T> = T extends null ? undefined : T;
 
 export type DeepPartial<T> = T extends object
     ? {
-          [P in keyof T]?: T[P] extends Date ? T[P] : DeepPartial<T[P]>;
+          [P in keyof T]?: T[P] extends Date ? T[P] : T[P] extends any[] ? T[P] | undefined : DeepPartial<T[P]>;
       }
     : T;

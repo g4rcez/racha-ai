@@ -1,19 +1,32 @@
 import { LocalStorage } from "storage-manager-js";
+import { z } from "zod";
+import { keys, parseFromSchema } from "~/lib/fn";
 
-type Parsers<State extends {}, V extends string> = {
-    [K in V]: (a: any) => State;
-} & {
-    [K in string]: (a: any) => State;
+type ZOD = z.ZodDefault<z.ZodType>;
+
+type Schemas = {
+    [K in string]: ZOD;
 };
 
-export const createStorageMiddleware = <State extends {}, V extends string = string>(
+type Parsers<State, P> = {
+    [K in keyof P]: (a: any) => State;
+};
+
+export const createStorageMiddleware = <State extends {}, P extends Schemas, V extends keyof P>(
     name: string,
-    version: V,
-    parsers: Parsers<State, V>
+    parsers: P,
+    version: V
 ) => {
-    const key = `@app/${name}-${version}`;
+    const key = `@app/${name}-${version as string}`;
+    const validationParsers = keys(parsers).reduce(
+        (acc, el) => ({
+            ...acc,
+            [el]: (a: any) => parseFromSchema(a, parsers[el])
+        }),
+        {} as Parsers<State, P>
+    );
     return {
-        get: () => parsers[version](LocalStorage.get(key)),
+        get: (): z.infer<P[V]> => validationParsers[version](LocalStorage.get(key)),
         middleware: <S>(state: S): S => {
             LocalStorage.set(key, state);
             return state;

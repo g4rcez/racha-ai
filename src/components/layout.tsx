@@ -3,6 +3,26 @@ import { useEffect } from "react";
 import { links } from "~/router";
 import { ThemeToggle } from "~/store/preferences.store";
 
+const App = () => {
+    return (
+        <div>
+            <header className="sticky top-0 mb-6 min-w-full bg-main-bg text-main shadow-lg">
+                <nav className="flex items-center justify-between p-4">
+                    <Link href={links.app}>
+                        <h1 className="text-lg font-medium tracking-wide">Divide Aí</h1>
+                    </Link>
+                    <div>
+                        <ThemeToggle />
+                    </div>
+                </nav>
+            </header>
+            <div className="px-4">
+                <Outlet />
+            </div>
+        </div>
+    );
+};
+
 export const Layout = () => {
     const path = useHref();
     const [_error, page] = useRouteError();
@@ -13,23 +33,6 @@ export const Layout = () => {
         }
     }, [page]);
     if (path === "/") return <Outlet />;
-    if (path.startsWith("/app"))
-        return (
-            <div>
-                <header className="sticky top-0 mb-6 min-w-full bg-main-bg text-main shadow-lg">
-                    <nav className="flex items-center justify-between p-4">
-                        <Link href={links.app}>
-                            <h1 className="text-lg font-medium tracking-wide">Divide Aí</h1>
-                        </Link>
-                        <div>
-                            <ThemeToggle />
-                        </div>
-                    </nav>
-                </header>
-                <div className="px-4">
-                    <Outlet />
-                </div>
-            </div>
-        );
+    if (path.startsWith("/app")) return <App />;
     return <Outlet />;
 };

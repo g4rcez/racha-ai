@@ -23,6 +23,7 @@ const native = createPolyglotNative("pt-BR", () => ({
     welcomeInputPlaceholder: "Meu nome",
     welcomeCustomizeTitle: "Customizar",
     yourself: "Você mesmo",
+    closeModal: (props: {title: string}) => `Fechar sessão de ${props.title}`,
     welcome: (props: { nickname: string }) => (
         <Fragment>
             Olá, <span className="text-main-bg">{props.nickname}</span>

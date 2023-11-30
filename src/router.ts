@@ -22,6 +22,13 @@ const router = createMappedRouter({
         data: {
             title: i18n.get("friendsPageTitle")
         }
+    },
+    comanda: {
+        path: "/app/comanda",
+        element: asyncComponent(() => import("~/pages/app/comanda.page")),
+        data: {
+            title: i18n.get("appPageTitle")
+        }
     }
 });
 

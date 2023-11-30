@@ -1,6 +1,6 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { z } from "zod";
-import {Is} from "~/lib/is";
+import { Is } from "~/lib/is";
 
 export const reduceObject = <T extends {}, V>(object: T, fn: <K extends keyof T>(k: K, value: T[K]) => V) =>
     Object.keys(object).reduce(
@@ -32,11 +32,11 @@ export const sortUuidList = <T, K extends keyof T>(list: T[], key: K, order: "as
     return order === "asc" ? sorted.reverse() : sorted;
 };
 
-const isObject = (object: any): object is object => Object.prototype.toString.call(object) === '[object Object]';
+const isObject = (object: any): object is object => Object.prototype.toString.call(object) === "[object Object]";
 
 export const deepMerge = <T extends object>(defaults: T, settings: T) => {
     Object.keys(defaults).forEach(function (key_default) {
-        const value = (settings as any)[key_default]
+        const value = (settings as any)[key_default];
         if (Is.undefined(value)) {
             (settings as any)[key_default] = value;
         } else if (isObject(value) && isObject(value)) {
@@ -45,3 +45,14 @@ export const deepMerge = <T extends object>(defaults: T, settings: T) => {
     });
     return settings;
 };
+
+export const fromMoneyToNumber = (n: string) => {
+    return Number(
+        n
+            .replace(/,/g, ".")
+            .replace(/(.*)\./g, (x) => `${x.replace(/\./g, "")}.`)
+            .replace(/[^0-9.]/g, "")
+    );
+};
+
+export const keys: <O>(o: O) => Array<keyof O> = Object.keys;
