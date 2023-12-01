@@ -1,112 +1,102 @@
-import { MoonIcon, SunIcon } from "lucide-react";
-import { createGlobalReducer } from "use-typed-reducer";
-import { z } from "zod";
+import { ChangeEvent } from "react";
+import { any, boolean, literal, object, record, string, union } from "valibot";
 import { Button } from "~/components/button";
-import { useTranslations } from "~/i18n";
-import { deepMerge } from "~/lib/fn";
-import { Preferences } from "~/models/preferences";
-import { User } from "~/models/user";
-import { useFriends } from "~/store/friends.store";
-import { createStorageMiddleware } from "~/store/middleware";
+import { uuid } from "~/lib/fn";
+import { Entity } from "~/models/entity";
 import DarkTheme from "~/styles/dark.json";
+import D from "~/styles/default.json";
 import DefaultTheme from "~/styles/default.json";
-import { changeTheme, createCssVariables } from "~/styles/setup";
-import { ThemeConfig } from "~/styles/styles.type";
+import { changeTheme, createCssVariables, CssVariables, overwriteConfig } from "~/styles/setup";
 import { DeepPartial } from "~/types";
+
+type DefaultTheme = typeof D;
 
 export type ColorThemes = "light" | "dark";
 
-const schemas = {
-    v1: z
-        .object({
-            id: z.string().uuid(),
-            devMode: z.boolean(),
-            nickname: z.string().min(1),
-            colors: z.record(z.any()),
-            theme: z.literal("dark").or(z.literal("light"))
-        })
-        .transform((x) => new Preferences(x))
-        .default(new Preferences())
+type State = {
+    id: string;
+    devMode: boolean;
+    name: string;
+    colors: Record<string, any>;
+    theme: ColorThemes;
 };
 
-type Versions = keyof typeof schemas;
+const schemas = {
+    v1: Entity.validator(
+        object({
+            id: string(uuid()),
+            devMode: boolean(),
+            name: string(),
+            colors: record(any()),
+            theme: union([literal("light"), literal("dark")])
+        })
+    )
+};
 
-const currentVersion: Versions = "v1";
+const getPreferMode = (): ColorThemes => (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 
-const currentSchema = schemas[currentVersion];
+const assignFlatTokens = (flat: CssVariables) => overwriteConfig(document.documentElement, flat);
 
-type State = z.infer<typeof currentSchema>;
+const setMode = (colorTheme: ColorThemes) => {
+    if (colorTheme === "dark") {
+        document.documentElement.classList.add("dark");
+        changeTheme(DarkTheme, "dark");
+    } else {
+        document.documentElement.classList.remove("dark");
+        changeTheme(DefaultTheme, "light");
+    }
+};
 
-const storage = createStorageMiddleware("preferences", schemas, "v1");
+const setup = (state?: DeepPartial<State>) => {
+    const colorTheme = state?.theme ?? Preferences.getPreferMode();
+    Preferences.setMode(colorTheme);
+    if (state?.colors) {
+        overwriteConfig(document.documentElement, createCssVariables(state.colors));
+    }
+};
 
-export const initialPreferences: State = storage.get();
-
-const friends = useFriends.dispatchers;
-
-export const usePreferences = createGlobalReducer(
-    initialPreferences,
-    (get) => ({
-        devMode: (developerMode: boolean) => {
-            const state = get.state();
-            state.devMode = developerMode;
-            return state;
-        },
-        user: (user: User) => {
-            const state = get.state();
-            state.nickname = user.name;
-            friends.upsert(user);
-            return state;
-        },
-        nickname: (nickname: string) => {
-            const state = get.state();
-            state.nickname = nickname;
-            const user = state.user;
-            user.name = nickname;
-            friends.upsert(user);
-            return state;
-        },
-        colors: (colors: DeepPartial<ThemeConfig["colors"]>) => {
-            const merge = deepMerge(get.state().colors, colors);
-            Preferences.assignFlatTokens(createCssVariables(merge));
-            const state = get.state();
-            state.colors = colors;
-            return state;
-        },
-        toggle: () => {
-            const theme = get.state().theme === "light" ? "dark" : "light";
-            if (theme === "dark") {
-                document.documentElement.classList.add("dark");
-                changeTheme(DarkTheme, "dark");
-            } else {
-                document.documentElement.classList.remove("dark");
-                changeTheme(DefaultTheme, "light");
+export const Preferences = Entity.create(
+    { name: "preferences", schemas, version: "v1" },
+    () =>
+        ({
+            id: uuid(),
+            colors: {},
+            devMode: false,
+            theme: "light",
+            name: "Eu"
+        }) as State,
+    (get) => {
+        const merge = (s: Partial<State>) => ({ ...get.state(), ...s });
+        return {
+            set: merge,
+            colors: (colors: DeepPartial<DefaultTheme["colors"]>) => merge({ colors }),
+            onChange: (e: ChangeEvent<HTMLInputElement>) => {
+                const name = e.target.name;
+                const value = e.target.value;
+                const type = e.target.type;
+                if (type === "checkbox") {
+                    const checked = e.target.checked;
+                    return merge({ [name]: checked });
+                }
+                return merge({ [name]: value });
+            },
+            toggle: () => {
+                const theme = get.state().theme === "light" ? "dark" : "light";
+                if (theme === "dark") {
+                    document.documentElement.classList.add("dark");
+                    changeTheme(DarkTheme, "dark");
+                } else {
+                    document.documentElement.classList.remove("dark");
+                    changeTheme(DefaultTheme, "light");
+                }
+                return merge({ theme });
             }
-            const state = get.state();
-            state.theme = theme;
-            return state;
-        }
-    }),
-    undefined,
-    [storage.middleware]
+        };
+    },
+    { setMode, getPreferMode, assignFlatTokens, setup }
 );
 
 export const ThemeToggle = () => {
-    const [state, dispatch] = usePreferences();
-    const i18n = useTranslations();
-    const message = i18n.get("darkModeToggleButton", state);
-    return (
-        <Button
-            aria-label={message}
-            title={message}
-            theme="transparent"
-            className="capitalize"
-            onClick={dispatch.toggle}
-        >
-            {state.theme === "dark" ? (
-                <SunIcon absoluteStrokeWidth strokeWidth={2} size={24} />
-            ) : (
-                <MoonIcon absoluteStrokeWidth strokeWidth={2} size={24} />
-            )}
-        </Button>
-    );
+    const [state, dispatch] = Preferences.use();
+    return <Button onClick={dispatch.toggle}>{state.theme}</Button>;
 };

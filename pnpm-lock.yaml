@@ -59,6 +59,9 @@ dependencies:
   use-typed-reducer:
     specifier: 3.3.5
     version: 3.3.5(react@18.2.0)
+  valibot:
+    specifier: 0.21.0
+    version: 0.21.0
   zod:
     specifier: 3.22.4
     version: 3.22.4
@@ -4537,6 +4540,10 @@ packages:
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
     dev: true
+
+  /valibot@0.21.0:
+    resolution: {integrity: sha512-XnzpX93b1vQL7CB3fHlhpLg7OutYpc3ke8SKOvp7IXgicRfTdP/w8+bf0DjhVsySq6YdF4Opld05mj6bTobo9g==}
+    dev: false
 
   /vite-plugin-pwa@0.17.2(vite@5.0.0)(workbox-build@7.0.0)(workbox-window@7.0.0):
     resolution: {integrity: sha512-aVH9sxcTDumiWYiNcLrFqu+FdL79I2cT5EhlVe5V6nGcC64yQNGT1jamMytwi+OdfXl4VYic0LtoJ6JHMkM3ZQ==}

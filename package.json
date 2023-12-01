@@ -28,7 +28,7 @@
         "the-mask-input": "3.3.3",
         "use-sync-external-store": "1.2.0",
         "use-typed-reducer": "3.3.5",
-        "zod": "3.22.4"
+        "valibot": "0.21.0"
     },
     "devDependencies": {
         "@tailwindcss/container-queries": "0.1.1",

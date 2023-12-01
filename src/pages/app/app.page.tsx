@@ -10,11 +10,11 @@ import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { hexToHslProperty } from "~/lib/dom";
 import { links } from "~/router";
-import { usePreferences } from "~/store/preferences.store";
+import { Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
 
 const Customize = () => {
-    const [state, dispatch] = usePreferences();
+    const [state, dispatch] = Preferences.use();
     const i18n = useTranslations();
     const [hide, setHide] = useState(true);
     const changeFromRGB = (rgb: string) => {
@@ -76,21 +76,23 @@ const Customize = () => {
 };
 
 export default function AppPage() {
-    const [state, dispatch] = usePreferences();
+    const [state, dispatch] = Preferences.use();
     const i18n = useTranslations();
+    console.log(state);
 
     return (
         <main className="flex flex-col gap-6">
             <Title>{i18n.get("welcome", state)}</Title>
             <Form className="flex flex-col gap-4">
                 <Input
-                    onChange={(e) => dispatch.nickname(e.target.value)}
+                    name="name"
+                    onChange={dispatch.onChange}
                     placeholder={i18n.get("welcomeInputPlaceholder")}
                     required
                     title={i18n.get("welcomeInputTitle")}
-                    value={state.nickname}
+                    value={state.name}
                 />
-                <Checkbox checked={state.devMode} onChange={(e) => dispatch.devMode(e.target.checked)}>
+                <Checkbox name="devMode" checked={state.devMode} onChange={dispatch.onChange}>
                     {i18n.get("devMode")}
                 </Checkbox>
             </Form>

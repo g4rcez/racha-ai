@@ -100,7 +100,7 @@ type MappedReducers<State extends {}, Fns extends FnMap<State>> = {
 
 type MapReducerReturn<State extends {}, Fns extends FnMap<State>> = { [F in keyof Fns]: VoidFn<Fns[F]> };
 
-type UseReducerReduce<State extends object, Props extends object> = (
+export type ReducerActions<State extends object, Props extends object> = (
     args: ReducerArgs<State, Props>
 ) => MappedReducers<State, FnMap<State>>;
 
@@ -108,7 +108,7 @@ type UseReducer<
     Selector,
     State extends {},
     Props extends {},
-    Reducers extends UseReducerReduce<State, Props>
+    Reducers extends ReducerActions<State, Props>
 > = readonly [state: Selector, dispatchers: MapReducerReturn<State, ReturnType<Reducers>>];
 
 type ReducerMiddleware<
@@ -168,7 +168,7 @@ const reduce = <State extends {}, Middlewares extends Array<(state: State, key: 
 
 export const useReducer = <
     State extends {},
-    Reducers extends UseReducerReduce<State, Props>,
+    Reducers extends ReducerActions<State, Props>,
     Props extends object,
     Middlewares extends ReducerMiddleware<State, Props, Reducers>
 >(
@@ -214,7 +214,7 @@ export const createReducer =
 
 export const createGlobalReducer = <
     State extends {},
-    Reducers extends UseReducerReduce<State, Props>,
+    Reducers extends ReducerActions<State, Props>,
     Props extends object,
     Middlewares extends ReducerMiddleware<State, Props, Reducers>
 >(

@@ -3,9 +3,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import { Layout } from "~/components/layout";
-import { Preferences } from "~/models/preferences";
 import { routerConfig } from "~/router";
-import { initialPreferences } from "~/store/preferences.store";
+import { Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
 import "~/styles/index.css";
 import { setupTheme } from "~/styles/setup";
@@ -25,6 +24,7 @@ async function start() {
     const html = document.documentElement;
     const head = html.querySelector("head")!;
     setupTheme(head, DefaultTheme, DefaultTheme.name as any);
+    const initialPreferences = Preferences.initialState();
     Preferences.setup(initialPreferences);
     return document.getElementById("root")!;
 }

@@ -6,13 +6,11 @@ import { Input } from "~/components/form/input";
 import { useTranslations } from "~/i18n";
 import { getHtmlInput } from "~/lib/dom";
 import { sanitize, sortUuidList } from "~/lib/fn";
-import { User } from "~/models/user";
-import { useFriends } from "~/store/friends.store";
-import { usePreferences } from "~/store/preferences.store";
+import { Friends, User } from "~/store/friends.store";
+import { Preferences } from "~/store/preferences.store";
 
 type EditUserProps = {
     user: User;
-    onChangeYourself: (user: User) => void;
     onChangeUser: (user: User) => void;
     onDeleteUser: (user: User) => void;
     ownerId: string;
@@ -24,10 +22,7 @@ const EditUser = (props: EditUserProps) => {
     const onReset = () => props.onDeleteUser(props.user);
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const name = getHtmlInput(e.currentTarget.form!, "user").value;
-        const clone = props.user.clone();
-        clone.name = name;
-        const fn = isOwner ? props.onChangeYourself : props.onChangeUser;
-        fn(clone);
+        props.onChangeUser({ ...props.user, name });
     };
 
     return (
@@ -52,16 +47,16 @@ const EditUser = (props: EditUserProps) => {
 
 export default function FriendsPage() {
     const i18n = useTranslations();
-    const [state, dispatchers] = useFriends();
-    const [preferences, dispatch] = usePreferences();
+    const [state, dispatch] = Friends.use();
+    const [preferences, _dispatch] = Preferences.use();
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         const form = e.currentTarget;
         const input = getHtmlInput(form, "user");
         const name = sanitize(input.value);
         if (name === "") return;
-        const hasUserName = User.hasUser(name, state.users);
+        const hasUserName = Friends.hasUser(name, state.users);
         if (!hasUserName) {
-            dispatchers.new(User.new(name));
+            dispatch.new(Friends.new(name));
             input.focus();
             return form.reset();
         }
@@ -88,11 +83,10 @@ export default function FriendsPage() {
                 </li>
                 {users.map((user) => (
                     <EditUser
-                        onChangeYourself={dispatch.user}
                         ownerId={preferences.id}
                         key={user.id}
-                        onChangeUser={dispatchers.update}
-                        onDeleteUser={dispatchers.delete}
+                        onChangeUser={dispatch.update}
+                        onDeleteUser={dispatch.delete}
                         user={user}
                     />
                 ))}

@@ -1,29 +1,26 @@
-import { createGlobalReducer } from "use-typed-reducer";
-import { z } from "zod";
-import { User } from "~/models/user";
-import { createStorageMiddleware } from "~/store/middleware";
+import { uuidv7 } from "@kripod/uuidv7";
+import { array, coerce, date, object, string, union, uuid } from "valibot";
+import { Entity } from "~/models/entity";
+
+const dateCoerce = coerce(date(), (i) => new Date(i as any));
+
+const user = object({
+    name: string(),
+    id: string([uuid()]),
+    createdAt: union([date(), dateCoerce])
+});
 
 const schemas = {
-    v1: z
-        .object({ users: z.array(User.schema) })
-        .transform((list) => ({ users: list.users.map((x) => new User(x as never as User)) }))
-        .default({ users: [] })
+    v1: Entity.validator(object({ users: array(user) }))
 };
 
-type Versions = keyof typeof schemas;
+export type User = { id: string; name: string; createdAt: Date };
 
-const currentVersion: Versions = "v1";
+type State = { users: User[] };
 
-const currentSchema = schemas[currentVersion];
-
-type State = z.infer<typeof currentSchema>;
-
-const storage = createStorageMiddleware("friends", schemas, "v1");
-
-const state: State = storage.get();
-
-export const useFriends = createGlobalReducer(
-    state,
+export const Friends = Entity.create(
+    { name: "friends", schemas, version: "v1" },
+    () => ({ users: [] }) as State,
     (get) => ({
         upsert: (user: User) => {
             const list = get.state().users;
@@ -34,9 +31,11 @@ export const useFriends = createGlobalReducer(
             return { users: Array.from(list) };
         },
         new: (user: User) => ({ users: [...get.state().users, user] }),
-        update: (user: User) => ({ users: get.state().users.map((x) => (x.id === user.id ? user.clone() : x)) }),
+        update: (user: User) => ({ users: get.state().users.map((x) => (x.id === user.id ? user : x)) }),
         delete: (user: User) => ({ users: get.state().users.filter((x) => x.id !== user.id) })
     }),
-    undefined,
-    [storage.middleware]
+    {
+        new: (name: string = ""): User => ({ id: uuidv7(), createdAt: new Date(), name }),
+        hasUser: (user: string, users: User[]) => users.some((x) => x.name === user)
+    }
 );
