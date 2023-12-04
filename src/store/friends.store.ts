@@ -20,7 +20,7 @@ type State = { users: User[] };
 
 export const Friends = Entity.create(
     { name: "friends", schemas, version: "v1" },
-    () => ({ users: [] }) as State,
+    (store?: State) => ({ users: store?.users ?? [] }) as State,
     (get) => ({
         upsert: (user: User) => {
             const list = get.state().users;
@@ -35,6 +35,7 @@ export const Friends = Entity.create(
         delete: (user: User) => ({ users: get.state().users.filter((x) => x.id !== user.id) })
     }),
     {
+        schema: user,
         new: (name: string = ""): User => ({ id: uuidv7(), createdAt: new Date(), name }),
         hasUser: (user: string, users: User[]) => users.some((x) => x.name === user)
     }

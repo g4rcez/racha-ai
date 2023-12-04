@@ -4,23 +4,32 @@ import { createGlobalReducer, ReducerActions } from "~/use-typed-reducer";
 
 export namespace Entity {
     type Metadata = { id: string; createdAt: Date };
+
+    export type New<T extends object> = T & Metadata;
+
     export const validator =
         (validator: ObjectSchema<any>) =>
         <State>(data: any, defaultData: (storage: any) => State): State => {
             const result = safeParse(validator, data);
-            console.log(result);
-            return result.success ? (result.output as State) : defaultData(data);
+            return result.success ? defaultData(result.output as State) : defaultData(data);
         };
 
     type ValidatorsSchema = {
         [K in `v${number}`]: ReturnType<typeof validator>;
     };
 
+    export const createStorageMiddleware = <State>(key: string) => [
+        (state: State) => {
+            LocalStorage.set(key, state);
+            return state;
+        }
+    ];
+
     export const create = <
         const Info extends { name: string; schemas: ValidatorsSchema; version: keyof Info["schemas"] },
         Getter extends (storage?: any) => any,
         Reducer extends ReducerActions<ReturnType<Getter>, {}>,
-        Actions extends { [k in string]: (...a: any[]) => any }
+        Actions extends { [k in string]: any }
     >(
         info: Info,
         getState: Getter,
@@ -34,17 +43,19 @@ export namespace Entity {
             const storageData = LocalStorage.get(storageKey);
             return schema<State>(storageData, getState) as State;
         };
-        const middleware = [
-            (state: State) => {
-                LocalStorage.set(storageKey, state);
-                return state;
-            }
-        ];
+        const setStore = (state: State) => LocalStorage.set(storageKey, state);
+
+        const middleware = createStorageMiddleware<State>(storageKey);
+
         const useStore = createGlobalReducer(getInitialState(), reducer, undefined, middleware);
-        const use = () => useStore();
-
+        const use = <Selector extends (s: State) => any>(selector?: Selector) => useStore(selector);
+        const setup = () => {
+            const storageData = LocalStorage.get(storageKey);
+            if (storageData) return;
+            setStore(getState());
+        };
         type FullState = State & Metadata;
-
+        setup();
         return {
             ...actions,
             use,

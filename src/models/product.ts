@@ -1,29 +1,28 @@
-import { z } from "zod";
+import { uuidv7 } from "@kripod/uuidv7";
+import { integer, number, object, string } from "valibot";
 import { Entity } from "~/models/entity";
-import { DeepPartial } from "~/types";
 
-export class Product extends Entity {
-    public static schema = z
-        .object({
-            ...Entity._schema,
-            name: z.string(),
-            price: z.number(),
-            quantity: z.number().int()
-        })
-        .transform((x) => new Product(x as never))
-        .default(new Product());
-    public name: string;
-    public price: number;
-    public quantity: number;
+export type Product = Entity.New<{
+    name: string;
+    price: number;
+    monetary: string;
+    quantity: number;
+}>;
 
-    public constructor(product?: DeepPartial<Product>) {
-        super(product);
-        this.name = product?.name ?? "";
-        this.price = product?.price ?? 0;
-        this.quantity = product?.quantity ?? 1;
-    }
+export namespace Product {
+    export const schema = object({
+        name: string(),
+        price: number(),
+        monetary: string(),
+        quantity: number([integer()])
+    });
 
-    clone(): Product {
-        return new Product(this);
-    }
+    export const create = (): Product => ({
+        createdAt: new Date(),
+        id: uuidv7(),
+        name: "",
+        price: 0,
+        monetary: "",
+        quantity: 1
+    });
 }

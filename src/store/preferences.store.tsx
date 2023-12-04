@@ -1,8 +1,12 @@
+import { uuidv7 } from "@kripod/uuidv7";
+import { MoonIcon, SunIcon } from "lucide-react";
 import { ChangeEvent } from "react";
 import { any, boolean, literal, object, record, string, union } from "valibot";
 import { Button } from "~/components/button";
+import { useTranslations } from "~/i18n";
 import { uuid } from "~/lib/fn";
 import { Entity } from "~/models/entity";
+import { Friends, User } from "~/store/friends.store";
 import DarkTheme from "~/styles/dark.json";
 import D from "~/styles/default.json";
 import DefaultTheme from "~/styles/default.json";
@@ -14,11 +18,12 @@ type DefaultTheme = typeof D;
 export type ColorThemes = "light" | "dark";
 
 type State = {
-    id: string;
-    devMode: boolean;
-    name: string;
     colors: Record<string, any>;
+    devMode: boolean;
+    id: string;
+    name: string;
     theme: ColorThemes;
+    user: User;
 };
 
 const schemas = {
@@ -28,7 +33,8 @@ const schemas = {
             devMode: boolean(),
             name: string(),
             colors: record(any()),
-            theme: union([literal("light"), literal("dark")])
+            theme: union([literal("light"), literal("dark")]),
+            user: Friends.schema
         })
     )
 };
@@ -57,19 +63,31 @@ const setup = (state?: DeepPartial<State>) => {
 
 export const Preferences = Entity.create(
     { name: "preferences", schemas, version: "v1" },
-    () =>
-        ({
-            id: uuid(),
-            colors: {},
-            devMode: false,
-            theme: "light",
-            name: "Eu"
-        }) as State,
+    (storage?: Partial<State>) => {
+        const id = uuidv7();
+        return {
+            id: storage?.id ?? id,
+            colors: storage?.colors ?? {},
+            devMode: storage?.devMode ?? false,
+            theme: storage?.theme ?? "light",
+            name: storage?.name ?? "Eu",
+            user: storage?.user ?? ({ id, createdAt: new Date(), name: "Eu" } as User)
+        } as State;
+    },
     (get) => {
         const merge = (s: Partial<State>) => ({ ...get.state(), ...s });
         return {
             set: merge,
-            colors: (colors: DeepPartial<DefaultTheme["colors"]>) => merge({ colors }),
+            colors: (colors: DeepPartial<DefaultTheme["colors"]>) => {
+                if (colors) {
+                    overwriteConfig(document.documentElement, createCssVariables(colors));
+                }
+                return merge({ colors });
+            },
+            onChangeName: (e: ChangeEvent<HTMLInputElement>) => {
+                const name = e.target.value;
+                return merge({ name, user: { ...get.state().user, name } });
+            },
             onChange: (e: ChangeEvent<HTMLInputElement>) => {
                 const name = e.target.name;
                 const value = e.target.value;
@@ -97,6 +115,13 @@ export const Preferences = Entity.create(
 );
 
 export const ThemeToggle = () => {
+    const i18n = useTranslations();
     const [state, dispatch] = Preferences.use();
-    return <Button onClick={dispatch.toggle}>{state.theme}</Button>;
+    const isLight = state.theme === "light";
+
+    return (
+        <Button aria-label={i18n.get("darkModeToggleButton", state)} onClick={dispatch.toggle}>
+            {isLight ? <MoonIcon /> : <SunIcon />}
+        </Button>
+    );
 };

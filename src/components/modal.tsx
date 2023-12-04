@@ -9,16 +9,18 @@ type Props = {
     trigger: Label;
     title: string;
     description?: Label;
+    visible?: boolean;
+    onChange?: (visible: boolean) => void;
 };
 
 export const Modal = (props: PropsWithChildren<Props>) => {
     const i18n = useTranslations();
     return (
-        <Dialog.Root>
+        <Dialog.Root open={props.visible} onOpenChange={props.onChange}>
             <Dialog.Trigger asChild>{props.trigger}</Dialog.Trigger>
-            <Dialog.Portal>
-                <Dialog.Overlay className="data-[state=open]:animate-overlayShow fixed inset-0 bg-black/80" />
-                <Dialog.Content className="data-[state=open]:animate-contentShow fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded bg-body-bg px-6 py-8 shadow-2xl focus:outline-none">
+            <Dialog.Portal forceMount={props.visible || undefined}>
+                <Dialog.Overlay className="fixed inset-0 bg-black/80 data-[state=open]:animate-overlayShow" />
+                <Dialog.Content className="fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded bg-body-bg px-6 py-8 shadow-2xl focus:outline-none data-[state=open]:animate-contentShow">
                     <Dialog.Title asChild>
                         <Title>{props.title}</Title>
                     </Dialog.Title>

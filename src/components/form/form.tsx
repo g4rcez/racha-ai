@@ -1,16 +1,17 @@
 import { parse } from "qs";
-import React from "react";
+import React, { forwardRef } from "react";
 import { NullToUndefined } from "~/types";
 
-export const Form = (props: React.ComponentProps<"form">) => (
+export const Form = forwardRef((props: React.ComponentProps<"form">, ref: React.LegacyRef<HTMLFormElement>) => (
     <form
         {...props}
+        ref={ref}
         onSubmit={(e) => {
             e.preventDefault();
             props.onSubmit?.(e);
         }}
     />
-);
+));
 
 type Recursive<T, Key extends keyof T> = Key extends string
     ? T[Key] extends Date

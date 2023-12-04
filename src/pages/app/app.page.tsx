@@ -78,7 +78,6 @@ const Customize = () => {
 export default function AppPage() {
     const [state, dispatch] = Preferences.use();
     const i18n = useTranslations();
-    console.log(state);
 
     return (
         <main className="flex flex-col gap-6">
@@ -86,7 +85,7 @@ export default function AppPage() {
             <Form className="flex flex-col gap-4">
                 <Input
                     name="name"
-                    onChange={dispatch.onChange}
+                    onChange={dispatch.onChangeName}
                     placeholder={i18n.get("welcomeInputPlaceholder")}
                     required
                     title={i18n.get("welcomeInputTitle")}
@@ -96,19 +95,17 @@ export default function AppPage() {
                     {i18n.get("devMode")}
                 </Checkbox>
             </Form>
-            <section className="grid grid-cols-2 gap-6">
+            <section className="my-4 grid grid-cols-2 gap-6">
                 <Button
                     href={links.friends}
                     as={Link}
-                    className="my-4"
                     icon={<PlusIcon absoluteStrokeWidth strokeWidth={2} size={16} />}
                 >
                     Adicionar amigos
                 </Button>
                 <Button
-                    href={links.friends}
+                    href={links.comanda}
                     as={Link}
-                    className="my-4"
                     icon={<UserCircle2 absoluteStrokeWidth strokeWidth={1} size={16} />}
                 >
                     Nova comanda

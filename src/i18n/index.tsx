@@ -17,7 +17,7 @@ const native = createPolyglotNative("pt-BR", () => ({
     addFriend: "Adicionar novo amigo",
     friendsPageTitle: "Sessão de amigos",
     appPageTitle: "Bem vindo ao Divide aí",
-    devMode: "Habilitar modo de avançado?",
+    devMode: "Habilitar modo avançado?",
     landingPageTitle: "Bem vindo ao Divide aí",
     welcomeInputTitle: "Como devo te chamar?",
     welcomeInputPlaceholder: "Meu nome",
