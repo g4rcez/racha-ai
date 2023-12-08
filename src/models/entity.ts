@@ -18,11 +18,19 @@ export namespace Entity {
         [K in `v${number}`]: ReturnType<typeof validator>;
     };
 
-    export const createStorageMiddleware = <State>(key: string) => [
+    type Middleware<T> = (state: T) => T
+
+    export const createStorageMiddleware = <State>(key: string): Middleware<State>[] => [
         (state: State) => {
             LocalStorage.set(key, state);
             return state;
-        }
+        },
+        // (state: State) => {
+        //     console.group(key);
+        //     console.log(state);
+        //     console.groupEnd();
+        //     return state;
+        // }
     ];
 
     export const create = <

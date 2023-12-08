@@ -4,14 +4,16 @@ import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { Modal } from "~/components/modal";
 import { Dict } from "~/lib/dict";
+import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
-import { Cart, CartProduct } from "~/store/cart.store";
+import { Cart, CartProduct, CartUser } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
 
 type Props = {
-    product: CartProduct | null;
     onAddProduct: (product: CartProduct) => void;
+    onChangeConsumedQuantity: (user: CartUser, product: CartProduct, quantity: number) => void;
     onChangeProduct: (product: CartProduct) => void;
+    product: CartProduct | null;
     users: Dict<string, User>;
 };
 
@@ -28,10 +30,7 @@ export const AnnotateProduct = (props: Props) => {
     }, [props.product]);
 
     const onChangeVisible = (b: boolean) => {
-        if (product?.name === "") {
-            form.current?.reportValidity();
-            return;
-        }
+        if (product?.name === "") return void form.current?.reportValidity();
         setVisible(b);
     };
 
@@ -110,13 +109,21 @@ export const AnnotateProduct = (props: Props) => {
                                 index === props.users.size - 1
                                     ? product.quantity - average * (props.users.size - 1)
                                     : average;
+                            const consumer = product.consumers.get(user.id)!;
                             return (
                                 <li className="flex flex-nowrap gap-2" key={`cart-user-${user.id}`}>
                                     {user.name}
                                     <input
+                                        type="number"
                                         data-id={user.id}
-                                        value={suggestion}
-                                        onChange={console.log}
+                                        min={0}
+                                        step={1}
+                                        value={consumer.quantity || suggestion}
+                                        onChange={(event) => {
+                                            if (Is.null(props.product)) return;
+                                            const number = event.target.valueAsNumber;
+                                            props.onChangeConsumedQuantity(consumer, props.product, number);
+                                        }}
                                         className="w-[5ch] border-b border-muted-input bg-transparent text-center"
                                     />
                                 </li>

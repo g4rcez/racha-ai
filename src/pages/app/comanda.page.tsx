@@ -42,15 +42,16 @@ export default function ComandaPage() {
                     Anote aqui todos os produtos e seus consumidores
                 </SectionTitle>
                 <AnnotateProduct
-                    product={state.currentProduct}
                     onAddProduct={dispatch.addProduct}
+                    onChangeConsumedQuantity={dispatch.onChangeConsumedQuantity}
                     onChangeProduct={dispatch.onChangeProduct}
+                    product={state.currentProduct}
                     users={state.users}
                 />
                 <ul className="space-y-4">
                     {state.products.map((product) => (
                         <li className="flex flex-col items-center justify-between" key={`product-${product.id}`}>
-                            <span className="flex items-center w-full justify-between">
+                            <span className="flex w-full items-center justify-between">
                                 <button
                                     onClick={() => dispatch.setCurrent(product)}
                                     className="flex w-full items-center justify-between"
@@ -58,7 +59,7 @@ export default function ComandaPage() {
                                     <div className="text-left">
                                         <span className="text-xl">{product.name || "-"}</span>
                                         <span className="flex gap-2 text-lg">
-                                            <span>{product.monetary}</span>
+                                            <span>{i18n.format.money(product.price)}</span>
                                             <span>{"*"}</span>
                                             <span>{product.quantity}</span>
                                             <span>{"="}</span>
@@ -70,10 +71,15 @@ export default function ComandaPage() {
                                     <Trash2Icon />
                                 </Button>
                             </span>
-                            <ul className="w-full mt-2 space-y-1">
-                                {product.consumers.map((consumer) => (
-                                    <li key={`consumer-item-${consumer.id}`}>{consumer.name} - {consumer.products} - {consumer.amount}</li>
-                                ))}
+                            <ul className="mt-2 w-full space-y-1">
+                                {product.consumers.map((consumer) => {
+                                    console.log(consumer)
+                                    return (
+                                        <li key={`consumer-item-${consumer.id}`}>
+                                            {consumer.name} - {consumer.quantity} - {i18n.format.money(consumer.amount)}
+                                        </li>
+                                    )
+                                })}
                             </ul>
                         </li>
                     ))}
