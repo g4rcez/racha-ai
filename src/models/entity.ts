@@ -25,12 +25,6 @@ export namespace Entity {
             LocalStorage.set(key, state);
             return state;
         },
-        // (state: State) => {
-        //     console.group(key);
-        //     console.log(state);
-        //     console.groupEnd();
-        //     return state;
-        // }
     ];
 
     export const create = <
@@ -67,6 +61,8 @@ export namespace Entity {
         return {
             ...actions,
             use,
+            getState,
+            clearStorage: () => LocalStorage.delete(storageKey),
             action: useStore.dispatchers,
             __state: undefined as unknown as FullState,
             initialState: getInitialState

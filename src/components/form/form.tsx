@@ -2,6 +2,11 @@ import { parse } from "qs";
 import React, { forwardRef } from "react";
 import { NullToUndefined } from "~/types";
 
+export type FormError = {
+    path: string;
+    message: string;
+}
+
 export const Form = forwardRef((props: React.ComponentProps<"form">, ref: React.LegacyRef<HTMLFormElement>) => (
     <form
         {...props}

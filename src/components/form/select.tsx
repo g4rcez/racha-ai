@@ -24,13 +24,12 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                 <select
                     {...props}
                     ref={mergeRefs(ref, inputRef)}
-                    defaultValue=""
+                    id={id}
+                    name={id}
                     className={css(
                         "input select group h-10 w-full flex-1 rounded-md p-2 placeholder-input-mask outline-none transition-colors group-error:text-danger group-error:placeholder-danger-mask",
                         props.className
                     )}
-                    id={id}
-                    name={id}
                 >
                     {options.map((option) => (
                         <option key={`${id}-select-option-${option.value}`} {...option} />

@@ -1,9 +1,14 @@
+import { uuidv7 } from "@kripod/uuidv7";
 import { ChangeEvent } from "react";
-import { array, integer, null_, number, object, string, union } from "valibot";
+import { array, boolean, integer, null_, number, object, safeParse, string, union, uuid } from "valibot";
+import { FormError } from "~/components/form/form";
 import { Dict } from "~/lib/dict";
+import { Either } from "~/lib/either";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { Friends, User } from "~/store/friends.store";
+import { History } from "~/store/history.store";
+import { ParseToRaw } from "~/types";
 
 export type CartUser = User & { amount: number; quantity: number };
 
@@ -23,51 +28,61 @@ const product = object({
 const schemas = {
     v1: Entity.validator(
         object({
-            title: string(),
-            users: array(Friends.schema),
+            additional: string(),
+            couvert: string(),
             currentProduct: union([product, null_()]),
+            hasAdditional: boolean(),
+            hasCouvert: boolean(),
+            id: string([uuid()]),
             products: array(product),
-            waiterTax: union([number(), null_()]),
-            couvertTax: union([number(), null_()])
+            title: string(),
+            type: string(),
+            users: array(Friends.schema)
         })
     )
 };
 
-type State = {
+export type CartState = {
+    id: string;
     title: string;
     users: Dict<string, User>;
+    hasAdditional: boolean;
+    additional: string;
+    hasCouvert: boolean;
+    couvert: string;
     currentProduct: CartProduct | null;
     products: Dict<string, CartProduct>;
     type: "equals" | "percent" | "perConsume" | "absolute";
-    waiterTax: number | null;
-    couvertTax: number | null;
 };
 
 export const Cart = Entity.create(
     { name: "cart", version: "v1", schemas },
-    (storage?: any): State => ({
-        title: "Meu bar",
+    (storage?: ParseToRaw<CartState>): CartState => ({
+        id: storage?.id ?? uuidv7(),
+        title: storage?.title ?? "Meu bar",
+        hasAdditional: storage?.hasAdditional ?? true,
+        additional: storage?.additional ?? "10",
+        hasCouvert: storage?.hasCouvert ?? false,
+        couvert: storage?.couvert ?? "R$ 10,00",
         currentProduct: null,
         type: storage?.type ?? "perConsume",
-        waiterTax: storage?.waiterTax ?? null,
-        couvertTax: storage?.couvertTax ?? null,
         users: new Dict<string, User>(storage?.users.map((x: User) => [x.id, x])),
         products: new Dict<string, CartProduct>(
-            storage?.products.map((product: CartProduct) => [
+            storage?.products.map((product) => [
                 product.id,
                 {
                     ...product,
-                    consumers: new Dict((product.consumers as any as CartUser[]).map((user) => [user.id, user]))
+                    consumers: new Dict(product.consumers.map((user) => [user.id, user]))
                 }
             ])
         )
     }),
     (get) => {
-        const merge = (s: Partial<State>) => ({ ...get.state(), ...s });
+        const merge = (s: Partial<CartState>) => ({ ...get.state(), ...s });
         return {
             setCurrent: (product: CartProduct | null) => merge({ currentProduct: product }),
             addProduct: (product: CartProduct) =>
-                merge({ products: new Dict(get.state().products).set(product.id, product) }),
+                merge({ products: new Dict(get.state().products).set(product.id, product), currentProduct: product }),
             removeProduct: (product: CartProduct) =>
                 merge({ products: new Dict(get.state().products).remove(product.id) }),
             removeUser: (user: User) => merge({ users: new Dict(get.state().users).remove(user.id) }),
@@ -84,6 +99,11 @@ export const Cart = Entity.create(
             onChange: (e: ChangeEvent<HTMLInputElement>) => {
                 const name = e.target.name;
                 const value = e.target.value;
+                const type = e.target.type;
+                if (type === "checkbox") {
+                    const checked = e.target.checked;
+                    return merge({ [name]: checked });
+                }
                 return merge({ [name]: value });
             },
             onChangeConsumedQuantity: (user: CartUser, product: CartProduct, quantity: number) => {
@@ -99,9 +119,41 @@ export const Cart = Entity.create(
         };
     },
     {
+        validate: (cartProduct: CartProduct) => {
+            const validated = safeParse(product, cartProduct);
+            const messages: FormError[] = [];
+            const consumers = Array.from(cartProduct.consumers.values());
+            const exceededPayers = consumers.filter((x) => x.quantity > cartProduct.quantity);
+            if (exceededPayers.length > 0) {
+                exceededPayers.forEach((payer) =>
+                    messages.push({ path: `consumers["${payer.name}"]`, message: "Excedeu o limite de produtos" })
+                );
+            }
+            const diffSum = consumers.reduce((acc, el) => acc + el.quantity, 0);
+            if (diffSum !== cartProduct.quantity) {
+                messages.push({ path: "?", message: "A soma de consumo está incorreta" });
+            }
+            if (!validated.success) {
+                messages.push(
+                    ...validated.issues.map(
+                        (error): FormError => ({
+                            message: error.message,
+                            path: error.path?.join(".") ?? ""
+                        })
+                    )
+                );
+                return Either.error(messages);
+            }
+            return Either.success(validated.output as any as CartProduct);
+        },
         newProduct: (consumers: Dict<string, User>): CartProduct => ({
             ...Product.create(),
             consumers: new Dict(consumers.map((x): [string, CartUser] => [x.id, { ...x, amount: 0, quantity: 0 }]))
-        })
+        }),
+        onSubmit: (state: CartState) => {
+            History.save({ ...state, currentProduct: null });
+            Cart.clearStorage();
+            return History.view(state);
+        }
     }
 );

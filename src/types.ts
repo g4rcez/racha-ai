@@ -1,4 +1,5 @@
 import type React from "react";
+import { Dict } from "~/lib/dict";
 
 export type Override<Source, New> = Omit<Source, keyof New> & New;
 
@@ -13,3 +14,7 @@ export type DeepPartial<T> = T extends object
           [P in keyof T]?: T[P] extends Date ? T[P] : T[P] extends any[] ? T[P] | undefined : DeepPartial<T[P]>;
       }
     : T;
+
+export type ParseToRaw<T> = {
+    [K in keyof T]: T[K] extends Dict<any, infer Value> ? ParseToRaw<Value>[] : T[K];
+};

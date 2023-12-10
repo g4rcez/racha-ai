@@ -30,7 +30,10 @@ export const AnnotateProduct = (props: Props) => {
     }, [props.product]);
 
     const onChangeVisible = (b: boolean) => {
-        if (product?.name === "") return void form.current?.reportValidity();
+        if (product?.name === "") {
+            void form.current?.reportValidity();
+            return setVisible(true);
+        }
         setVisible(b);
     };
 
@@ -52,7 +55,11 @@ export const AnnotateProduct = (props: Props) => {
 
     const onSubmit = () => {
         setVisible(false);
-        if (product) props.onChangeProduct(product);
+        if (product) {
+            const result = Cart.validate(product);
+            if (result.isError()) return void console.log(result.error);
+            if (result.isSuccess()) return props.onChangeProduct(result.success);
+        }
     };
 
     const onClickNewProduct = () => {
@@ -94,37 +101,36 @@ export const AnnotateProduct = (props: Props) => {
                         mask="money"
                     />
                     <Input
-                        onChange={onChange}
-                        value={product.quantity.toString()}
+                        min={1}
                         name="quantity"
+                        onChange={onChange}
                         placeholder="10 cervejas..."
+                        defaultValue={undefined}
                         required
+                        step={1}
                         title="Quantidade"
-                        mask="int"
+                        type="number"
+                        value={product.quantity}
                     />
                     <ul className="col-span-2 space-y-4">
-                        {props.users.map((user, _, index) => {
-                            const average = Math.ceil(product.quantity / props.users.size);
-                            const suggestion =
-                                index === props.users.size - 1
-                                    ? product.quantity - average * (props.users.size - 1)
-                                    : average;
+                        {props.users.map((user) => {
                             const consumer = product.consumers.get(user.id)!;
                             return (
-                                <li className="flex flex-nowrap gap-2" key={`cart-user-${user.id}`}>
-                                    {user.name}
-                                    <input
-                                        type="number"
+                                <li className="w-full" key={`cart-user-${user.id}`}>
+                                    <Input
                                         data-id={user.id}
+                                        max={product.quantity}
                                         min={0}
+                                        required
                                         step={1}
-                                        value={consumer.quantity || suggestion}
-                                        onChange={(event) => {
+                                        title={user.name}
+                                        type="number"
+                                        value={consumer.quantity}
+                                        onChange={(e) => {
                                             if (Is.null(props.product)) return;
-                                            const number = event.target.valueAsNumber;
+                                            const number = e.target.valueAsNumber;
                                             props.onChangeConsumedQuantity(consumer, props.product, number);
                                         }}
-                                        className="w-[5ch] border-b border-muted-input bg-transparent text-center"
                                     />
                                 </li>
                             );

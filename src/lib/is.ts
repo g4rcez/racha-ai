@@ -1,14 +1,17 @@
 const array = <T = any>(a: any): a is T[] => Array.isArray(a);
 
-type Fn = (...any: any[]) => any
+type Fn = (...any: any[]) => any;
+
+const isUndefined = (a: any): a is undefined => a === undefined;
+const isNull = (a: any): a is null => a === null;
 
 export const Is = {
     array,
+    null: isNull,
+    undefined: isUndefined,
     string: (a: any): a is string => typeof a === "string",
-    object: <T = object>(a: any): a is T => !array(a) && typeof a === "object",
-    undefined: (a: any): a is undefined => a === undefined,
-    null: (a: any): a is null => a === null,
     function: (a: any): a is Fn => typeof a === "function",
+    nil: (a: any): a is undefined | null => isNull(a) || isUndefined(a),
+    object: <T = object>(a: any): a is T => !array(a) && typeof a === "object",
     keyof: <T extends {}>(o: T, k: any): k is keyof T => Object.prototype.hasOwnProperty.call(o, k)
 };
-

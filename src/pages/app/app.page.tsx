@@ -104,7 +104,7 @@ export default function AppPage() {
                     Adicionar amigos
                 </Button>
                 <Button
-                    href={links.comanda}
+                    href={links.cart}
                     as={Link}
                     icon={<UserCircle2 absoluteStrokeWidth strokeWidth={1} size={16} />}
                 >

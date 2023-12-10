@@ -1,4 +1,4 @@
-import { asyncComponent, createMappedRouter } from "brouther";
+import { asyncComponent, asyncLoader, createMappedRouter } from "brouther";
 import { i18n } from "~/i18n";
 
 const router = createMappedRouter({
@@ -23,9 +23,17 @@ const router = createMappedRouter({
             title: i18n.get("friendsPageTitle")
         }
     },
-    comanda: {
-        path: "/app/comanda",
+    cart: {
+        path: "/app/cart",
         element: asyncComponent(() => import("~/pages/app/comanda.page")),
+        data: {
+            title: i18n.get("appPageTitle")
+        }
+    },
+    cartHistory: {
+        path: "/app/cart/:id",
+        element: asyncComponent(() => import("~/pages/app/cart-id.page")),
+        loader: asyncLoader(() => import("~/pages/app/cart-id.page")),
         data: {
             title: i18n.get("appPageTitle")
         }
