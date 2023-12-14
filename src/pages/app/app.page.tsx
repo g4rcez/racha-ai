@@ -6,14 +6,15 @@ import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { Resizable } from "~/components/resizable";
-import { Title } from "~/components/typography";
+import { SectionTitle, Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { hexToHslProperty } from "~/lib/dom";
-import { links } from "~/router";
+import { link, links } from "~/router";
+import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
 
-const Customize = () => {
+export const Customize = () => {
     const [state, dispatch] = Preferences.use();
     const i18n = useTranslations();
     const [hide, setHide] = useState(true);
@@ -77,6 +78,7 @@ const Customize = () => {
 
 export default function AppPage() {
     const [state, dispatch] = Preferences.use();
+    const [history] = History.use();
     const i18n = useTranslations();
 
     return (
@@ -111,7 +113,17 @@ export default function AppPage() {
                     Nova comanda
                 </Button>
             </section>
-            <Customize />
+            <section>
+                <SectionTitle title="Histórico">Todas as contas já divididas</SectionTitle>
+                <ul className="mt-4 space-y-2">
+                    {history.items.map((item) => (
+                        <li key={item.id} className="text-lg">
+                            <Link href={link(links.cartHistory, { id: item.id })}>{item.title}</Link>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+            {/*<Customize />*/}
         </main>
     );
 }

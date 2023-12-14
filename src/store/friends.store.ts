@@ -1,8 +1,7 @@
 import { uuidv7 } from "@kripod/uuidv7";
-import { array, coerce, date, object, string, union, uuid } from "valibot";
+import { array, date, object, string, union, uuid } from "valibot";
+import { dateCoerce } from "~/lib/fn";
 import { Entity } from "~/models/entity";
-
-const dateCoerce = coerce(date(), (i) => new Date(i as any));
 
 const user = object({
     name: string(),

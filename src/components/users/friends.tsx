@@ -107,19 +107,22 @@ export const SelectConsumerFriends = (props: {
     const consumers = users.toSorted((a, b) => b.id.localeCompare(a.id));
 
     const createNewUser = (e: FormEvent<HTMLFormElement>) => {
-        const name = (e.currentTarget.elements.namedItem("name") as HTMLInputElement).value;
+        const form = e.currentTarget;
+        const input = form.elements.namedItem("name") as HTMLInputElement;
+        const name = input.value;
         const user = Friends.new(name);
         dispatch.new(user);
         setLocalFriends((prev) => new Dict(prev).set(user.id, user));
+        form.reset();
+        input.focus();
     };
 
     const onCheckFriend = (user: User) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const checked = e.target.checked;
-        setLocalFriends((prev) => {
+        return setLocalFriends((prev) => {
             const clone = new Dict(prev);
             if (checked) return clone.set(user.id, user);
-            clone.delete(user.id);
-            return clone;
+            return clone.remove(user.id);
         });
     };
 
@@ -152,7 +155,7 @@ export const SelectConsumerFriends = (props: {
                             <Checkbox
                                 data-id={user.id}
                                 onChange={onCheckFriend(user)}
-                                checked={props.friends.has(user.id)}
+                                checked={localFriends.has(user.id)}
                             >
                                 <span className="text-xl"> {user.name}</span>
                             </Checkbox>

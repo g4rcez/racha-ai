@@ -57,6 +57,7 @@ export default function ComandaPage() {
                         onChangeProduct={dispatch.onChangeProduct}
                         product={state.currentProduct}
                         users={state.users}
+                        disabled={state.users.size <= 1}
                     />
                     <ul className="space-y-4">
                         {state.products.map((product) => (

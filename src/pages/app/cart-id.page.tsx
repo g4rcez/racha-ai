@@ -11,6 +11,7 @@ import { ParseToRaw } from "~/types";
 type L = "/app/cart/:id";
 type Cart = ParseToRaw<CartState>;
 type SimpleProduct = {
+    total: string;
     name: string;
     id: string;
     price: string;
@@ -34,7 +35,7 @@ const calcAdditional = (cart: Cart): number => (!cart.hasAdditional ? 1 : fromSt
 
 const sumProducts = (cart: Cart): number => cart.products.map((x) => x.quantity * x.price).reduce(sum, 0);
 
-const calcPerUser = (cart: Cart, user: User, additional: number, couvert: Couvert) =>
+const calcPerUser = (cart: Cart, user: ParseToRaw<User>, additional: number, couvert: Couvert) =>
     cart.products.flatMap((p) => p.consumers.map((c) => (c.id === user.id ? c.amount : 0))).reduce(sum, 0) *
         additional +
     couvert.each;
@@ -51,10 +52,11 @@ export default function CartId() {
     const products = sumProducts(cart);
     const total = i18n.format.money(products * additional + couvert.total);
     return (
-        <main>
+        <main className="pb-6">
             <SectionTitle paragraphClassName="text-lg" title={cart.title}>
                 Total: <b className="text-main-bg">{total}</b>
             </SectionTitle>
+            {cart.createdAt ? <p>Data do evento: {i18n.format.datetime(new Date(cart.createdAt))}</p> : null}
             <ul className="mt-6 space-y-4">
                 {cart.users.map((user) => {
                     const result = calcPerUser(cart, user, additional, couvert);
@@ -62,7 +64,16 @@ export default function CartId() {
                         const consumed = p.consumers.find((x) => x.id === user.id);
                         return consumed === undefined
                             ? acc
-                            : [...acc, { name: p.name, id: p.id, price: p.monetary, quantity: consumed.quantity }];
+                            : [
+                                  ...acc,
+                                  {
+                                      name: p.name,
+                                      id: p.id,
+                                      price: p.monetary,
+                                      quantity: consumed.quantity,
+                                      total: i18n.format.money(consumed.quantity * p.price)
+                                  }
+                              ];
                     }, []);
                     return (
                         <li className="flex flex-wrap justify-between" key={user.id}>
@@ -72,18 +83,34 @@ export default function CartId() {
                                 <ul className="w-full min-w-full space-y-2 text-sm">
                                     <li className="mt-2 grid grid-cols-3">
                                         <span>Produto</span>
-                                        <span className="text-center">Preço</span>
+                                        <span className="text-center">Total</span>
                                         <span className="text-right">Quantidade</span>
                                     </li>
                                     {ownProducts.map((product) =>
                                         product.quantity === 0 ? null : (
                                             <li key={`${product.id}-${user.id}`} className="grid grid-cols-3">
                                                 <span className="overflow-hidden truncate">{product.name}</span>
-                                                <span className="text-center">{product.price}</span>
+                                                <span className="text-center">{product.total}</span>
                                                 <span className="text-right">{product.quantity}</span>
                                             </li>
                                         )
                                     )}
+                                    {cart.hasAdditional ? (
+                                        <li className="grid grid-cols-3">
+                                            <span className="overflow-hidden truncate">Gorjeta</span>
+                                            <span className="text-center">
+                                                {i18n.format.money(result * (additional - 1))}
+                                            </span>
+                                            <span className="text-right">1</span>
+                                        </li>
+                                    ) : null}
+                                    {cart.hasCouvert ? (
+                                        <li className="grid grid-cols-3">
+                                            <span className="overflow-hidden truncate">Couvert</span>
+                                            <span className="text-center">{i18n.format.money(couvert.each)}</span>
+                                            <span className="text-right">1</span>
+                                        </li>
+                                    ) : null}
                                 </ul>
                             )}
                         </li>

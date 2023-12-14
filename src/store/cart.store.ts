@@ -1,9 +1,11 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { ChangeEvent } from "react";
-import { array, boolean, integer, null_, number, object, safeParse, string, union, uuid } from "valibot";
+import { array, boolean, date, integer, null_, number, object, safeParse, string, union, uuid } from "valibot";
 import { FormError } from "~/components/form/form";
+import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { Either } from "~/lib/either";
+import { dateCoerce } from "~/lib/fn";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { Friends, User } from "~/store/friends.store";
@@ -37,15 +39,16 @@ const schemas = {
             products: array(product),
             title: string(),
             type: string(),
-            users: array(Friends.schema)
+            users: array(Friends.schema),
+            createdAt: union([date(), dateCoerce])
         })
     )
 };
 
-export type CartState = {
-    id: string;
+export type CartState = Entity.New<{
     title: string;
     users: Dict<string, User>;
+    createdAt: Date;
     hasAdditional: boolean;
     additional: string;
     hasCouvert: boolean;
@@ -53,7 +56,7 @@ export type CartState = {
     currentProduct: CartProduct | null;
     products: Dict<string, CartProduct>;
     type: "equals" | "percent" | "perConsume" | "absolute";
-};
+}>;
 
 export const Cart = Entity.create(
     { name: "cart", version: "v1", schemas },
@@ -61,18 +64,28 @@ export const Cart = Entity.create(
         id: storage?.id ?? uuidv7(),
         title: storage?.title ?? "Meu bar",
         hasAdditional: storage?.hasAdditional ?? true,
-        additional: storage?.additional ?? "10",
+        createdAt: storage?.createdAt ? new Date(storage.createdAt) : new Date(),
+        additional: storage?.additional ?? i18n.format.percent(0.1),
         hasCouvert: storage?.hasCouvert ?? false,
-        couvert: storage?.couvert ?? "R$ 10,00",
+        couvert: storage?.couvert ?? i18n.format.money(10),
         currentProduct: null,
         type: storage?.type ?? "perConsume",
-        users: new Dict<string, User>(storage?.users.map((x: User) => [x.id, x])),
+        users: new Dict<string, User>(storage?.users.map((x) => [x.id, { ...x, createdAt: new Date(x.createdAt) }])),
         products: new Dict<string, CartProduct>(
             storage?.products.map((product) => [
                 product.id,
                 {
                     ...product,
-                    consumers: new Dict(product.consumers.map((user) => [user.id, user]))
+                    createdAt: new Date(product.createdAt),
+                    consumers: new Dict(
+                        product.consumers.map((user) => [
+                            user.id,
+                            {
+                                ...user,
+                                createdAt: new Date(user.createdAt)
+                            }
+                        ])
+                    )
                 }
             ])
         )
@@ -82,7 +95,10 @@ export const Cart = Entity.create(
         return {
             setCurrent: (product: CartProduct | null) => merge({ currentProduct: product }),
             addProduct: (product: CartProduct) =>
-                merge({ products: new Dict(get.state().products).set(product.id, product), currentProduct: product }),
+                merge({
+                    products: new Dict(get.state().products).set(product.id, product),
+                    currentProduct: { ...product }
+                }),
             removeProduct: (product: CartProduct) =>
                 merge({ products: new Dict(get.state().products).remove(product.id) }),
             removeUser: (user: User) => merge({ users: new Dict(get.state().users).remove(user.id) }),

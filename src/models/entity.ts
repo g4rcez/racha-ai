@@ -18,13 +18,13 @@ export namespace Entity {
         [K in `v${number}`]: ReturnType<typeof validator>;
     };
 
-    type Middleware<T> = (state: T) => T
+    type Middleware<T> = (state: T) => T;
 
     export const createStorageMiddleware = <State>(key: string): Middleware<State>[] => [
         (state: State) => {
             LocalStorage.set(key, state);
             return state;
-        },
+        }
     ];
 
     export const create = <
@@ -53,8 +53,7 @@ export namespace Entity {
         const use = <Selector extends (s: State) => any>(selector?: Selector) => useStore(selector);
         const setup = () => {
             const storageData = LocalStorage.get(storageKey);
-            if (storageData) return;
-            setStore(getState());
+            return storageData ? setStore(getState(storageData)) : setStore(getState());
         };
         type FullState = State & Metadata;
         setup();

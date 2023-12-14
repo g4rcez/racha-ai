@@ -16,5 +16,5 @@ export type DeepPartial<T> = T extends object
     : T;
 
 export type ParseToRaw<T> = {
-    [K in keyof T]: T[K] extends Dict<any, infer Value> ? ParseToRaw<Value>[] : T[K];
+    [K in keyof T]: T[K] extends Dict<any, infer Value> ? ParseToRaw<Value>[] : T[K] extends Date ? string : T[K];
 };

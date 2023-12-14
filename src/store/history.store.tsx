@@ -1,17 +1,25 @@
 import { LocalStorage } from "storage-manager-js";
-import { object } from "valibot";
+import { array, object, string, uuid } from "valibot";
 import { Entity } from "~/models/entity";
 import { link, links, navigate } from "~/router";
 import { Cart, CartState } from "~/store/cart.store";
 import { ParseToRaw } from "~/types";
 
 const schemas = {
-    v1: Entity.validator(object({}))
+    v1: Entity.validator(
+        object({
+            items: array(
+                object({
+                    // !Todo
+                    id: string([uuid()]),
+                    title: string()
+                })
+            )
+        })
+    )
 };
 
-type State = {
-    items: CartState[];
-};
+type State = { items: CartState[] };
 
 const KEY = "@app/history";
 

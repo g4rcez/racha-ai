@@ -15,6 +15,7 @@ type Props = {
     onChangeProduct: (product: CartProduct) => void;
     product: CartProduct | null;
     users: Dict<string, User>;
+    disabled: boolean;
 };
 
 export const AnnotateProduct = (props: Props) => {
@@ -25,9 +26,13 @@ export const AnnotateProduct = (props: Props) => {
     useEffect(() => {
         if (props.product) {
             setVisible(true);
-            setProduct(props.product);
+            return setProduct(props.product);
         }
     }, [props.product]);
+
+    useEffect(() => {
+        if (visible && product) props.onChangeProduct(product);
+    }, [product, props.onChangeProduct]);
 
     const onChangeVisible = (b: boolean) => {
         if (product?.name === "") {
@@ -36,10 +41,6 @@ export const AnnotateProduct = (props: Props) => {
         }
         setVisible(b);
     };
-
-    useEffect(() => {
-        if (visible && product) props.onChangeProduct(product);
-    }, [product, props.onChangeProduct]);
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const name = e.target.name as keyof Product;
@@ -58,14 +59,17 @@ export const AnnotateProduct = (props: Props) => {
         if (product) {
             const result = Cart.validate(product);
             if (result.isError()) return void console.log(result.error);
-            if (result.isSuccess()) return props.onChangeProduct(result.success);
+            if (result.isSuccess()) {
+                setProduct(null);
+                return props.onChangeProduct(result.success);
+            }
         }
     };
 
     const onClickNewProduct = () => {
-        if (props.product) return;
         const p = Cart.newProduct(props.users);
         setProduct(p);
+        if (props.product) return;
         props.onAddProduct(p);
     };
 
@@ -73,11 +77,15 @@ export const AnnotateProduct = (props: Props) => {
         <Modal
             visible={visible}
             onChange={onChangeVisible}
-            trigger={<Button onClick={onClickNewProduct}>Novo produto</Button>}
+            trigger={
+                <Button disabled={props.disabled} onClick={onClickNewProduct}>
+                    Novo produto
+                </Button>
+            }
             title={props.product ? props.product.name : "Novo Produto"}
         >
             {product === null ? (
-                <Fragment />
+                <Fragment>PRODUC</Fragment>
             ) : (
                 <Form ref={form} onSubmit={onSubmit} className="grid grid-cols-2 gap-4">
                     <Input
@@ -127,9 +135,9 @@ export const AnnotateProduct = (props: Props) => {
                                         type="number"
                                         value={consumer.quantity}
                                         onChange={(e) => {
-                                            if (Is.null(props.product)) return;
+                                            if (Is.null(product)) return;
                                             const number = e.target.valueAsNumber;
-                                            props.onChangeConsumedQuantity(consumer, props.product, number);
+                                            props.onChangeConsumedQuantity(consumer, product, number);
                                         }}
                                     />
                                 </li>
