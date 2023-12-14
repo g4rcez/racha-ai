@@ -14,7 +14,7 @@ import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
 
-export const Customize = () => {
+const Customize = () => {
     const [state, dispatch] = Preferences.use();
     const i18n = useTranslations();
     const [hide, setHide] = useState(true);
@@ -123,7 +123,7 @@ export default function AppPage() {
                     ))}
                 </ul>
             </section>
-            {/*<Customize />*/}
+            <Customize />
         </main>
     );
 }
