@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import { Layout } from "~/components/layout";
+import { noop } from "~/lib/fn";
 import { routerConfig } from "~/router";
 import { Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
@@ -29,8 +30,10 @@ async function start() {
     return document.getElementById("root")!;
 }
 
+const idleCallback = window.requestIdleCallback ?? noop;
+
 start().then((root) => {
-    requestIdleCallback(() =>
+    idleCallback(() =>
         React.startTransition(() =>
             ReactDOM.createRoot(root).render(
                 <React.StrictMode>
