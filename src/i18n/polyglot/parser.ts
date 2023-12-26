@@ -12,10 +12,10 @@ export const createFormatters = (lang: string, options?: PolyglotConfig) => {
         ...Numbers.formatters(lang, options),
         ...Lists.formatters(lang, options),
         cardinalPlural: new Intl.PluralRules(lang, { type: "cardinal" }).select,
-        ordinalPlural: new Intl.PluralRules(lang, { type: "ordinal" }).select
+        ordinalPlural: new Intl.PluralRules(lang, { type: "ordinal" }).select,
     };
     return new Proxy(formatters, {
-        get: Numbers.unitProxyHandler(lang, options)
+        get: Numbers.unitProxyHandler(lang, options),
     }) as typeof formatters & Record<Unit, (n: number) => string>;
 };
 

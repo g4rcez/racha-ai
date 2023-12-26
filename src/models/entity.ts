@@ -24,19 +24,19 @@ export namespace Entity {
         (state: State) => {
             LocalStorage.set(key, state);
             return state;
-        }
+        },
     ];
 
     export const create = <
         const Info extends { name: string; schemas: ValidatorsSchema; version: keyof Info["schemas"] },
         Getter extends (storage?: any) => any,
         Reducer extends ReducerActions<ReturnType<Getter>, {}>,
-        Actions extends { [k in string]: any }
+        Actions extends { [k in string]: any },
     >(
         info: Info,
         getState: Getter,
         reducer: Reducer,
-        actions: Actions
+        actions: Actions,
     ) => {
         type State = ReturnType<Getter>;
         const schema = info.schemas[info.version as any] as ReturnType<typeof validator>;
@@ -64,7 +64,7 @@ export namespace Entity {
             clearStorage: () => LocalStorage.delete(storageKey),
             action: useStore.dispatchers,
             __state: undefined as unknown as FullState,
-            initialState: getInitialState
+            initialState: getInitialState,
         };
     };
 

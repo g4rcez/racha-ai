@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import { Layout } from "~/components/layout";
+import { i18n } from "~/i18n";
 import { routerConfig } from "~/router";
 import { Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
@@ -10,14 +11,10 @@ import "~/styles/index.css";
 import { setupTheme } from "~/styles/setup";
 
 const updateSW = registerSW({
+    onOfflineReady() {},
     onNeedRefresh() {
-        if (confirm("New content available. Reload?")) {
-            updateSW(true);
-        }
+        if (confirm(i18n.get("hasUpdate"))) return updateSW(true);
     },
-    onOfflineReady() {
-        console.log("offline ready");
-    }
 });
 
 async function start() {
@@ -31,8 +28,6 @@ async function start() {
 
 const idleCallback = window.requestIdleCallback ?? ((fn: Function) => fn());
 
-console.log(idleCallback);
-
 start().then((root) => {
     idleCallback(() =>
         React.startTransition(() =>
@@ -43,8 +38,8 @@ start().then((root) => {
                             <Layout />
                         </Brouther>
                     </React.Suspense>
-                </React.StrictMode>
-            )
-        )
+                </React.StrictMode>,
+            ),
+        ),
     );
 });

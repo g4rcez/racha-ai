@@ -5,7 +5,7 @@ import { NullToUndefined } from "~/types";
 export type FormError = {
     path: string;
     message: string;
-}
+};
 
 export const Form = forwardRef((props: React.ComponentProps<"form">, ref: React.LegacyRef<HTMLFormElement>) => (
     <form
@@ -23,8 +23,8 @@ type Recursive<T, Key extends keyof T> = Key extends string
         ? Key
         : T[Key] extends Record<string, any>
           ?
-                | `${Key}.${Recursive<T[Key], Exclude<keyof T[Key], keyof any[]>> & string}`
-                | `${Key}.${Exclude<keyof T[Key], keyof any[]> & string}`
+                  | `${Key}.${Recursive<T[Key], Exclude<keyof T[Key], keyof any[]>> & string}`
+                  | `${Key}.${Exclude<keyof T[Key], keyof any[]> & string}`
           : never
     : never;
 
@@ -48,6 +48,6 @@ export const formToJson = <T extends any>(form: HTMLFormElement): RecNTU<T> => {
         allowPrototypes: false,
         depth: Number.MAX_SAFE_INTEGER,
         arrayLimit: Number.MAX_SAFE_INTEGER,
-        parameterLimit: Number.MAX_SAFE_INTEGER
+        parameterLimit: Number.MAX_SAFE_INTEGER,
     }) as never;
 };

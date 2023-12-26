@@ -9,7 +9,8 @@ const native = createPolyglotNative("pt-BR", () => ({
     colorDefault: "Cor padrão",
     colorOrange: "Laranja",
     colorGreen: "Verde",
-    colorIndigo: "Violeta",
+    colorIndigo: "Anil",
+    myCustomColor: "Minha cor",
     userInput: "Nome",
     userInputPlaceholder: "João das Neves",
     addFriendInput: "Nome do amigo",
@@ -23,12 +24,14 @@ const native = createPolyglotNative("pt-BR", () => ({
     welcomeInputPlaceholder: "Meu nome",
     welcomeCustomizeTitle: "Customizar",
     yourself: "Você mesmo",
+    hasUpdate: "Temos uma atualização, deseja atualizar?",
+    historicDescription: "Aqui você pode conferir tudo o que você já rachou com a galera.",
     closeModal: (props: { title: string }) => `Fechar sessão de ${props.title}`,
     welcome: (props: { name: string }) => (
         <Fragment>
             Olá, <span className="text-main-bg">{props.name}</span>
         </Fragment>
-    )
+    ),
 }));
 
 export const i18n = createPolyglot(native);

@@ -1,14 +1,14 @@
 import { uuidv7 } from "@kripod/uuidv7";
-import {coerce, date} from "valibot";
+import { coerce, date } from "valibot";
 import { Is } from "~/lib/is";
 
 export const reduceObject = <T extends {}, V>(object: T, fn: <K extends keyof T>(k: K, value: T[K]) => V) =>
     Object.keys(object).reduce(
         (acc, el) => ({
             ...acc,
-            [el]: fn(el as keyof T, object[el as keyof T])
+            [el]: fn(el as keyof T, object[el as keyof T]),
         }),
-        {}
+        {},
     );
 
 const getEntries = (o: object, prefix = ""): [any, any][] =>
@@ -46,16 +46,13 @@ export const deepMerge = <T extends object>(defaults: T, settings: T) => {
     return settings;
 };
 
+export const onlyNumbers = (s: string) => s.replace(/[^0-9.]/g, "");
+
 export const fromStrNumber = (n: string) =>
-    Number(
-        n
-            .replace(/,/g, ".")
-            .replace(/(.*)\./g, (x) => `${x.replace(/\./g, "")}.`)
-            .replace(/[^0-9.]/g, "")
-    );
+    Number(onlyNumbers(n.replace(/,/g, ".").replace(/(.*)\./g, (x) => `${x.replace(/\./g, "")}.`)));
 
 export const keys: <O>(o: O) => Array<keyof O> = Object.keys;
 
-export const sum = (a:number, b: number) => a + b
+export const sum = (a: number, b: number) => a + b;
 
 export const dateCoerce = coerce(date(), (i) => new Date(i as any));

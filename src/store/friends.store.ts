@@ -6,11 +6,11 @@ import { Entity } from "~/models/entity";
 const user = object({
     name: string(),
     id: string([uuid()]),
-    createdAt: union([date(), dateCoerce])
+    createdAt: union([date(), dateCoerce]),
 });
 
 const schemas = {
-    v1: Entity.validator(object({ users: array(user) }))
+    v1: Entity.validator(object({ users: array(user) })),
 };
 
 export type User = { id: string; name: string; createdAt: Date };
@@ -31,11 +31,11 @@ export const Friends = Entity.create(
         },
         new: (user: User) => ({ users: [...get.state().users, user] }),
         update: (user: User) => ({ users: get.state().users.map((x) => (x.id === user.id ? user : x)) }),
-        delete: (user: User) => ({ users: get.state().users.filter((x) => x.id !== user.id) })
+        delete: (user: User) => ({ users: get.state().users.filter((x) => x.id !== user.id) }),
     }),
     {
         schema: user,
         new: (name: string = ""): User => ({ id: uuidv7(), createdAt: new Date(), name }),
-        hasUser: (user: string, users: User[]) => users.some((x) => x.name === user)
-    }
+        hasUser: (user: string, users: User[]) => users.some((x) => x.name === user),
+    },
 );

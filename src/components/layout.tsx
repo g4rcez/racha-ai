@@ -1,5 +1,6 @@
 import { Link, Outlet, useHref, useRouteError } from "brouther";
 import { useEffect } from "react";
+import { Logo } from "~/components/logo";
 import { links } from "~/router";
 import { ThemeToggle } from "~/store/preferences.store";
 
@@ -7,16 +8,16 @@ const App = () => {
     return (
         <div>
             <header className="sticky top-0 mb-6 min-w-full bg-main-bg text-main shadow-lg">
-                <nav className="flex items-center justify-between p-4">
+                <nav className="container mx-auto flex max-w-2xl items-center justify-between p-4">
                     <Link href={links.app}>
-                        <h1 className="text-lg font-medium tracking-wide">Divide Aí</h1>
+                        <Logo type="raw" />
                     </Link>
                     <div>
                         <ThemeToggle />
                     </div>
                 </nav>
             </header>
-            <div className="px-4">
+            <div className="container mx-auto max-w-2xl px-4">
                 <Outlet />
             </div>
         </div>

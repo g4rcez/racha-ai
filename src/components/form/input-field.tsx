@@ -7,6 +7,7 @@ import { Label } from "~/types";
 
 export type InputFieldProps<T extends "input" | "select"> = PolymorphicProps<
     Partial<{
+        hideLeft: boolean;
         container: string;
         left: Label;
         optionalText: string;
@@ -30,7 +31,8 @@ export const InputField = <T extends "input" | "select">({
     name,
     title,
     placeholder,
-    required
+    hideLeft,
+    required,
 }: PropsWithChildren<InputFieldProps<T>>) => {
     const ID = id ?? name;
     return (
@@ -40,7 +42,7 @@ export const InputField = <T extends "input" | "select">({
                 htmlFor={ID}
                 className="inline-flex w-full cursor-text flex-row flex-wrap justify-between gap-1 text-sm transition-colors group-error:text-danger"
             >
-                <InputFeedback reportStatus title={title} placeholder={placeholder}>
+                <InputFeedback hideLeft={hideLeft} reportStatus title={title} placeholder={placeholder}>
                     <Fragment>
                         {!required ? <span className="text-opacity-70">{optionalText}</span> : null}
                         {rightLabel ? <Fragment>{rightLabel}</Fragment> : null}

@@ -13,5 +13,5 @@ export const Is = {
     function: (a: any): a is Fn => typeof a === "function",
     nil: (a: any): a is undefined | null => isNull(a) || isUndefined(a),
     object: <T = object>(a: any): a is T => !array(a) && typeof a === "object",
-    keyof: <T extends {}>(o: T, k: any): k is keyof T => Object.prototype.hasOwnProperty.call(o, k)
+    keyof: <T extends {}>(o: T, k: any): k is keyof T => Object.prototype.hasOwnProperty.call(o, k),
 };

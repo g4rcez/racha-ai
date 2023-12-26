@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 html, body, #root {
     @apply bg-body-bg text-body min-h-full min-w-full;
 }

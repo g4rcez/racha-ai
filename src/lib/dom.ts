@@ -5,7 +5,7 @@ export const css = (...styles: ClassValue[]) => twMerge(clsx(styles));
 
 export const createElement = <K extends keyof HTMLElementTagNameMap>(
     tag: K,
-    props?: Partial<HTMLElementTagNameMap[K]>
+    props?: Partial<HTMLElementTagNameMap[K]>,
 ) => Object.assign(document.createElement(tag), props ?? {});
 
 export const getHtmlInput = (form: HTMLFormElement, name: string) => form.elements.namedItem(name) as HTMLInputElement;
@@ -21,7 +21,7 @@ export const rgbToHsl = (r: number, g: number, b: number) => {
     return [
         60 * h < 0 ? 60 * h + 360 : 60 * h,
         100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0),
-        (100 * (2 * l - s)) / 2
+        (100 * (2 * l - s)) / 2,
     ];
 };
 
@@ -66,4 +66,23 @@ export const hexToHslProperty = (H: string): string => {
     l = +(l * 100).toFixed(1);
 
     return `${h},${s}%,${l}%`;
+};
+
+export function hslToHex(h: number, s: number, l: number) {
+    l /= 100;
+    const a = (s * Math.min(l, 1 - l)) / 100;
+    const f = (n: number) => {
+        const k = (n + h / 30) % 12;
+        const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+        return Math.round(255 * color)
+            .toString(16)
+            .padStart(2, "0"); // convert to Hex and prefix "0" if needed
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+export const changeThemeColor = (color: string) => {
+    const meta: HTMLMetaElement | null = document.querySelector("meta[name=theme-color]");
+    if (!meta) return;
+    meta.content = color;
 };

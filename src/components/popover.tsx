@@ -12,7 +12,7 @@ import {
     useId,
     useInteractions,
     useMergeRefs,
-    useRole
+    useRole,
 } from "@floating-ui/react";
 import * as React from "react";
 import { css } from "~/lib/dom";
@@ -30,7 +30,7 @@ export function usePopover({
     placement = "bottom",
     modal,
     open: controlledOpen,
-    onOpenChange: setControlledOpen
+    onOpenChange: setControlledOpen,
 }: PopoverOptions = {}) {
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(initialOpen);
     const [labelId, setLabelId] = React.useState<string | undefined>();
@@ -49,16 +49,16 @@ export function usePopover({
             flip({
                 crossAxis: placement.includes("-"),
                 fallbackAxisSideDirection: "end",
-                padding: 5
+                padding: 5,
             }),
-            shift({ padding: 5 })
-        ]
+            shift({ padding: 5 }),
+        ],
     });
 
     const context = data.context;
 
     const click = useClick(context, {
-        enabled: controlledOpen == null
+        enabled: controlledOpen == null,
     });
     const dismiss = useDismiss(context);
     const role = useRole(context);
@@ -75,9 +75,9 @@ export function usePopover({
             labelId,
             descriptionId,
             setLabelId,
-            setDescriptionId
+            setDescriptionId,
         }),
-        [open, setOpen, interactions, data, modal, labelId, descriptionId]
+        [open, setOpen, interactions, data, modal, labelId, descriptionId],
     );
 }
 
@@ -105,7 +105,7 @@ export function Popover({ children, modal = false, ...restOptions }: { children:
 
 export const PopoverTrigger = React.forwardRef<HTMLElement, React.ComponentProps<"button">>(function PopoverTrigger(
     { children, ...props },
-    propRef
+    propRef,
 ) {
     const context = usePopoverContext();
     const childrenRef = (children as any).ref;
@@ -124,7 +124,7 @@ export const PopoverTrigger = React.forwardRef<HTMLElement, React.ComponentProps
 
 export const PopoverContent = React.forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>(function PopoverContent(
     { style, ...props },
-    propRef
+    propRef,
 ) {
     const { context: floatingContext, ...rest } = usePopoverContext();
     const ref = useMergeRefs([rest.refs.setFloating, propRef]);
@@ -166,7 +166,7 @@ export const PopoverHeading = React.forwardRef<HTMLHeadingElement, React.HTMLPro
                 {props.children}
             </h2>
         );
-    }
+    },
 );
 
 export const PopoverDescription = React.forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>(
@@ -178,7 +178,7 @@ export const PopoverDescription = React.forwardRef<HTMLDivElement, React.HTMLPro
             return () => setDescriptionId(undefined);
         }, [id, setDescriptionId]);
         return <div {...props} ref={ref} id={id} />;
-    }
+    },
 );
 
 export const PopoverClose = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(
@@ -195,5 +195,5 @@ export const PopoverClose = React.forwardRef<HTMLButtonElement, React.ButtonHTML
                 }}
             />
         );
-    }
+    },
 );

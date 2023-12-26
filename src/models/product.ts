@@ -14,7 +14,7 @@ export namespace Product {
         name: string(),
         price: number(),
         monetary: string(),
-        quantity: number([integer()])
+        quantity: number([integer()]),
     });
 
     export const create = (): Product => ({
@@ -23,6 +23,6 @@ export namespace Product {
         name: "",
         price: 0,
         monetary: "",
-        quantity: 1
+        quantity: 1,
     });
 }

@@ -58,7 +58,7 @@ export const AnnotateProduct = (props: Props) => {
         setVisible(false);
         if (product) {
             const result = Cart.validate(product);
-            if (result.isError()) return void console.log(result.error);
+            if (result.isError()) return void console.error(result.error);
             if (result.isSuccess()) {
                 setProduct(null);
                 return props.onChangeProduct(result.success);

@@ -1,10 +1,7 @@
-type ChosenOne =  | unknown;
+type ChosenOne = unknown;
 
 export class Either<E, S> {
-    private constructor(
-        public error: E,
-        public success: S
-    ) {}
+    private constructor(public error: E, public success: S) {}
 
     public static error<E1>(e: E1) {
         return new Either<E1, ChosenOne>(e, undefined as any as ChosenOne);
@@ -15,9 +12,9 @@ export class Either<E, S> {
     }
 
     public static transform<Fn extends (...a: any[]) => any, E>(fn: Fn) {
-        return (...params: Parameters<Fn>[]): ReturnType<Fn> extends Promise<infer R>
-            ? Promise<Either<E, R>>
-            : Either<E, ReturnType<Fn>> => {
+        return (
+            ...params: Parameters<Fn>[]
+        ): ReturnType<Fn> extends Promise<infer R> ? Promise<Either<E, R>> : Either<E, ReturnType<Fn>> => {
             try {
                 const result = fn(...params);
                 if (result instanceof Promise) {

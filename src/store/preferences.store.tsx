@@ -4,7 +4,8 @@ import { ChangeEvent } from "react";
 import { any, boolean, literal, object, record, string, union } from "valibot";
 import { Button } from "~/components/button";
 import { useTranslations } from "~/i18n";
-import { uuid } from "~/lib/fn";
+import { changeThemeColor, hslToHex } from "~/lib/dom";
+import { onlyNumbers, uuid } from "~/lib/fn";
 import { Entity } from "~/models/entity";
 import { Friends, User } from "~/store/friends.store";
 import DarkTheme from "~/styles/dark.json";
@@ -34,9 +35,9 @@ const schemas = {
             name: string(),
             colors: record(any()),
             theme: union([literal("light"), literal("dark")]),
-            user: Friends.schema
-        })
-    )
+            user: Friends.schema,
+        }),
+    ),
 };
 
 const getPreferMode = (): ColorThemes => (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
@@ -68,10 +69,10 @@ export const Preferences = Entity.create(
         return {
             id: storage?.id ?? id,
             colors: storage?.colors ?? {},
-            devMode: storage?.devMode ?? false,
+            devMode: storage?.devMode ?? true,
             theme: storage?.theme ?? "light",
             name: storage?.name ?? "Eu",
-            user: storage?.user ?? ({ id, createdAt: new Date(), name: "Eu" } as User)
+            user: storage?.user ?? ({ id, createdAt: new Date(), name: "Eu" } as User),
         } as State;
     },
     (get) => {
@@ -79,6 +80,14 @@ export const Preferences = Entity.create(
         return {
             set: merge,
             colors: (colors: DeepPartial<DefaultTheme["colors"]>) => {
+                const main = colors.main?.bg
+                    ?.split(",")
+                    .map(onlyNumbers)
+                    .map((x) => Number.parseInt(x, 10));
+                if (Array.isArray(main)) {
+                    const hex = hslToHex(main[0], main[1], main[2]);
+                    changeThemeColor(hex);
+                }
                 if (colors) {
                     overwriteConfig(document.documentElement, createCssVariables(colors));
                 }
@@ -108,10 +117,10 @@ export const Preferences = Entity.create(
                     changeTheme(DefaultTheme, "light");
                 }
                 return merge({ theme });
-            }
+            },
         };
     },
-    { setMode, getPreferMode, assignFlatTokens, setup }
+    { setMode, getPreferMode, assignFlatTokens, setup },
 );
 
 export const ThemeToggle = () => {

@@ -14,7 +14,7 @@ export type PolymorphicProps<P extends {}, T extends React.ElementType = React.E
 
 export const Polymorph = forwardRef(function Polymorph<T extends React.ElementType>(
     { as, ...props }: Props<T>,
-    ref: React.ForwardedRef<any>
+    ref: React.ForwardedRef<any>,
 ) {
     const Component = as || "span";
     return <Component {...props} ref={ref} />;

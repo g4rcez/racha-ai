@@ -12,7 +12,7 @@ export const Checkbox = ({ children, container, className, ...props }: Props) =>
             <label
                 className={css(
                     "group flex cursor-pointer items-center gap-2 group-disabled:cursor-not-allowed group-disabled:text-muted-input",
-                    className
+                    className,
                 )}
             >
                 <input

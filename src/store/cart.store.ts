@@ -22,9 +22,9 @@ const product = object({
         object({
             ...Friends.schema.entries,
             amount: number(),
-            quantity: number([integer()])
-        })
-    )
+            quantity: number([integer()]),
+        }),
+    ),
 });
 
 const schemas = {
@@ -40,9 +40,9 @@ const schemas = {
             title: string(),
             type: string(),
             users: array(Friends.schema),
-            createdAt: union([date(), dateCoerce])
-        })
-    )
+            createdAt: union([date(), dateCoerce]),
+        }),
+    ),
 };
 
 export type CartState = Entity.New<{
@@ -82,13 +82,13 @@ export const Cart = Entity.create(
                             user.id,
                             {
                                 ...user,
-                                createdAt: new Date(user.createdAt)
-                            }
-                        ])
-                    )
-                }
-            ])
-        )
+                                createdAt: new Date(user.createdAt),
+                            },
+                        ]),
+                    ),
+                },
+            ]),
+        ),
     }),
     (get) => {
         const merge = (s: Partial<CartState>) => ({ ...get.state(), ...s });
@@ -97,7 +97,7 @@ export const Cart = Entity.create(
             addProduct: (product: CartProduct) =>
                 merge({
                     products: new Dict(get.state().products).set(product.id, product),
-                    currentProduct: { ...product }
+                    currentProduct: { ...product },
                 }),
             removeProduct: (product: CartProduct) =>
                 merge({ products: new Dict(get.state().products).remove(product.id) }),
@@ -131,7 +131,7 @@ export const Cart = Entity.create(
                 const products = new Dict(get.state().products);
                 products.set(cartProduct.id, cartProduct);
                 return merge({ currentProduct: cartProduct, products });
-            }
+            },
         };
     },
     {
@@ -142,7 +142,7 @@ export const Cart = Entity.create(
             const exceededPayers = consumers.filter((x) => x.quantity > cartProduct.quantity);
             if (exceededPayers.length > 0) {
                 exceededPayers.forEach((payer) =>
-                    messages.push({ path: `consumers["${payer.name}"]`, message: "Excedeu o limite de produtos" })
+                    messages.push({ path: `consumers["${payer.name}"]`, message: "Excedeu o limite de produtos" }),
                 );
             }
             const diffSum = consumers.reduce((acc, el) => acc + el.quantity, 0);
@@ -154,9 +154,9 @@ export const Cart = Entity.create(
                     ...validated.issues.map(
                         (error): FormError => ({
                             message: error.message,
-                            path: error.path?.join(".") ?? ""
-                        })
-                    )
+                            path: error.path?.join(".") ?? "",
+                        }),
+                    ),
                 );
                 return Either.error(messages);
             }
@@ -164,12 +164,12 @@ export const Cart = Entity.create(
         },
         newProduct: (consumers: Dict<string, User>): CartProduct => ({
             ...Product.create(),
-            consumers: new Dict(consumers.map((x): [string, CartUser] => [x.id, { ...x, amount: 0, quantity: 0 }]))
+            consumers: new Dict(consumers.map((x): [string, CartUser] => [x.id, { ...x, amount: 0, quantity: 0 }])),
         }),
         onSubmit: (state: CartState) => {
             History.save({ ...state, currentProduct: null });
             Cart.clearStorage();
             return History.view(state);
-        }
-    }
+        },
+    },
 );

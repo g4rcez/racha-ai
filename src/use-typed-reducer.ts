@@ -101,20 +101,20 @@ type MappedReducers<State extends {}, Fns extends FnMap<State>> = {
 type MapReducerReturn<State extends {}, Fns extends FnMap<State>> = { [F in keyof Fns]: VoidFn<Fns[F]> };
 
 export type ReducerActions<State extends object, Props extends object> = (
-    args: ReducerArgs<State, Props>
+    args: ReducerArgs<State, Props>,
 ) => MappedReducers<State, FnMap<State>>;
 
 type UseReducer<
     Selector,
     State extends {},
     Props extends {},
-    Reducers extends ReducerActions<State, Props>
+    Reducers extends ReducerActions<State, Props>,
 > = readonly [state: Selector, dispatchers: MapReducerReturn<State, ReturnType<Reducers>>];
 
 type ReducerMiddleware<
     State extends object,
     Props extends object,
-    Reducers extends (args: ReducerArgs<State, Props>) => MappedReducers<State, FnMap<State>>
+    Reducers extends (args: ReducerArgs<State, Props>) => MappedReducers<State, FnMap<State>>,
 > = Array<(state: State, key: keyof ReturnType<Reducers>) => State>;
 
 type Callback<T> = T | ((prev: T) => T);
@@ -122,7 +122,7 @@ type Callback<T> = T | ((prev: T) => T);
 export const useTypedReducer = <State extends {}, Reducers extends Dispatch<State, Props, Reducers>, Props extends {}>(
     initialState: State,
     reducers: Reducers,
-    props?: Props
+    props?: Props,
 ): [state: State, dispatch: MapReducers<State, Props, Reducers>] => {
     const [state, setState] = useState(initialState);
     const refProps = useMutable<Props>((props as never) ?? {});
@@ -136,11 +136,11 @@ export const useTypedReducer = <State extends {}, Reducers extends Dispatch<Stat
                     [name]: async (...params: unknown[]) => {
                         const dispatcher = await dispatch(...params);
                         return setState((previousState: State) => dispatcher(previousState, getProps()));
-                    }
+                    },
                 }),
-                reducers
+                reducers,
             ),
-        [reducers, getProps]
+        [reducers, getProps],
     );
     return [state, dispatches];
 };
@@ -160,7 +160,7 @@ const reduce = <State extends {}, Middlewares extends Array<(state: State, key: 
     state: State,
     prev: State,
     middleware: Middlewares,
-    key: string
+    key: string,
 ) => {
     const initial = Array.isArray(state) ? state : state.isPrototypeOf(Object) ? { ...prev, ...state } : state;
     return middleware.reduce<State>((acc, fn) => fn(acc, key), initial);
@@ -170,12 +170,12 @@ export const useReducer = <
     State extends {},
     Reducers extends ReducerActions<State, Props>,
     Props extends object,
-    Middlewares extends ReducerMiddleware<State, Props, Reducers>
+    Middlewares extends ReducerMiddleware<State, Props, Reducers>,
 >(
     initialState: State,
     reducer: Reducers,
     props?: Props,
-    middlewares?: Middlewares
+    middlewares?: Middlewares,
 ): UseReducer<State, State, Props, Reducers> => {
     const [state, setState] = useState<State>(() => initialState);
     const mutableState = useMutable(state);
@@ -188,7 +188,7 @@ export const useReducer = <
         const reducers = mutableReducer.current({
             state: () => mutableState.current,
             props: () => mutableProps.current,
-            initialState: savedInitialState.current
+            initialState: savedInitialState.current,
         });
 
         return entries<string, any>(reducers as any).reduce(
@@ -199,9 +199,9 @@ export const useReducer = <
                     const set = (newState: State) =>
                         setState((prev) => reduce(newState, prev, middleware.current, name));
                     return isPromise<State>(result) ? void result.then(set) : set(result);
-                }
+                },
             }),
-            {} as MapReducerReturn<State, ReturnType<Reducers>>
+            {} as MapReducerReturn<State, ReturnType<Reducers>>,
         );
     }, [mutableProps, mutableReducer, mutableState]);
     return [state, dispatchers] as const;
@@ -216,15 +216,15 @@ export const createGlobalReducer = <
     State extends {},
     Reducers extends ReducerActions<State, Props>,
     Props extends object,
-    Middlewares extends ReducerMiddleware<State, Props, Reducers>
+    Middlewares extends ReducerMiddleware<State, Props, Reducers>,
 >(
     initialState: State,
     reducer: Reducers,
     props?: Props,
-    middlewares?: Middlewares
+    middlewares?: Middlewares,
 ): (<Selector extends (state: State) => any>(
     selector?: Selector,
-    comparator?: (a: any, b: any) => boolean
+    comparator?: (a: any, b: any) => boolean,
 ) => UseReducer<Selector extends (state: State) => State ? State : ReturnType<Selector>, State, Props, Reducers>) & {
     dispatchers: MapReducerReturn<State, ReturnType<Reducers>>;
 } => {
@@ -252,9 +252,9 @@ export const createGlobalReducer = <
                 const result = fn(...args);
                 const set = (newState: State) => setState((prev) => reduce(newState, prev, middlewareList, name));
                 return isPromise<State>(result) ? result.then(set) : set(result);
-            }
+            },
         }),
-        {}
+        {},
     );
 
     const defaultSelector = (state: State) => state;
@@ -266,11 +266,11 @@ export const createGlobalReducer = <
                 getSnapshot,
                 getSnapshot,
                 selector || defaultSelector,
-                comparator
+                comparator,
             );
             return [state, dispatchers] as const;
         },
-        { dispatchers }
+        { dispatchers },
     );
 };
 
@@ -283,8 +283,8 @@ export const useClassReducer = <T extends object>(instance: T) => {
                 (obj as any)[prop] = value;
                 setProxy(clone(obj));
                 return true;
-            }
-        })
+            },
+        }),
     );
     return proxy;
 };

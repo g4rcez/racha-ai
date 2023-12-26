@@ -74,7 +74,7 @@ type Formatters = {
 
 type ExtractFormatter<
     Key extends string,
-    Sentence extends string
+    Sentence extends string,
 > = Sentence extends `${infer _}{{${Key}|${infer F}}}${infer _}`
     ? F extends keyof Formatters
         ? Formatters[F]
@@ -85,8 +85,8 @@ export type ExtractVariables<T extends string> = string extends T
     ? Record<string, string>
     : T extends `${infer _}{{${infer R}}}${infer Rest}`
       ? R extends `${infer Variable}|${infer _}`
-          ? { [K in Variable | keyof ExtractVariables<Rest>]: K extends string ? ExtractFormatter<K, T> : unknown }
-          : R extends `${infer Variable}`
-            ? { [k in Variable]: R }
-            : {}
+            ? { [K in Variable | keyof ExtractVariables<Rest>]: K extends string ? ExtractFormatter<K, T> : unknown }
+            : R extends `${infer Variable}`
+              ? { [k in Variable]: R }
+              : {}
       : {};

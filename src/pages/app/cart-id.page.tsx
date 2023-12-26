@@ -1,15 +1,15 @@
 import { jsonResponse, LoaderProps, useDataLoader } from "brouther";
 import { SectionTitle } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { fromStrNumber, sum } from "~/lib/fn";
+import { CartMath } from "~/lib/cart-math";
+import { Dict } from "~/lib/dict";
 import { Is } from "~/lib/is";
 import { CartState } from "~/store/cart.store";
-import { User } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { ParseToRaw } from "~/types";
 
 type L = "/app/cart/:id";
-type Cart = ParseToRaw<CartState>;
+
 type SimpleProduct = {
     total: string;
     name: string;
@@ -24,33 +24,15 @@ export const loader = (context: LoaderProps<L>) => {
     return jsonResponse({ cart });
 };
 
-type Couvert = { total: number; each: number };
-const calcCouvert = (cart: Cart): Couvert => {
-    if (!cart.hasCouvert) return { total: 0, each: 0 };
-    const each = fromStrNumber(cart.couvert);
-    return { each, total: each * cart.users.length };
-};
-
-const calcAdditional = (cart: Cart): number => (!cart.hasAdditional ? 1 : fromStrNumber(cart.additional) / 100 + 1);
-
-const sumProducts = (cart: Cart): number => cart.products.map((x) => x.quantity * x.price).reduce(sum, 0);
-
-const calcPerUser = (cart: Cart, user: ParseToRaw<User>, additional: number, couvert: Couvert) =>
-    cart.products.flatMap((p) => p.consumers.map((c) => (c.id === user.id ? c.amount : 0))).reduce(sum, 0) *
-        additional +
-    couvert.each;
-
 export default function CartId() {
     const data = useDataLoader<typeof loader>();
-    const cart: Cart = (data?.cart as any) ?? null;
+    const cart = data?.cart ? History.parse(data.cart) : null;
     const i18n = useTranslations();
     if (Is.nil(cart)) {
         return <main>Not found</main>;
     }
-    const additional = calcAdditional(cart);
-    const couvert = calcCouvert(cart);
-    const products = sumProducts(cart);
-    const total = i18n.format.money(products * additional + couvert.total);
+    const { additional, couvert, products: productsPrice, total } = CartMath.calculate(cart, i18n.format.money);
+    const products = cart.products.toArray();
     return (
         <main className="pb-6">
             <SectionTitle paragraphClassName="text-lg" title={cart.title}>
@@ -59,9 +41,9 @@ export default function CartId() {
             {cart.createdAt ? <p>Data do evento: {i18n.format.datetime(new Date(cart.createdAt))}</p> : null}
             <ul className="mt-6 space-y-4">
                 {cart.users.map((user) => {
-                    const result = calcPerUser(cart, user, additional, couvert);
-                    const ownProducts = cart.products.reduce<SimpleProduct[]>((acc, p) => {
-                        const consumed = p.consumers.find((x) => x.id === user.id);
+                    const result = CartMath.perUser(products, user, additional, couvert);
+                    const ownProducts = products.reduce<SimpleProduct[]>((acc, p) => {
+                        const consumed = Dict.toArray(p.consumers).find((x) => x.id === user.id);
                         return consumed === undefined
                             ? acc
                             : [
@@ -71,8 +53,8 @@ export default function CartId() {
                                       id: p.id,
                                       price: p.monetary,
                                       quantity: consumed.quantity,
-                                      total: i18n.format.money(consumed.quantity * p.price)
-                                  }
+                                      total: i18n.format.money(consumed.quantity * p.price),
+                                  },
                               ];
                     }, []);
                     return (
@@ -93,7 +75,7 @@ export default function CartId() {
                                                 <span className="text-center">{product.total}</span>
                                                 <span className="text-right">{product.quantity}</span>
                                             </li>
-                                        )
+                                        ),
                                     )}
                                     {cart.hasAdditional ? (
                                         <li className="grid grid-cols-3">
@@ -116,25 +98,25 @@ export default function CartId() {
                         </li>
                     );
                 })}
-                <li className="flex justify-between border-t border-muted-input/50 pt-2 font-bold">
+                <li className="flex justify-between border-t border-muted-input/50 pt-2">
                     <span>Consumo</span>
-                    {i18n.format.money(products)}
+                    <b>{i18n.format.money(productsPrice)}</b>
                 </li>
                 {cart.hasAdditional ? (
-                    <li className="flex justify-between border-t border-muted-input/50 pt-2 font-bold">
+                    <li className="flex justify-between">
                         <span>Gorjeta</span>
-                        {i18n.format.money(products * (additional - 1))}
+                        <b>{i18n.format.money(productsPrice * (additional - 1))}</b>
                     </li>
                 ) : null}
                 {cart.hasCouvert ? (
-                    <li className="flex justify-between border-t border-muted-input/50 pt-2 font-bold">
+                    <li className="flex justify-between">
                         <span>Couvert/pessoa</span>
-                        {i18n.format.money(couvert.total)}
+                        <b>{i18n.format.money(couvert.total)}</b>
                     </li>
                 ) : null}
-                <li className="flex justify-between border-t border-muted-input pt-2 font-bold">
+                <li className="flex justify-between">
                     <span>Total</span>
-                    {total}
+                    <b>{total}</b>
                 </li>
             </ul>
         </main>

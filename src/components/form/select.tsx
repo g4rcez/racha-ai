@@ -28,7 +28,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                     name={id}
                     className={css(
                         "input select group h-10 w-full flex-1 rounded-md p-2 placeholder-input-mask outline-none transition-colors group-error:text-danger group-error:placeholder-danger-mask",
-                        props.className
+                        props.className,
                     )}
                 >
                     {options.map((option) => (
@@ -37,5 +37,5 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
                 </select>
             </InputField>
         );
-    }
+    },
 );

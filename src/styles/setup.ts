@@ -19,12 +19,12 @@ export const createCssVariables = (merge: Record<string, any>) =>
     flatTuples<string, string>(merge).map(([token, val]) =>
         createFromFlatToken(token, val)
             .split(":")
-            .map((x) => x.trim())
+            .map((x) => x.trim()),
     ) as CssVariables;
 
 const variablesMapper = {
     radius: "radius",
-    colors: (value: Omit<ThemeConfig, string>) => createColors(value).join(";")
+    colors: (value: Omit<ThemeConfig, string>) => createColors(value).join(";"),
 } satisfies Record<string, ((value: ThemeConfig | string) => void) | string>;
 
 export const createCssTheme = (map: ThemeConfig) => {
