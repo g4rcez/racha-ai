@@ -1,6 +1,10 @@
 export class Dict<K, V> extends Map<K, V> {
-    public static from<Item>(key: keyof Item, list: Item[], fn?: (item: Item) => any) {
-        return new Dict(list.map((x) => [x[key], fn ? fn(x) : x]));
+    public static from<Item, K extends keyof Item, Fn extends (item: Item) => any>(
+        key: K,
+        list: Item[],
+        fn?: (item: Item) => any,
+    ) {
+        return new Dict<Item[K], ReturnType<Fn>>(list.map((x) => [x[key], fn ? fn(x) : x]));
     }
 
     public static toArray<K, V>(dict: Dict<K, V>) {
@@ -23,5 +27,9 @@ export class Dict<K, V> extends Map<K, V> {
     public remove(id: K) {
         this.delete(id);
         return this;
+    }
+
+    public clone() {
+        return new Dict(this);
     }
 }

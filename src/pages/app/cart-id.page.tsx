@@ -1,4 +1,5 @@
 import { jsonResponse, LoaderProps, useDataLoader } from "brouther";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/table";
 import { SectionTitle } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { CartMath } from "~/lib/cart-math";
@@ -59,46 +60,48 @@ export default function CartId() {
                     }, []);
                     return (
                         <li className="flex flex-wrap justify-between" key={user.id}>
-                            <span>{user.name}</span>
+                            <span className="font-medium text-lg">{user.name}</span>
                             <span>{i18n.format.money(result)}</span>
                             {ownProducts.length === 0 ? null : (
-                                <ul className="w-full min-w-full space-y-2 text-sm">
-                                    <li className="mt-2 grid grid-cols-3">
-                                        <span>Produto</span>
-                                        <span className="text-center">Total</span>
-                                        <span className="text-right">Quantidade</span>
-                                    </li>
-                                    {ownProducts.map((product) =>
-                                        product.quantity === 0 ? null : (
-                                            <li key={`${product.id}-${user.id}`} className="grid grid-cols-3">
-                                                <span className="overflow-hidden truncate">{product.name}</span>
-                                                <span className="text-center">{product.total}</span>
-                                                <span className="text-right">{product.quantity}</span>
-                                            </li>
-                                        ),
-                                    )}
-                                    {cart.hasAdditional ? (
-                                        <li className="grid grid-cols-3">
-                                            <span className="overflow-hidden truncate">Gorjeta</span>
-                                            <span className="text-center">
-                                                {i18n.format.money(result * (additional - 1))}
-                                            </span>
-                                            <span className="text-right">1</span>
-                                        </li>
-                                    ) : null}
-                                    {cart.hasCouvert ? (
-                                        <li className="grid grid-cols-3">
-                                            <span className="overflow-hidden truncate">Couvert</span>
-                                            <span className="text-center">{i18n.format.money(couvert.each)}</span>
-                                            <span className="text-right">1</span>
-                                        </li>
-                                    ) : null}
-                                </ul>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableHeader>Produto</TableHeader>
+                                            <TableHeader>Total</TableHeader>
+                                            <TableHeader>Quantidade</TableHeader>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {ownProducts.map((product) =>
+                                            product.quantity === 0 ? null : (
+                                                <TableRow key={`${user.id}-${product.id}`}>
+                                                    <TableCell>{product.name}</TableCell>
+                                                    <TableCell>{product.total}</TableCell>
+                                                    <TableCell>{product.quantity}</TableCell>
+                                                </TableRow>
+                                            ),
+                                        )}
+                                        {cart.hasAdditional ? (
+                                            <TableRow>
+                                                <TableCell>Gorjeta</TableCell>
+                                                <TableCell>{i18n.format.money(result * (additional - 1))}</TableCell>
+                                                <TableCell>1</TableCell>
+                                            </TableRow>
+                                        ) : null}
+                                        {cart.hasCouvert ? (
+                                            <TableRow>
+                                                <TableCell>Couvert</TableCell>
+                                                <TableCell>{i18n.format.money(couvert.each)}</TableCell>
+                                                <TableCell>1</TableCell>
+                                            </TableRow>
+                                        ) : null}
+                                    </TableBody>
+                                </Table>
                             )}
                         </li>
                     );
                 })}
-                <li className="flex justify-between border-t border-muted-input/50 pt-2">
+                <li className="flex justify-between pt-2">
                     <span>Consumo</span>
                     <b>{i18n.format.money(productsPrice)}</b>
                 </li>

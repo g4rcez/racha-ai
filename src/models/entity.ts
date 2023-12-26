@@ -1,17 +1,25 @@
 import { LocalStorage } from "storage-manager-js";
-import { ObjectSchema, safeParse } from "valibot";
+import { z } from "zod";
 import { createGlobalReducer, ReducerActions } from "~/use-typed-reducer";
 
 export namespace Entity {
     type Metadata = { id: string; createdAt: Date };
 
+    export const dateSchema = z
+        .string()
+        .datetime()
+        .or(z.date())
+        .transform((x) => (x ? new Date(x) : null));
+
+    export const schema = z.object({ id: z.string().uuid(), createAt: dateSchema });
+
     export type New<T extends object> = T & Metadata;
 
     export const validator =
-        (validator: ObjectSchema<any>) =>
+        (validator: z.ZodType) =>
         <State>(data: any, defaultData: (storage: any) => State): State => {
-            const result = safeParse(validator, data);
-            return result.success ? defaultData(result.output as State) : defaultData(data);
+            const result = validator.safeParse(data);
+            return result.success ? defaultData(result.data as State) : defaultData(data);
         };
 
     type ValidatorsSchema = {
@@ -26,6 +34,8 @@ export namespace Entity {
             return state;
         },
     ];
+
+    export const getStorage = (name: string) => LocalStorage.get(`@app/${name}`) || undefined;
 
     export const create = <
         const Info extends { name: string; schemas: ValidatorsSchema; version: keyof Info["schemas"] },

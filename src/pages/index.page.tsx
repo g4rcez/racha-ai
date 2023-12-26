@@ -12,10 +12,11 @@ export const actions = () => ({
         const json = await ctx.request.json();
         Preferences.action.set({ name: json.name });
         return redirectResponse("/app");
-    }
+    },
 });
 
 export default function IndexPage() {
+    const [preferences] = Preferences.use();
     return (
         <div className="flex h-screen w-screen flex-auto flex-col bg-white text-slate-800">
             <header className="sticky top-0 flex w-full bg-slate-50 shadow-md z-10">
@@ -25,7 +26,7 @@ export default function IndexPage() {
                     </Link>
                 </nav>
             </header>
-            <section className="container mx-auto mt-12 flex w-full max-w-6xl flex-col gap-8 py-6">
+            <section className="container mx-auto mt-4 lg:mt-12 flex w-full max-w-6xl flex-col gap-8 py-6">
                 <div className="space-y-4 text-balance text-center px-4">
                     <header>
                         <h2 className="text-4xl font-extrabold leading-relaxed tracking-wide text-main-bg">
@@ -36,12 +37,21 @@ export default function IndexPage() {
                             <strong className="font-normal text-main-bg">racha aí</strong>
                         </p>
                     </header>
-                    <Form encType="json" method="post" className="container mx-auto flex max-w-lg items-end gap-2">
-                        <Input hideLeft name="name" title="" required placeholder="Como devemos te chamar?" />
-                        <Button type="submit" size="medium">
-                            Começar a usar
-                        </Button>
-                    </Form>
+                    {preferences.name === "" ? (
+                        <Form encType="json" method="post" className="container mx-auto flex max-w-lg items-end gap-2">
+                            <Input hideLeft name="name" title="" required placeholder="Como devemos te chamar?" />
+                            <Button type="submit" size="medium">
+                                Começar a usar
+                            </Button>
+                        </Form>
+                    ) : (
+                        <Link className="flex flex-col items-center gap-2 text-xl my-6" href={links.app}>
+                            <span className="text-balance">
+                                Olá <b>{preferences.name}</b>, bem vindo de volta
+                            </span>
+                            <Button className="w-fit font-normal">Ir para o app</Button>
+                        </Link>
+                    )}
                 </div>
                 <div className="container mx-auto w-full max-w-md text-center">
                     <PhoneFrame className="pointer-events-none mx-auto max-w-[366px]">

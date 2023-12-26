@@ -5,7 +5,7 @@ import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { AnnotateProduct } from "~/components/products/annotate-product";
-import { SectionTitle } from "~/components/typography";
+import { SectionTitle, Title } from "~/components/typography";
 import { SelectConsumerFriends } from "~/components/users/friends";
 import { i18n } from "~/i18n";
 import { Cart } from "~/store/cart.store";
@@ -22,32 +22,44 @@ export default function ComandaPage() {
 
     return (
         <main className="pb-8">
-            <Form className="flex flex-col gap-4" onSubmit={onSubmit}>
-                <input
+            <Title className="font-bold">{state.title}</Title>
+            <Form className="flex flex-col gap-6" onSubmit={onSubmit}>
+                <Input
+                    required
                     name="title"
+                    title="Nome do bar"
                     value={state.title}
+                    placeholder="Meu bar..."
                     onChange={dispatch.onChange}
-                    className="block w-full border border-transparent bg-transparent text-3xl"
                 />
-                <section className="flex flex-col gap-4">
-                    <SelectConsumerFriends friends={state.users} onChangeFriends={dispatch.onChangeFriends} />
+                <section className="flex flex-col gap-2">
                     <SectionTitle titleClassName="text-2xl" title="Pagantes">
                         Deixe aqui apenas quem vai dividir com você
                     </SectionTitle>
+                    <SelectConsumerFriends friends={state.users} onChangeFriends={dispatch.onChangeFriends} />
                     <ul className="space-y-4">
-                        {state.users.map((user) => (
-                            <li className="flex items-center justify-between" key={`${user.id}-comanda-list`}>
-                                <span className="text-xl">{user.name}</span>
-                                {me.id === user.id ? null : (
-                                    <Button onClick={() => dispatch.removeUser(user)} theme="danger" size="small">
-                                        <Trash2Icon />
-                                    </Button>
-                                )}
-                            </li>
-                        ))}
+                        {state.users.map((user) => {
+                            const i = user.id === me.id;
+                            return (
+                                <li
+                                    key={`${user.id}-comanda-list`}
+                                    className={`flex items-center justify-between ${i ? "text-main-bg" : ""}`}
+                                >
+                                    <span className="text-lg">
+                                        {user.name}
+                                        {i ? " - Eu" : ""}
+                                    </span>
+                                    {i ? null : (
+                                        <Button onClick={() => dispatch.removeUser(user)} theme="danger" size="small">
+                                            <Trash2Icon />
+                                        </Button>
+                                    )}
+                                </li>
+                            );
+                        })}
                     </ul>
                 </section>
-                <section className="flex flex-col gap-4">
+                <section className="flex flex-col gap-2">
                     <SectionTitle titleClassName="text-2xl" title="Produtos">
                         Anote aqui todos os produtos e seus consumidores
                     </SectionTitle>
@@ -57,7 +69,7 @@ export default function ComandaPage() {
                         onChangeProduct={dispatch.onChangeProduct}
                         product={state.currentProduct}
                         users={state.users}
-                        disabled={state.users.size <= 1}
+                        disabled={state.users.size === 0}
                     />
                     <ul className="space-y-4">
                         {state.products.map((product) => (
@@ -93,7 +105,7 @@ export default function ComandaPage() {
                         ))}
                     </ul>
                 </section>
-                <section className="flex flex-wrap gap-4">
+                <section className="flex flex-wrap gap-2">
                     <SectionTitle titleClassName="text-2xl" title="Extras">
                         Vai pagar a gorjeta do garçom ou couvert artístico?
                     </SectionTitle>

@@ -1,5 +1,5 @@
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import React, { FormEvent, Fragment, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import { Button } from "~/components/button";
 import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
@@ -9,6 +9,7 @@ import { useTranslations } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { getHtmlInput } from "~/lib/dom";
 import { sanitize, sortUuidList } from "~/lib/fn";
+import { Cart, CartUser } from "~/store/cart.store";
 import { Friends, User } from "~/store/friends.store";
 import { Preferences } from "~/store/preferences.store";
 
@@ -95,14 +96,15 @@ export const FriendsCrud = () => {
     );
 };
 
-export const SelectConsumerFriends = (props: {
-    onChangeFriends: (friends: User[]) => void;
-    friends: Dict<string, User>;
-}) => {
+type ConsumerProps = { onChangeFriends: (friends: User[], justMe: boolean) => void; friends: Dict<string, User> };
+
+export const SelectConsumerFriends = (props: ConsumerProps) => {
     const [visible, setVisible] = useState(false);
     const [me] = Preferences.use((s) => s.user);
     const [users, dispatch] = Friends.use((s) => s.users);
-    const [localFriends, setLocalFriends] = useState<Dict<string, User>>(() => new Dict(props.friends).set(me.id, me));
+    const [localFriends, setLocalFriends] = useState<Dict<string, CartUser>>(() =>
+        new Dict<string, CartUser>(props.friends.map(Cart.newUser)).set(me.id, Cart.newUser(me)),
+    );
     const i18n = useTranslations();
     const consumers = users.toSorted((a, b) => b.id.localeCompare(a.id));
 
@@ -112,7 +114,7 @@ export const SelectConsumerFriends = (props: {
         const name = input.value;
         const user = Friends.new(name);
         dispatch.new(user);
-        setLocalFriends((prev) => new Dict(prev).set(user.id, user));
+        setLocalFriends((prev) => new Dict(prev).set(user.id, Cart.newUser(user)));
         form.reset();
         input.focus();
     };
@@ -121,23 +123,24 @@ export const SelectConsumerFriends = (props: {
         const checked = e.target.checked;
         return setLocalFriends((prev) => {
             const clone = new Dict(prev);
-            if (checked) return clone.set(user.id, user);
+            if (checked) return clone.set(user.id, Cart.newUser(user));
             return clone.remove(user.id);
         });
     };
 
     useEffect(() => {
-        if (visible) props.onChangeFriends([...localFriends.values()]);
+        if (visible) props.onChangeFriends([...localFriends.values()], false);
     }, [props.onChangeFriends, localFriends]);
 
     return (
-        <Fragment>
+        <div className="my-2 grid grid-cols-2 items-end gap-4">
+            <Button onClick={() => props.onChangeFriends([me], true)}>Tô sozinho</Button>
             <Modal
                 visible={visible}
                 onChange={setVisible}
                 title="Lista de amigos"
                 description="Aqui você irá selecionar todos os amigos que vão dividir a conta com você"
-                trigger={<Button className="my-3">Quem vai entrar na conta?</Button>}
+                trigger={<Button>Tô com os amigos</Button>}
             >
                 <ul className="space-y-4">
                     <li>
@@ -157,12 +160,12 @@ export const SelectConsumerFriends = (props: {
                                 onChange={onCheckFriend(user)}
                                 checked={localFriends.has(user.id)}
                             >
-                                <span className="text-xl"> {user.name}</span>
+                                <span>{user.name}</span>
                             </Checkbox>
                         </li>
                     ))}
                 </ul>
             </Modal>
-        </Fragment>
+        </div>
     );
 };

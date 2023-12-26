@@ -1,5 +1,5 @@
 import { uuidv7 } from "@kripod/uuidv7";
-import { integer, number, object, string } from "valibot";
+import { z } from "zod";
 import { Entity } from "~/models/entity";
 
 export type Product = Entity.New<{
@@ -10,11 +10,13 @@ export type Product = Entity.New<{
 }>;
 
 export namespace Product {
-    export const schema = object({
-        name: string(),
-        price: number(),
-        monetary: string(),
-        quantity: number([integer()]),
+    export const schema = z.object({
+        ...Entity.schema.shape,
+        name: z.string(),
+        price: z.number(),
+        monetary: z.string(),
+        id: z.string().uuid(),
+        quantity: z.number().int(),
     });
 
     export const create = (): Product => ({

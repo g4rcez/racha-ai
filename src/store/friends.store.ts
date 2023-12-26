@@ -1,16 +1,15 @@
 import { uuidv7 } from "@kripod/uuidv7";
-import { array, date, object, string, union, uuid } from "valibot";
-import { dateCoerce } from "~/lib/fn";
+import { z } from "zod";
 import { Entity } from "~/models/entity";
 
-const user = object({
-    name: string(),
-    id: string([uuid()]),
-    createdAt: union([date(), dateCoerce]),
+const user = z.object({
+    name: z.string(),
+    id: z.string().uuid(),
+    createdAt: z.date().or(z.string().datetime()),
 });
 
 const schemas = {
-    v1: Entity.validator(object({ users: array(user) })),
+    v1: Entity.validator(z.object({ users: z.array(user) })),
 };
 
 export type User = { id: string; name: string; createdAt: Date };

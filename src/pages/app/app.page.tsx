@@ -1,122 +1,84 @@
 import { Link } from "brouther";
-import { EyeIcon, EyeOff, PlusIcon, UserCircle2 } from "lucide-react";
-import React, { useState } from "react";
-import { Button } from "~/components/button";
-import { ColorPicker } from "~/components/color-picker";
+import { ReceiptIcon, SoupIcon, UsersIcon } from "lucide-react";
+import React, { Fragment, useEffect } from "react";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Resizable } from "~/components/resizable";
 import { SectionTitle, Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { CartMath } from "~/lib/cart-math";
-import { hexToHslProperty } from "~/lib/dom";
 import { link, links } from "~/router";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
-import DefaultTheme from "~/styles/default.json";
 
-const Customize = () => {
-    const [state, dispatch] = Preferences.use();
-    const i18n = useTranslations();
-    const [hide, setHide] = useState(false);
-    const changeFromRGB = (rgb: string) => {
-        const bg = hexToHslProperty(rgb);
-        return dispatch.colors({ main: { bg: bg } });
-    };
-
-    const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        const color = e.currentTarget.dataset.color ?? "";
-        return !color.includes(",") ? changeFromRGB(color) : dispatch.colors({ main: { bg: color } });
-    };
-
-    const colors = [
-        { name: i18n.get("colorDefault"), color: DefaultTheme.colors.main.bg },
-        { name: i18n.get("colorOrange"), color: "#d97706" },
-        { name: "Yellow", color: "#eab308" },
-        { name: i18n.get("colorGreen"), color: "#059669" },
-        { name: "Lime", color: "#65a30d" },
-        { name: "Blue", color: "#2563eb" },
-        { name: "Cyan", color: "#06b6d4" },
-        { name: i18n.get("colorIndigo"), color: "#4f46e5" },
-        { name: "Violeta", color: "#7c3aed" },
-        { name: "Pink", color: "#db2777" },
-        { name: "Rose", color: "#f43f5e" },
-    ];
-
-    return (
-        <Resizable>
-            <header className="flex w-full flex-row flex-nowrap items-center justify-between">
-                <Title>{i18n.get("welcomeCustomizeTitle")}</Title>
-                <Button
-                    theme="transparent"
-                    onClick={() => setHide((p) => !p)}
-                    icon={hide ? <EyeIcon size={20} /> : <EyeOff size={20} />}
-                />
-            </header>
-            {hide ? null : (
-                <ul className="grid grid-cols-2 gap-4 whitespace-pre-wrap">
-                    {state.devMode ? (
-                        <li>
-                            <ColorPicker onChangeColor={changeFromRGB} color={state.colors.main?.bg} />
-                        </li>
-                    ) : null}
-                    {colors.map((x) => {
-                        const backgroundColor = x.color.includes(",") ? `hsl(${x.color})` : x.color;
-                        return (
-                            <Button
-                                style={{ backgroundColor }}
-                                onClick={onClick}
-                                data-color={x.color}
-                                key={`color-${x.name}`}
-                                theme="transparent"
-                                children={x.name}
-                            />
-                        );
-                    })}
-                </ul>
-            )}
-        </Resizable>
-    );
+type Shortcut = {
+    icon: React.FC<any>;
+    text: React.ReactNode;
+    href: (typeof links)[keyof typeof links];
 };
+
+const shortcuts: Shortcut[] = [
+    {
+        href: links.app,
+        icon: UsersIcon,
+        text: (
+            <Fragment>
+                Adicionar
+                <br /> amigos
+            </Fragment>
+        ),
+    },
+    {
+        href: links.cart,
+        icon: ReceiptIcon,
+        text: (
+            <Fragment>
+                Nova
+                <br /> comanda
+            </Fragment>
+        ),
+    },
+];
 
 export default function AppPage() {
     const [state, dispatch] = Preferences.use();
-    const [history] = History.use();
+    const [history, historyDispatch] = History.use();
     const i18n = useTranslations();
     const items = history.items.toSorted((a, b) => a.createdAt.getDate() - b.createdAt.getDate());
 
+    useEffect(() => {
+        historyDispatch.init();
+    }, []);
+
     return (
-        <main className="flex flex-col gap-6 pb-8">
-            <Title>{i18n.get("welcome", state)}</Title>
-            <Form className="flex flex-col gap-4">
-                <Input
-                    required
-                    name="name"
-                    value={state.name}
-                    onChange={dispatch.onChangeName}
-                    title={i18n.get("welcomeInputTitle")}
-                    placeholder={i18n.get("welcomeInputPlaceholder")}
-                />
-            </Form>
-            <section className="my-4 grid grid-cols-2 gap-6">
-                <Button
-                    href={links.friends}
-                    as={Link}
-                    icon={<PlusIcon absoluteStrokeWidth strokeWidth={2} size={16} />}
-                >
-                    Adicionar amigos
-                </Button>
-                <Button
-                    href={links.cart}
-                    as={Link}
-                    icon={<UserCircle2 absoluteStrokeWidth strokeWidth={1} size={16} />}
-                >
-                    Nova comanda
-                </Button>
+        <main className="flex flex-col gap-8 pb-8">
+            <header>
+                <Title className="mb-2">{i18n.get("welcome", state)}</Title>
+                <Form className="flex flex-col gap-4">
+                    <Input
+                        required
+                        name="name"
+                        value={state.name}
+                        onChange={dispatch.onChangeName}
+                        title={i18n.get("welcomeInputTitle")}
+                        placeholder={i18n.get("welcomeInputPlaceholder")}
+                    />
+                </Form>
+            </header>
+            <section className="flex flex-nowrap gap-4 py-2 overflow-x-auto scroll-smooth snap-x snap-mandatory snap-center">
+                {shortcuts.map((shortcut) => (
+                    <Link
+                        href={shortcut.href}
+                        key={`shortcuts-${shortcut.href}`}
+                        className="flex flex-col items-center gap-2 rounded border border-opacity-60 border-main-bg p-2 px-4"
+                    >
+                        {<shortcut.icon aria-hidden="true" size={24} strokeWidth={2} absoluteStrokeWidth />}{" "}
+                        {shortcut.text}
+                    </Link>
+                ))}
             </section>
             {items.length === 0 ? null : (
                 <section>
-                    <SectionTitle title="Histórico">{i18n.get("historicDescription")}</SectionTitle>
+                    <SectionTitle title={i18n.get("historyTitle")}>{i18n.get("historicDescription")}</SectionTitle>
                     <ul className="mt-4 space-y-2">
                         {items.map((item) => (
                             <li key={item.id}>
@@ -125,9 +87,12 @@ export default function AppPage() {
                                     href={link(links.cartHistory, { id: item.id })}
                                 >
                                     <header className="flex items-end justify-between">
-                                        <h3 className="text-xl transition-colors group-hover:text-main-bg group-active:text-main-bg">
-                                            {item.title}
-                                        </h3>
+                                        <div className="flex gap-2">
+                                            <SoupIcon />
+                                            <h3 className="text-xl transition-colors group-hover:text-main-bg group-active:text-main-bg">
+                                                {item.title}
+                                            </h3>
+                                        </div>
                                         <p className="text-sm">{i18n.format.date(item.createdAt)}</p>
                                     </header>
                                     <p>Total: {CartMath.calculate(item as never, i18n.format.money).total}</p>
@@ -138,7 +103,6 @@ export default function AppPage() {
                     </ul>
                 </section>
             )}
-            <Customize />
         </main>
     );
 }

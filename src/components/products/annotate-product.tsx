@@ -4,6 +4,7 @@ import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { Modal } from "~/components/modal";
 import { Dict } from "~/lib/dict";
+import { clamp, diff, sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
 import { Cart, CartProduct, CartUser } from "~/store/cart.store";
@@ -57,7 +58,16 @@ export const AnnotateProduct = (props: Props) => {
     const onSubmit = () => {
         setVisible(false);
         if (product) {
-            const result = Cart.validate(product);
+            console.log("->", product.createdAt);
+            const result = Cart.validate({
+                ...product,
+                quantity: Number(product.quantity),
+                createdAt: product.createdAt.toISOString(),
+                consumers: product.consumers.toArray().map((item) => ({
+                    ...item,
+                    createdAt: item.createdAt.toISOString(),
+                })),
+            });
             if (result.isError()) return void console.error(result.error);
             if (result.isSuccess()) {
                 setProduct(null);
@@ -73,19 +83,31 @@ export const AnnotateProduct = (props: Props) => {
         props.onAddProduct(p);
     };
 
+    const onClickQuantity = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const operation = e.currentTarget.dataset.operation === "+" ? sum : diff;
+        setProduct((prev) =>
+            prev === null
+                ? prev
+                : {
+                      ...prev,
+                      quantity: clamp(0, operation(Number(prev.quantity), 1), Number.MAX_SAFE_INTEGER),
+                  },
+        );
+    };
+
     return (
         <Modal
             visible={visible}
             onChange={onChangeVisible}
+            title={props.product ? props.product.name : "Novo Produto"}
             trigger={
                 <Button disabled={props.disabled} onClick={onClickNewProduct}>
                     Novo produto
                 </Button>
             }
-            title={props.product ? props.product.name : "Novo Produto"}
         >
             {product === null ? (
-                <Fragment>PRODUC</Fragment>
+                <Fragment>-</Fragment>
             ) : (
                 <Form ref={form} onSubmit={onSubmit} className="grid grid-cols-2 gap-4">
                     <Input
@@ -110,6 +132,28 @@ export const AnnotateProduct = (props: Props) => {
                     />
                     <Input
                         min={1}
+                        left={
+                            <Button
+                                data-operation="-"
+                                onClick={onClickQuantity}
+                                className="text-body"
+                                size="small"
+                                theme="transparent"
+                            >
+                                -
+                            </Button>
+                        }
+                        right={
+                            <Button
+                                data-operation="+"
+                                onClick={onClickQuantity}
+                                className="text-body"
+                                size="small"
+                                theme="transparent"
+                            >
+                                +
+                            </Button>
+                        }
                         name="quantity"
                         onChange={onChange}
                         placeholder="10 cervejas..."
@@ -123,22 +167,52 @@ export const AnnotateProduct = (props: Props) => {
                     <ul className="col-span-2 space-y-4">
                         {props.users.map((user) => {
                             const consumer = product.consumers.get(user.id)!;
+                            const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                                if (Is.null(product)) return;
+                                const number = e.target.valueAsNumber;
+                                props.onChangeConsumedQuantity(consumer, product, number);
+                            };
+
+                            const onChangeByOperation = (e: React.MouseEvent<HTMLButtonElement>) => {
+                                const operation = e.currentTarget.dataset.operation === "+" ? sum : diff;
+                                const result = clamp(0, operation(consumer.quantity, 1), product.quantity);
+                                props.onChangeConsumedQuantity(consumer, product, result);
+                            };
+
                             return (
                                 <li className="w-full" key={`cart-user-${user.id}`}>
                                     <Input
                                         data-id={user.id}
                                         max={product.quantity}
+                                        onChange={onChange}
                                         min={0}
                                         required
                                         step={1}
                                         title={user.name}
                                         type="number"
                                         value={consumer.quantity}
-                                        onChange={(e) => {
-                                            if (Is.null(product)) return;
-                                            const number = e.target.valueAsNumber;
-                                            props.onChangeConsumedQuantity(consumer, product, number);
-                                        }}
+                                        left={
+                                            <Button
+                                                data-operation="-"
+                                                onClick={onChangeByOperation}
+                                                className="text-body"
+                                                size="small"
+                                                theme="transparent"
+                                            >
+                                                -
+                                            </Button>
+                                        }
+                                        right={
+                                            <Button
+                                                data-operation="+"
+                                                onClick={onChangeByOperation}
+                                                className="text-body"
+                                                size="small"
+                                                theme="transparent"
+                                            >
+                                                +
+                                            </Button>
+                                        }
                                     />
                                 </li>
                             );

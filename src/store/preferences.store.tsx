@@ -1,11 +1,11 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { ChangeEvent } from "react";
-import { any, boolean, literal, object, record, string, union } from "valibot";
+import { z } from "zod";
 import { Button } from "~/components/button";
 import { useTranslations } from "~/i18n";
 import { changeThemeColor, hslToHex } from "~/lib/dom";
-import { onlyNumbers, uuid } from "~/lib/fn";
+import { onlyNumbers } from "~/lib/fn";
 import { Entity } from "~/models/entity";
 import { Friends, User } from "~/store/friends.store";
 import DarkTheme from "~/styles/dark.json";
@@ -29,13 +29,13 @@ type State = {
 
 const schemas = {
     v1: Entity.validator(
-        object({
-            id: string(uuid()),
-            devMode: boolean(),
-            name: string(),
-            colors: record(any()),
-            theme: union([literal("light"), literal("dark")]),
+        z.object({
+            name: z.string(),
+            devMode: z.boolean(),
+            id: z.string().uuid(),
             user: Friends.schema,
+            colors: z.record(z.any()),
+            theme: z.literal("light").or(z.literal("dark")),
         }),
     ),
 };
@@ -57,6 +57,7 @@ const setMode = (colorTheme: ColorThemes) => {
 const setup = (state?: DeepPartial<State>) => {
     const colorTheme = state?.theme ?? Preferences.getPreferMode();
     Preferences.setMode(colorTheme);
+    // i18n.setLanguage("en-US")
     if (state?.colors) {
         overwriteConfig(document.documentElement, createCssVariables(state.colors));
     }
@@ -71,8 +72,8 @@ export const Preferences = Entity.create(
             colors: storage?.colors ?? {},
             devMode: storage?.devMode ?? true,
             theme: storage?.theme ?? "light",
-            name: storage?.name ?? "Eu",
-            user: storage?.user ?? ({ id, createdAt: new Date(), name: "Eu" } as User),
+            name: storage?.name ?? "",
+            user: storage?.user ?? ({ id, createdAt: new Date(), name: "" } as User),
         } as State;
     },
     (get) => {

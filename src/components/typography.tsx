@@ -6,7 +6,7 @@ import { Label } from "~/types";
 export const Title = (props: PolymorphicProps<{}, "h1">) => (
     <Polymorph
         {...props}
-        className={css("mb-2.5 text-3xl font-medium leading-relaxed tracking-wide", props.className)}
+        className={css("text-3xl font-medium leading-relaxed tracking-wide", props.className)}
         as={props.as ?? "h2"}
     />
 );

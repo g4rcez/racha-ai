@@ -36,7 +36,7 @@ export const Modal = (props: PropsWithChildren<Props>) => {
                     <Dialog.Close asChild>
                         <button
                             aria-label={i18n.get("closeModal", props)}
-                            className="absolute right-3 top-3 inline-flex h-6 w-6 appearance-none items-center justify-center rounded-full text-body transition-colors duration-300 focus:outline-none link:bg-danger-bg"
+                            className="absolute right-3 top-3 inline-flex h-6 w-6 appearance-none items-center justify-center rounded-full text-body transition-colors duration-300 focus:outline-none link:bg-danger-bg link:bg-opacity-40"
                         >
                             <XCircleIcon />
                         </button>

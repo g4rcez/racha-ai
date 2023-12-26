@@ -1,5 +1,4 @@
 import { uuidv7 } from "@kripod/uuidv7";
-import { coerce, date } from "valibot";
 import { Is } from "~/lib/is";
 
 export const reduceObject = <T extends {}, V>(object: T, fn: <K extends keyof T>(k: K, value: T[K]) => V) =>
@@ -54,5 +53,6 @@ export const fromStrNumber = (n: string) =>
 export const keys: <O>(o: O) => Array<keyof O> = Object.keys;
 
 export const sum = (a: number, b: number) => a + b;
+export const diff = (a: number, b: number) => a - b;
 
-export const dateCoerce = coerce(date(), (i) => new Date(i as any));
+export const clamp = (min: number, average: number, max: number) => Math.max(Math.min(max, average), min);

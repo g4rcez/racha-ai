@@ -1,67 +1,82 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { ChangeEvent } from "react";
-import { array, boolean, date, integer, null_, number, object, safeParse, string, union, uuid } from "valibot";
+import { z } from "zod";
 import { FormError } from "~/components/form/form";
 import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { Either } from "~/lib/either";
-import { dateCoerce } from "~/lib/fn";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { Friends, User } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { ParseToRaw } from "~/types";
 
-export type CartUser = User & { amount: number; quantity: number };
+export type CartUser = User & { amount: number; quantity: number; paidAt: Date | null };
 
 export type CartProduct = Product & { consumers: Dict<string, CartUser> };
 
-const product = object({
-    ...Product.schema.entries,
-    consumers: array(
-        object({
-            ...Friends.schema.entries,
-            amount: number(),
-            quantity: number([integer()]),
+const product = z.object({
+    ...Product.schema.shape,
+    consumers: z.array(
+        z.object({
+            ...Friends.schema.shape,
+            amount: z.number(),
+            quantity: z.number().int(),
         }),
     ),
 });
 
+const defaultSchema = z.object({
+    additional: z.string(),
+    couvert: z.string(),
+    currentProduct: product,
+    title: z.string(),
+    type: z.string(),
+    id: z.string().uuid(),
+    hasCouvert: z.boolean(),
+    hasAdditional: z.boolean(),
+    products: z.array(product),
+    createdAt: Entity.dateSchema,
+    users: z.array(Friends.schema),
+});
+
 const schemas = {
-    v1: Entity.validator(
-        object({
-            additional: string(),
-            couvert: string(),
-            currentProduct: union([product, null_()]),
-            hasAdditional: boolean(),
-            hasCouvert: boolean(),
-            id: string([uuid()]),
-            products: array(product),
-            title: string(),
-            type: string(),
-            users: array(Friends.schema),
-            createdAt: union([date(), dateCoerce]),
+    v1: Entity.validator(defaultSchema),
+    v2: Entity.validator(
+        z.object({
+            ...defaultSchema.shape,
+            justMe: z.boolean(),
+            users: z.array(z.object({ ...Friends.schema.shape, paidAt: Entity.dateSchema.nullable().default(null) })),
         }),
     ),
 };
 
+const newUser = (user: User | CartUser): CartUser => ({
+    ...user,
+    amount: (user as any)?.amount || 0,
+    quantity: (user as any)?.quantity || 0,
+    paidAt: null,
+});
+
 export type CartState = Entity.New<{
     title: string;
-    users: Dict<string, User>;
+    justMe: boolean;
     createdAt: Date;
-    hasAdditional: boolean;
+    couvert: string;
     additional: string;
     hasCouvert: boolean;
-    couvert: string;
+    hasAdditional: boolean;
+    users: Dict<string, CartUser>;
     currentProduct: CartProduct | null;
     products: Dict<string, CartProduct>;
     type: "equals" | "percent" | "perConsume" | "absolute";
 }>;
 
 export const Cart = Entity.create(
-    { name: "cart", version: "v1", schemas },
+    { name: "cart", version: "v2", schemas },
     (storage?: ParseToRaw<CartState>): CartState => ({
         id: storage?.id ?? uuidv7(),
+        justMe: storage?.justMe ?? false,
         title: storage?.title ?? "Meu bar",
         hasAdditional: storage?.hasAdditional ?? true,
         createdAt: storage?.createdAt ? new Date(storage.createdAt) : new Date(),
@@ -70,8 +85,13 @@ export const Cart = Entity.create(
         couvert: storage?.couvert ?? i18n.format.money(10),
         currentProduct: null,
         type: storage?.type ?? "perConsume",
-        users: new Dict<string, User>(storage?.users.map((x) => [x.id, { ...x, createdAt: new Date(x.createdAt) }])),
-        products: new Dict<string, CartProduct>(
+        users: new Dict(
+            storage?.users.map((x) => [
+                x.id,
+                { ...x, createdAt: new Date(x.createdAt), paidAt: x.paidAt ? new Date(x.paidAt) : null },
+            ]),
+        ),
+        products: new Dict(
             storage?.products.map((product) => [
                 product.id,
                 {
@@ -102,16 +122,23 @@ export const Cart = Entity.create(
             removeProduct: (product: CartProduct) =>
                 merge({ products: new Dict(get.state().products).remove(product.id) }),
             removeUser: (user: User) => merge({ users: new Dict(get.state().users).remove(user.id) }),
-            onChangeFriends: (users: User[]) => {
+            onChangeFriends: (users: User[], justMe: boolean) => {
                 const dict = new Dict(get.state().users);
-                users.forEach((user) => dict.set(user.id, user));
-                return merge({ users: dict });
+                users.forEach((user) => dict.set(user.id, newUser(user)));
+                return merge({ users: dict, justMe });
             },
-            onChangeProduct: (product: CartProduct) => {
-                const dict = new Dict(get.state().products);
-                dict.set(product.id, product);
-                return merge({ products: dict });
-            },
+            onChangeProduct: (product: CartProduct) =>
+                merge({
+                    products: new Dict(get.state().products).clone().set(product.id, {
+                        ...product,
+                        consumers: new Dict(
+                            product.consumers.map((consumer) => [
+                                consumer.id,
+                                { ...consumer, amount: consumer.quantity * product.price },
+                            ]),
+                        ),
+                    }),
+                }),
             onChange: (e: ChangeEvent<HTMLInputElement>) => {
                 const name = e.target.name;
                 const value = e.target.value;
@@ -135,8 +162,8 @@ export const Cart = Entity.create(
         };
     },
     {
-        validate: (cartProduct: CartProduct) => {
-            const validated = safeParse(product, cartProduct);
+        validate: (cartProduct: ParseToRaw<CartProduct>) => {
+            const validated = product.safeParse(cartProduct);
             const messages: FormError[] = [];
             const consumers = Array.from(cartProduct.consumers.values());
             const exceededPayers = consumers.filter((x) => x.quantity > cartProduct.quantity);
@@ -151,20 +178,18 @@ export const Cart = Entity.create(
             }
             if (!validated.success) {
                 messages.push(
-                    ...validated.issues.map(
-                        (error): FormError => ({
-                            message: error.message,
-                            path: error.path?.join(".") ?? "",
-                        }),
+                    ...validated.error.issues.map(
+                        (error): FormError => ({ message: error.message, path: error.path?.join(".") ?? "" }),
                     ),
                 );
                 return Either.error(messages);
             }
-            return Either.success(validated.output as any as CartProduct);
+            return Either.success(validated.data as any as CartProduct);
         },
-        newProduct: (consumers: Dict<string, User>): CartProduct => ({
+        newUser,
+        newProduct: (consumers: Dict<string, CartUser>): CartProduct => ({
             ...Product.create(),
-            consumers: new Dict(consumers.map((x): [string, CartUser] => [x.id, { ...x, amount: 0, quantity: 0 }])),
+            consumers: new Dict(consumers.map((x) => [x.id, newUser(x)])),
         }),
         onSubmit: (state: CartState) => {
             History.save({ ...state, currentProduct: null });

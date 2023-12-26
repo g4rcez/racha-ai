@@ -1,9 +1,7 @@
 import { Fragment } from "react";
-import { createPolyglotStore } from "~/i18n/polyglot/polyglot.client";
-import { createPolyglot, createPolyglotNative } from "~/i18n/polyglot/polyglot.core";
 import { ColorThemes } from "~/store/preferences.store";
 
-const native = createPolyglotNative("pt-BR", () => ({
+const enUsMap = () => ({
     darkModeToggleButton: (props: { theme: ColorThemes }) =>
         `Trocar para modo ${props.theme === "dark" ? "claro" : "escuro"}`,
     colorDefault: "Cor padrão",
@@ -25,16 +23,14 @@ const native = createPolyglotNative("pt-BR", () => ({
     welcomeCustomizeTitle: "Customizar",
     yourself: "Você mesmo",
     hasUpdate: "Temos uma atualização, deseja atualizar?",
-    historyTitle: "Meu histórico",
-    historicDescription: "Aqui você pode conferir tudo o que você já rachou com a galera.",
+    historyTitle: "My history",
+    historicDescription: "Here you can check your bills history",
     closeModal: (props: { title: string }) => `Fechar sessão de ${props.title}`,
     welcome: (props: { name: string }) => (
-        <Fragment>Olá {props.name === "" ? "" : <span className="text-main-bg">, {props.name}</span>}</Fragment>
+        <Fragment>
+            Olá, <span className="text-main-bg">{props.name}</span>
+        </Fragment>
     ),
-}));
+});
 
-export const i18n = createPolyglot(native, { "en-US": () => import("./en-us") });
-
-export const useI18n = createPolyglotStore(i18n);
-
-export const useTranslations = () => useI18n()[0];
+export default enUsMap;

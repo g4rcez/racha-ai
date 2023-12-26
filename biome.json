@@ -8,7 +8,6 @@
         "formatWithErrors": false,
         "indentStyle": "space",
         "indentWidth": 4,
-        "lineWidth": 120,
-        "ignore": []
+        "lineWidth": 120
     }
 }
