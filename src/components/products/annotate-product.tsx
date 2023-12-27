@@ -77,7 +77,7 @@ export const AnnotateProduct = (props: Props) => {
     };
 
     const onClickNewProduct = () => {
-        const p = Cart.newProduct(props.users);
+        const p = Cart.newProduct(new Dict(props.users.map(x => [x.id,Cart.newUser(x)])));
         setProduct(p);
         if (props.product) return;
         props.onAddProduct(p);
