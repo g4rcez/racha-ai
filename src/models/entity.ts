@@ -50,7 +50,7 @@ export namespace Entity {
     ) => {
         type State = ReturnType<Getter>;
         const schema = info.schemas[info.version as any] as ReturnType<typeof validator>;
-        const storageKey = `@app/${info.name}@${info.version}`;
+        const storageKey = `@app/${info.name}@${info.version as string}`;
         const getInitialState = (): State => {
             const storageData = LocalStorage.get(storageKey);
             return schema<State>(storageData, getState) as State;
