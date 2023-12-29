@@ -1,6 +1,6 @@
 import { Link } from "brouther";
 import { ReceiptIcon, SoupIcon, UsersIcon } from "lucide-react";
-import React, { Fragment, useEffect } from "react";
+import React, {Fragment, useEffect, useMemo} from "react";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { SectionTitle, Title } from "~/components/typography";
@@ -44,6 +44,7 @@ export default function AppPage() {
     const [history, historyDispatch] = History.use();
     const i18n = useTranslations();
     const items = history.items.toSorted((a, b) => a.createdAt.getDate() - b.createdAt.getDate());
+    const firstStateName = useMemo(() => state.user.name, [])
 
     useEffect(() => {
         historyDispatch.init();
@@ -53,7 +54,7 @@ export default function AppPage() {
         <main className="flex flex-col gap-6 pb-8">
             <header className="flex flex-col gap-2">
                 <Title>{i18n.get("welcome", state)}</Title>
-                {state.name === "" ? <Form className="flex flex-col gap-4">
+                {firstStateName === "" ? <Form className="flex flex-col gap-4">
                     <Input
                         required
                         name="name"
