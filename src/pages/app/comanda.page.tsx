@@ -33,8 +33,8 @@ export default function ComandaPage() {
                     onChange={dispatch.onChange}
                 />
                 <section className="flex flex-col gap-2">
-                    <SectionTitle titleClassName="text-2xl" title="Pagantes">
-                        Deixe aqui apenas quem vai dividir com você
+                    <SectionTitle titleClassName="text-2xl" title="Quem tá na mesa?">
+                        Aqui você irá selecionar todos os que irão dividir a conta com você.
                     </SectionTitle>
                     <SelectConsumerFriends friends={state.users} onChangeFriends={dispatch.onChangeFriends} />
                     <ul className="space-y-4">

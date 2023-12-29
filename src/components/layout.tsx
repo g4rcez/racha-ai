@@ -1,13 +1,13 @@
 import { Link, Outlet, useHref, useRouteError } from "brouther";
-import { useEffect } from "react";
+import {Fragment, useEffect} from "react";
 import { Logo } from "~/components/logo";
 import { links } from "~/router";
 import { ThemeToggle } from "~/store/preferences.store";
 
 const App = () => {
     return (
-        <div>
-            <header className="sticky top-0 mb-6 min-w-full bg-main-bg text-main shadow-lg">
+        <Fragment>
+            <header className="sticky top-0 mb-6 min-w-full bg-main-bg text-main shadow-lg z-10">
                 <nav className="container mx-auto flex max-w-2xl items-center justify-between p-4">
                     <Link href={links.app}>
                         <Logo type="raw" />
@@ -20,7 +20,7 @@ const App = () => {
             <div className="container mx-auto max-w-2xl px-4">
                 <Outlet />
             </div>
-        </div>
+        </Fragment>
     );
 };
 

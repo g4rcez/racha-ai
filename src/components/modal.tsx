@@ -22,7 +22,7 @@ export const Modal = (props: PropsWithChildren<Props>) => {
                 <Dialog.Overlay className="fixed inset-0 bg-black/80 data-[state=open]:animate-overlayShow" />
                 <Dialog.Content
                     onInteractOutside={() => props.onChange?.(false)}
-                    className="fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded bg-body-bg px-6 py-8 shadow-2xl focus:outline-none data-[state=open]:animate-contentShow"
+                    className="fixed left-[50%] top-[50%] max-h-[85vh] w-[90vw] max-w-[450px] translate-x-[-50%] translate-y-[-50%] rounded bg-body-bg px-6 py-8 shadow-2xl focus:outline-none data-[state=open]:animate-contentShow overflow-y-auto"
                 >
                     <Dialog.Title asChild>
                         <Title>{props.title}</Title>

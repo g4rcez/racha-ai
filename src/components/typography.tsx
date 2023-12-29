@@ -3,7 +3,7 @@ import { Polymorph, PolymorphicProps } from "~/components/polymorph";
 import { css } from "~/lib/dom";
 import { Label } from "~/types";
 
-export const Title = (props: PolymorphicProps<{}, "h1">) => (
+export const Title = (props: PolymorphicProps<{}, "h1" | "h2" | "h3" | "h4">) => (
     <Polymorph
         {...props}
         className={css("text-3xl font-medium leading-relaxed tracking-wide", props.className)}

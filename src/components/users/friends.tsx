@@ -140,7 +140,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                 onChange={setVisible}
                 title="Lista de amigos"
                 description="Aqui você irá selecionar todos os amigos que vão dividir a conta com você"
-                trigger={<Button>Tô com os amigos</Button>}
+                trigger={<Button>Com os amigos</Button>}
             >
                 <ul className="space-y-4">
                     <li>

@@ -94,8 +94,7 @@ export const Preferences = Entity.create(
                 }
                 return merge({ colors });
             },
-            onChangeName: (e: ChangeEvent<HTMLInputElement>) => {
-                const name = e.target.value;
+            onChangeName: (name: string) => {
                 return merge({ name, user: { ...get.state().user, name } });
             },
             onChange: (e: ChangeEvent<HTMLInputElement>) => {

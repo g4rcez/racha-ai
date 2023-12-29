@@ -18,7 +18,7 @@ type Shortcut = {
 
 const shortcuts: Shortcut[] = [
     {
-        href: links.app,
+        href: links.friends,
         icon: UsersIcon,
         text: (
             <Fragment>
@@ -50,19 +50,20 @@ export default function AppPage() {
     }, []);
 
     return (
-        <main className="flex flex-col gap-8 pb-8">
-            <header>
-                <Title className="mb-2">{i18n.get("welcome", state)}</Title>
-                <Form className="flex flex-col gap-4">
+        <main className="flex flex-col gap-6 pb-8">
+            <header className="flex flex-col gap-2">
+                <Title>{i18n.get("welcome", state)}</Title>
+                {state.name === "" ? <Form className="flex flex-col gap-4">
                     <Input
                         required
                         name="name"
                         value={state.name}
-                        onChange={dispatch.onChangeName}
                         title={i18n.get("welcomeInputTitle")}
                         placeholder={i18n.get("welcomeInputPlaceholder")}
+                        onChange={e => dispatch.onChangeName(e.target.value)}
                     />
                 </Form>
+                : null}
             </header>
             <section className="flex flex-nowrap gap-4 py-2 overflow-x-auto scroll-smooth snap-x snap-mandatory snap-center">
                 {shortcuts.map((shortcut) => (
