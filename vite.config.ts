@@ -34,7 +34,7 @@ export default defineConfig({
 		VitePWA({
 			includeAssets: ["**/*"],
 			workbox: {
-				globPatterns: ["**/*"],
+				globPatterns: ["/app/**/*"],
 				globIgnores: ["/blog/**", "/blog", "/changelog"],
 			},
 			manifest: {
