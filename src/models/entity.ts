@@ -11,7 +11,7 @@ export namespace Entity {
         .or(z.date())
         .transform((x) => (x ? new Date(x) : null));
 
-    export const schema = z.object({ id: z.string().uuid(), createAt: dateSchema });
+    export const schema = z.object({ id: z.string().uuid(), createdAt: dateSchema });
 
     export type New<T extends object> = T & Metadata;
 

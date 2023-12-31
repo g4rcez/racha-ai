@@ -8,15 +8,17 @@ const buttonVariants = cva(
     "inline-flex gap-1.5 text-button border-2 border-transparent items-center hover:bg-opacity-80 justify-center align-middle cursor-pointer whitespace-nowrap font-medium transition-colors ease-in disabled:cursor-not-allowed disabled:bg-opacity-50 disabled:text-opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shadow-sm",
     {
         variants: {
-            size: { default: "h-10 lg:h-12 px-3 py-2", big: "h-12 px-6 py-4", small: "h-8 p-2", medium: "h-11 p-2" },
+            size: { default: "h-10 lg:h-12 px-3 py-2", big: "h-12 px-6 py-4", small: "h-8 p-2", medium: "h-11 p-2", icon: "" },
             rounded: { default: "rounded-md", rough: "rounded-sm", circle: "rounded-full aspect-square" },
             theme: {
                 transparent: "bg-transparent",
+                "transparent-danger": "bg-transparent text-danger-bg",
                 main: "bg-main-bg border-main-bg",
                 warn: "bg-warn-bg border-warn-bg",
                 success: "bg-success-bg border-success-bg",
                 accent: "bg-accent-bg border-accent-bg",
                 danger: "bg-danger-bg border-danger-bg",
+                muted: "bg-muted-bg border-muted-bg",
             },
         },
         defaultVariants: { theme: "main", size: "default", rounded: "default" },

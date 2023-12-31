@@ -27,16 +27,18 @@ const product = z.object({
 });
 
 const defaultSchema = z.object({
-    additional: z.string(),
-    couvert: z.string(),
-    currentProduct: product,
-    title: z.string(),
     type: z.string(),
+    title: z.string(),
+    couvert: z.string(),
+    justMe: z.boolean(),
     id: z.string().uuid(),
+    additional: z.string(),
+    currentProduct: product,
     hasCouvert: z.boolean(),
     hasAdditional: z.boolean(),
     products: z.array(product),
     createdAt: Entity.dateSchema,
+    finishedAt: Entity.dateSchema,
     users: z.array(Friends.schema),
 });
 
@@ -63,6 +65,7 @@ export type CartState = Entity.New<{
     justMe: boolean;
     createdAt: Date;
     couvert: string;
+    finishedAt: Date;
     additional: string;
     hasCouvert: boolean;
     hasAdditional: boolean;
@@ -77,9 +80,10 @@ export const Cart = Entity.create(
     (storage?: ParseToRaw<CartState>): CartState => ({
         id: storage?.id ?? uuidv7(),
         justMe: storage?.justMe ?? false,
-        title: storage?.title ?? "Meu bar",
+        title: storage?.title ?? "",
         hasAdditional: storage?.hasAdditional ?? true,
         createdAt: storage?.createdAt ? new Date(storage.createdAt) : new Date(),
+        finishedAt: storage?.finishedAt ? new Date(storage.finishedAt) : new Date(),
         additional: storage?.additional ?? i18n.format.percent(0.1),
         hasCouvert: storage?.hasCouvert ?? false,
         couvert: storage?.couvert ?? i18n.format.money(10),
@@ -114,31 +118,58 @@ export const Cart = Entity.create(
         const merge = (s: Partial<CartState>) => ({ ...get.state(), ...s });
         return {
             setCurrent: (product: CartProduct | null) => merge({ currentProduct: product }),
+            removeProduct: (product: CartProduct) =>
+                merge({ products: new Dict(get.state().products).remove(product.id) }),
             addProduct: (product: CartProduct) =>
                 merge({
                     products: new Dict(get.state().products).set(product.id, product),
                     currentProduct: { ...product },
                 }),
-            removeProduct: (product: CartProduct) =>
-                merge({ products: new Dict(get.state().products).remove(product.id) }),
-            removeUser: (user: User) => merge({ users: new Dict(get.state().users).remove(user.id) }),
-            onChangeFriends: (users: User[], justMe: boolean) => {
+            removeUser: (user: User) => {
+                const state = get.state();
+                const id = user.id;
+                const products = new Dict<string, CartProduct>(
+                    state.products.map((product) => {
+                        const consumers = product.consumers.clone();
+                        consumers.delete(id);
+                        return [product.id, { ...product, consumers }];
+                    }),
+                );
+                if (state.currentProduct) {
+                    const p = { ...state.currentProduct };
+                    p.consumers = p.consumers.clone().remove(id);
+                    return merge({ users: new Dict(get.state().users).remove(user.id), products, currentProduct: p });
+                }
+                return merge({ users: new Dict(get.state().users).remove(user.id), products });
+            },
+            onAddFriend: (user: CartUser, justMe: boolean = false) => {
+                if (justMe) return merge({ users: new Dict([[user.id, user]]), justMe });
                 const dict = new Dict(get.state().users);
-                users.forEach((user) => dict.set(user.id, newUser(user)));
+                dict.set(user.id, user);
                 return merge({ users: dict, justMe });
             },
-            onChangeProduct: (product: CartProduct) =>
-                merge({
-                    products: new Dict(get.state().products).clone().set(product.id, {
+            onRemoveFriend: (user: CartUser) => {
+                const dict = new Dict(get.state().users);
+                return merge({ users: dict.remove(user.id) });
+            },
+            onChangeProduct: (product: CartProduct) => {
+                const state = get.state();
+                return merge({
+                    products: new Dict(state.products).clone().set(product.id, {
                         ...product,
                         consumers: new Dict(
                             product.consumers.map((consumer) => [
                                 consumer.id,
-                                { ...consumer, amount: consumer.quantity * product.price },
+                                {
+                                    ...consumer,
+                                    amount: (state.justMe ? product.quantity : consumer.quantity) * product.price,
+                                },
                             ]),
                         ),
                     }),
-                }),
+                });
+            },
+            onChangeBonus: (n: number) => merge({ additional: i18n.format.percent(n) }),
             onChange: (e: ChangeEvent<HTMLInputElement>) => {
                 const name = e.target.name;
                 const value = e.target.value;
@@ -192,9 +223,9 @@ export const Cart = Entity.create(
             consumers: new Dict(consumers.map((x) => [x.id, newUser(x)])),
         }),
         onSubmit: (state: CartState) => {
-            History.save({ ...state, currentProduct: null });
+            History.save({ ...state, finishedAt: new Date(), currentProduct: null });
             Cart.clearStorage();
-            return History.view(state);
+            return History.view(state.id);
         },
     },
 );

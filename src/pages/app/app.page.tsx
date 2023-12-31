@@ -1,6 +1,7 @@
 import { Link } from "brouther";
-import { ReceiptIcon, SoupIcon, UsersIcon } from "lucide-react";
-import React, {Fragment, useEffect, useMemo} from "react";
+import { SoupIcon } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { Shortcut, shortcuts } from "~/components/admin/shortcuts";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { SectionTitle, Title } from "~/components/typography";
@@ -10,41 +11,12 @@ import { link, links } from "~/router";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 
-type Shortcut = {
-    icon: React.FC<any>;
-    text: React.ReactNode;
-    href: (typeof links)[keyof typeof links];
-};
-
-const shortcuts: Shortcut[] = [
-    {
-        href: links.friends,
-        icon: UsersIcon,
-        text: (
-            <Fragment>
-                Adicionar
-                <br /> amigos
-            </Fragment>
-        ),
-    },
-    {
-        href: links.cart,
-        icon: ReceiptIcon,
-        text: (
-            <Fragment>
-                Nova
-                <br /> comanda
-            </Fragment>
-        ),
-    },
-];
-
 export default function AppPage() {
     const [state, dispatch] = Preferences.use();
     const [history, historyDispatch] = History.use();
     const i18n = useTranslations();
     const items = history.items.toSorted((a, b) => a.createdAt.getDate() - b.createdAt.getDate());
-    const firstStateName = useMemo(() => state.user.name, [])
+    const firstStateName = useMemo(() => state.user.name, []);
 
     useEffect(() => {
         historyDispatch.init();
@@ -54,30 +26,26 @@ export default function AppPage() {
         <main className="flex flex-col gap-6 pb-8">
             <header className="flex flex-col gap-2">
                 <Title>{i18n.get("welcome", state)}</Title>
-                {firstStateName === "" ? <Form className="flex flex-col gap-4">
-                    <Input
-                        required
-                        name="name"
-                        value={state.name}
-                        title={i18n.get("welcomeInputTitle")}
-                        placeholder={i18n.get("welcomeInputPlaceholder")}
-                        onChange={e => dispatch.onChangeName(e.target.value)}
-                    />
-                </Form>
-                : null}
+                {firstStateName === "" ? (
+                    <Form className="flex flex-col gap-4">
+                        <Input
+                            required
+                            name="name"
+                            value={state.name}
+                            title={i18n.get("welcomeInputTitle")}
+                            placeholder={i18n.get("welcomeInputPlaceholder")}
+                            onChange={(e) => dispatch.onChangeName(e.target.value)}
+                        />
+                    </Form>
+                ) : null}
             </header>
-            <section className="flex flex-nowrap gap-4 py-2 overflow-x-auto scroll-smooth snap-x snap-mandatory snap-center">
+            <ul className="flex snap-x snap-mandatory snap-center flex-nowrap gap-4 overflow-x-auto scroll-smooth py-2">
                 {shortcuts.map((shortcut) => (
-                    <Link
-                        href={shortcut.href}
-                        key={`shortcuts-${shortcut.href}`}
-                        className="flex flex-col items-center gap-2 rounded border border-opacity-60 border-main-bg p-2 px-4"
-                    >
-                        {<shortcut.icon aria-hidden="true" size={24} strokeWidth={2} absoluteStrokeWidth />}{" "}
-                        {shortcut.text}
-                    </Link>
+                    <li key={`shortcut-${shortcut.href}`}>
+                        <Shortcut {...shortcut} />
+                    </li>
                 ))}
-            </section>
+            </ul>
             {items.length === 0 ? null : (
                 <section>
                     <SectionTitle title={i18n.get("historyTitle")}>{i18n.get("historicDescription")}</SectionTitle>

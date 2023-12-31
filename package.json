@@ -28,6 +28,7 @@
         "the-mask-input": "3.3.3",
         "use-sync-external-store": "1.2.0",
         "use-typed-reducer": "3.3.5",
+        "vaul": "0.8.0",
         "zod": "3.22.4"
     },
     "devDependencies": {

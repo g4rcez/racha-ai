@@ -11,10 +11,10 @@ export const Title = (props: PolymorphicProps<{}, "h1" | "h2" | "h3" | "h4">) =>
     />
 );
 
-type Props = { title: Label; titleClassName?: string; paragraphClassName?: string };
+type Props = { title: Label; titleClassName?: string; paragraphClassName?: string; headerClassName?: string };
 
 export const SectionTitle = (props: PropsWithChildren<Props>) => (
-    <header className="flex flex-col">
+    <header className={css("flex flex-col", props.headerClassName)}>
         <Title className={css("mb-1", props.titleClassName)}>{props.title}</Title>
         <p>{props.children}</p>
     </header>

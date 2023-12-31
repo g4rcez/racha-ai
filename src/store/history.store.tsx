@@ -56,6 +56,7 @@ const KEY = "@app/history";
 const parse = (item: ParseToRaw<CartState>): CartState => ({
     ...item,
     createdAt: new Date(item.createdAt),
+    finishedAt: new Date(item.finishedAt),
     products: Dict.from("id", item.products) as any,
     users: Dict.from(
         "id",
@@ -78,7 +79,7 @@ export const History = Entity.create(
     () => ({ init: () => parseAll(Entity.getStorage("history") as any) }),
     {
         parse,
-        view: (item: CartState) => navigate.push(link(links.cartHistory, { id: item.id })),
+        view: (id: string) => navigate.push(link(links.cartHistory, { id })),
         get: (id: string): CartState | null => {
             const storage = (LocalStorage.get(KEY) as { items: CartState[] }) || null;
             if (storage === null) return null;

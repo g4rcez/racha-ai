@@ -1,5 +1,5 @@
 import { Dict } from "~/lib/dict";
-import { fromStrNumber, sum } from "~/lib/fn";
+import { fixed, fromStrNumber, sum } from "~/lib/fn";
 import { CartProduct, CartState } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
 
@@ -20,9 +20,17 @@ export namespace CartMath {
     const sumProducts = (products: CartState["products"]): number =>
         products.map((x) => x.quantity * x.price).reduce(sum, 0);
 
-    export const perUser = (products: CartProduct[], user: User, additional: number, couvert: Couvert) =>
-        products.flatMap((p) => p.consumers.map((c) => (c.id === user.id ? c.amount : 0))).reduce(sum, 0) * additional +
-        couvert.each;
+    export const perUser = (products: CartProduct[], user: User, additional: number, couvert: Couvert) => {
+        const amount = products.flatMap((p) => p.consumers.map((c) => (c.id === user.id ? c.amount : 0)));
+        const productsTotal = amount.reduce(sum, 0);
+        const bonus = fixed(additional - 1)
+        const total = fixed(productsTotal * bonus)
+        return {
+            total,
+            additional: fixed(additional),
+            totalWithCouvert: amount.reduce(sum, 0) * additional + couvert.each
+        };
+    };
 
     export const calculate = (cart: CartState, formatter: (n: number) => string) => {
         const additional = calcAdditional(cart);
@@ -32,7 +40,7 @@ export namespace CartMath {
             additional,
             couvert,
             products,
-            total: formatter(products * additional + couvert.total),
+            total: formatter(products * additional + couvert.total)
         };
     };
 }

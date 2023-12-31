@@ -21,8 +21,8 @@ export namespace Numbers {
         money: new Intl.NumberFormat(lang, {
             style: "currency",
             currency: getCurrency(lang) as string,
-            ...options?.money,
-        }).format,
+            ...options?.money
+        }).format
     });
 
     export const unitProxyHandler = (lang: string, options?: PolyglotConfig) => (target: any, p: string | symbol) => {

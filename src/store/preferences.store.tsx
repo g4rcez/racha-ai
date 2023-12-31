@@ -2,7 +2,6 @@ import { uuidv7 } from "@kripod/uuidv7";
 import { MoonIcon, SunIcon } from "lucide-react";
 import { ChangeEvent } from "react";
 import { z } from "zod";
-import { Button } from "~/components/button";
 import { useTranslations } from "~/i18n";
 import { changeThemeColor, hslToHex } from "~/lib/dom";
 import { onlyNumbers } from "~/lib/fn";
@@ -129,8 +128,8 @@ export const ThemeToggle = () => {
     const isLight = state.theme === "light";
 
     return (
-        <Button aria-label={i18n.get("darkModeToggleButton", state)} onClick={dispatch.toggle}>
+        <button aria-label={i18n.get("darkModeToggleButton", state)} onClick={dispatch.toggle}>
             {isLight ? <MoonIcon /> : <SunIcon />}
-        </Button>
+        </button>
     );
 };

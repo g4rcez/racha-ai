@@ -2,7 +2,7 @@ import { Brouther } from "brouther";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
-import { Layout } from "~/components/layout";
+import { Layout } from "~/layout/layout";
 import { i18n } from "~/i18n";
 import { routerConfig } from "~/router";
 import { Preferences } from "~/store/preferences.store";

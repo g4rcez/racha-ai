@@ -1,4 +1,5 @@
 import { uuidv7 } from "@kripod/uuidv7";
+import React from "react";
 import { Is } from "~/lib/is";
 
 export const reduceObject = <T extends {}, V>(object: T, fn: <K extends keyof T>(k: K, value: T[K]) => V) =>
@@ -56,3 +57,15 @@ export const sum = (a: number, b: number) => a + b;
 export const diff = (a: number, b: number) => a - b;
 
 export const clamp = (min: number, average: number, max: number) => Math.max(Math.min(max, average), min);
+
+export const isReactComponent = (a: any): a is React.FC => {
+    if (a.$$typeof === Symbol.for("react.forward_ref")) {
+        return true;
+    }
+    if (a.$$typeof === Symbol.for("react.fragment")) {
+        return true;
+    }
+    return a.$$typeof === Symbol.for("react.element");
+};
+
+export const fixed = (n: number, decimalPlaces: number = 2) => Number(n.toFixed(decimalPlaces));

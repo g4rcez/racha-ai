@@ -54,14 +54,14 @@ export default function CartId() {
                                       id: p.id,
                                       price: p.monetary,
                                       quantity: consumed.quantity,
-                                      total: i18n.format.money(consumed.quantity * p.price),
-                                  },
+                                      total: i18n.format.money(consumed.quantity * p.price)
+                                  }
                               ];
                     }, []);
                     return (
                         <li className="flex flex-wrap justify-between" key={user.id}>
-                            <span className="font-medium text-lg">{user.name}</span>
-                            <span>{i18n.format.money(result)}</span>
+                            <span className="text-lg font-medium">{user.name}</span>
+                            <span>{i18n.format.money(result.totalWithCouvert)}</span>
                             {ownProducts.length === 0 ? null : (
                                 <Table>
                                     <TableHead>
@@ -79,12 +79,14 @@ export default function CartId() {
                                                     <TableCell>{product.total}</TableCell>
                                                     <TableCell>{product.quantity}</TableCell>
                                                 </TableRow>
-                                            ),
+                                            )
                                         )}
                                         {cart.hasAdditional ? (
                                             <TableRow>
                                                 <TableCell>Gorjeta</TableCell>
-                                                <TableCell>{i18n.format.money(result * (additional - 1))}</TableCell>
+                                                <TableCell>
+                                                    {i18n.format.money(result.total)}
+                                                </TableCell>
                                                 <TableCell>1</TableCell>
                                             </TableRow>
                                         ) : null}

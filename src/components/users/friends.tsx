@@ -1,10 +1,11 @@
 import { PlusIcon, Trash2Icon } from "lucide-react";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { Button } from "~/components/button";
+import { Drawer } from "~/components/drawer";
 import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Modal } from "~/components/modal";
+import { Mobile } from "~/components/mobile";
 import { useTranslations } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { getHtmlInput } from "~/lib/dom";
@@ -72,9 +73,9 @@ export const FriendsCrud = () => {
             <li>
                 <Form onSubmit={onSubmit} className="flex flex-row items-end gap-2">
                     <Input
-                        autoFocus
                         name="user"
                         optionalText=""
+                        autoFocus={!Mobile.use()}
                         title={i18n.get("addFriendInput")}
                         placeholder={i18n.get("userInputPlaceholder")}
                     />
@@ -96,15 +97,16 @@ export const FriendsCrud = () => {
     );
 };
 
-type ConsumerProps = { onChangeFriends: (friends: User[], justMe: boolean) => void; friends: Dict<string, User> };
+type ConsumerProps = {
+    friends: Dict<string, CartUser>;
+    onDelete: (user: CartUser) => void;
+    onAdd: (user: CartUser, alone?: boolean) => void;
+};
 
 export const SelectConsumerFriends = (props: ConsumerProps) => {
     const [visible, setVisible] = useState(false);
     const [me] = Preferences.use((s) => s.user);
     const [users, dispatch] = Friends.use((s) => s.users);
-    const [localFriends, setLocalFriends] = useState<Dict<string, CartUser>>(() =>
-        new Dict<string, CartUser>(props.friends.map(Cart.newUser)).set(me.id, Cart.newUser(me)),
-    );
     const i18n = useTranslations();
     const consumers = users.toSorted((a, b) => b.id.localeCompare(a.id));
 
@@ -112,60 +114,67 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
         const form = e.currentTarget;
         const input = form.elements.namedItem("name") as HTMLInputElement;
         const name = input.value;
-        const user = Friends.new(name);
+        const user = Cart.newUser(Friends.new(name));
         dispatch.new(user);
-        setLocalFriends((prev) => new Dict(prev).set(user.id, Cart.newUser(user)));
         form.reset();
         input.focus();
     };
 
-    const onCheckFriend = (user: User) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onCheckFriend = (u: User) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!props.friends.has(me.id)) props.onAdd(Cart.newUser(me));
         const checked = e.target.checked;
-        return setLocalFriends((prev) => {
-            const clone = new Dict(prev);
-            if (checked) return clone.set(user.id, Cart.newUser(user));
-            return clone.remove(user.id);
-        });
+        const user = Cart.newUser(u);
+        return checked ? props.onAdd(user) : props.onDelete(user);
     };
-
-    useEffect(() => {
-        if (visible) props.onChangeFriends([...localFriends.values()], false);
-    }, [props.onChangeFriends, localFriends]);
 
     return (
         <div className="my-2 grid grid-cols-2 items-end gap-4">
-            <Button onClick={() => props.onChangeFriends([me], true)}>Tô sozinho</Button>
-            <Modal
-                visible={visible}
+            <Button onClick={() => props.onAdd(Cart.newUser(me), true)}>Tô sozinho</Button>
+            <Drawer
+                open={visible}
                 onChange={setVisible}
-                title="Lista de amigos"
-                description="Aqui você irá selecionar todos os amigos que vão dividir a conta com você"
-                trigger={<Button>Com os amigos</Button>}
             >
-                <ul className="space-y-4">
-                    <li>
-                        <Form onSubmit={createNewUser}>
-                            <Input
-                                autoComplete="off"
-                                name="name"
-                                title="Nome do amigo"
-                                placeholder={i18n.get("userInputPlaceholder")}
-                            />
-                        </Form>
-                    </li>
-                    {consumers.map((user) => (
-                        <li className="flex items-center justify-between" key={`${user.id}-comanda-list`}>
-                            <Checkbox
-                                data-id={user.id}
-                                onChange={onCheckFriend(user)}
-                                checked={localFriends.has(user.id)}
-                            >
-                                <span>{user.name}</span>
-                            </Checkbox>
+                <Drawer.Trigger asChild>
+                    <Button>Com os amigos</Button>
+                </Drawer.Trigger>
+                <Drawer.Content>
+                    <Drawer.Title>Lista de amigos</Drawer.Title>
+                    <ul className="space-y-4 my-4">
+                        <li>
+                            <Form className="flex flex-nowrap items-end gap-2" onSubmit={createNewUser}>
+                                <Input
+                                    name="name"
+                                    autoComplete="off"
+                                    title="Nome do amigo"
+                                    placeholder={i18n.get("userInputPlaceholder")}
+                                />
+                                <Mobile>
+                                    <Button
+                                        aria-label="Adicionar amigo"
+                                        title="Adicionar amigo"
+                                        type="submit"
+                                        icon={<PlusIcon absoluteStrokeWidth strokeWidth={2} aria-hidden="true" />}
+                                    />
+                                </Mobile>
+                            </Form>
                         </li>
-                    ))}
-                </ul>
-            </Modal>
+                        {consumers.map((user) => (
+                            <li className="flex items-center justify-between" key={`${user.id}-comanda-list`}>
+                                <Checkbox
+                                    data-id={user.id}
+                                    onChange={onCheckFriend(user)}
+                                    checked={props.friends.has(user.id)}
+                                >
+                                    <span>{user.name}</span>
+                                </Checkbox>
+                            </li>
+                        ))}
+                    </ul>
+                    <Drawer.Trigger asChild>
+                        <Button className="w-full">Salvar</Button>
+                    </Drawer.Trigger>
+                </Drawer.Content>
+            </Drawer>
         </div>
     );
 };

@@ -1,15 +1,20 @@
 import { Trash2Icon } from "lucide-react";
-import React from "react";
+import React, { Fragment } from "react";
+import { Alert } from "~/components/alert";
 import { Button } from "~/components/button";
 import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { AnnotateProduct } from "~/components/products/annotate-product";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/table";
 import { SectionTitle, Title } from "~/components/typography";
 import { SelectConsumerFriends } from "~/components/users/friends";
 import { i18n } from "~/i18n";
+import { sum } from "~/lib/fn";
 import { Cart } from "~/store/cart.store";
 import { Preferences } from "~/store/preferences.store";
+
+const bonusAdditional = [0.08, 0.1, 0.12, 0.15];
 
 export default function ComandaPage() {
     const [state, dispatch] = Cart.use();
@@ -22,7 +27,7 @@ export default function ComandaPage() {
 
     return (
         <main className="pb-8">
-            <Title className="font-bold">{state.title}</Title>
+            <Title className="font-bold">{state.title || "Bar sem nome..."}</Title>
             <Form className="flex flex-col gap-6" onSubmit={onSubmit}>
                 <Input
                     required
@@ -34,9 +39,13 @@ export default function ComandaPage() {
                 />
                 <section className="flex flex-col gap-2">
                     <SectionTitle titleClassName="text-2xl" title="Quem tá na mesa?">
-                        Aqui você irá selecionar todos os que irão dividir a conta com você.
+                        Selecione quem irá dividir a conta com você
                     </SectionTitle>
-                    <SelectConsumerFriends friends={state.users} onChangeFriends={dispatch.onChangeFriends} />
+                    <SelectConsumerFriends
+                        friends={state.users}
+                        onAdd={dispatch.onAddFriend}
+                        onDelete={dispatch.onRemoveFriend}
+                    />
                     <ul className="space-y-4">
                         {state.users.map((user) => {
                             const i = user.id === me.id;
@@ -50,7 +59,11 @@ export default function ComandaPage() {
                                         {i ? " - Eu" : ""}
                                     </span>
                                     {i ? null : (
-                                        <Button onClick={() => dispatch.removeUser(user)} theme="danger" size="small">
+                                        <Button
+                                            onClick={() => dispatch.removeUser(user)}
+                                            theme="transparent-danger"
+                                            size="small"
+                                        >
                                             <Trash2Icon />
                                         </Button>
                                     )}
@@ -60,71 +73,119 @@ export default function ComandaPage() {
                     </ul>
                 </section>
                 <section className="flex flex-col gap-2">
-                    <SectionTitle titleClassName="text-2xl" title="Produtos">
-                        Anote aqui todos os produtos e seus consumidores
+                    <SectionTitle titleClassName="text-2xl" title="Consumo">
+                        Adicione aqui os itens consumidos.
                     </SectionTitle>
                     <AnnotateProduct
-                        onAddProduct={dispatch.addProduct}
-                        onChangeConsumedQuantity={dispatch.onChangeConsumedQuantity}
-                        onChangeProduct={dispatch.onChangeProduct}
-                        product={state.currentProduct}
                         users={state.users}
+                        imAlone={state.justMe}
+                        product={state.currentProduct}
                         disabled={state.users.size === 0}
+                        onAddProduct={dispatch.addProduct}
+                        onRemoveProduct={dispatch.removeProduct}
+                        onChangeProduct={dispatch.onChangeProduct}
+                        onChangeConsumedQuantity={dispatch.onChangeConsumedQuantity}
                     />
-                    <ul className="space-y-4">
-                        {state.products.map((product) => (
-                            <li className="flex flex-col items-center justify-between" key={`product-${product.id}`}>
-                                <span className="flex w-full items-center justify-between">
-                                    <button
-                                        onClick={() => dispatch.setCurrent(product)}
-                                        className="flex w-full items-center justify-between"
-                                    >
-                                        <div className="text-left">
-                                            <span className="text-xl">{product.name || "-"}</span>
-                                            <span className="flex gap-2 text-lg">
-                                                <span>{i18n.format.money(product.price)}</span>
-                                                <span>{"*"}</span>
-                                                <span>{product.quantity}</span>
-                                                <span>{"="}</span>
-                                                <span>{i18n.format.money(product.quantity * product.price)}</span>
-                                            </span>
-                                        </div>
-                                    </button>
-                                    <Button onClick={() => dispatch.removeProduct(product)} theme="danger" size="small">
-                                        <Trash2Icon />
-                                    </Button>
-                                </span>
-                                <ul className="mt-2 w-full space-y-1">
-                                    {product.consumers.map((consumer) => (
-                                        <li key={`consumer-item-${consumer.id}`}>
-                                            {consumer.name} - {consumer.quantity} - {i18n.format.money(consumer.amount)}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </li>
-                        ))}
+                    <ul className="mt-4 space-y-4">
+                        {state.products.map((product) => {
+                            const quantitySum = product.consumers
+                                .toArray()
+                                .reduce((acc, el) => sum(acc, el.quantity), 0);
+                            return (
+                                <li
+                                    className="flex flex-col items-center justify-between"
+                                    key={`product-${product.id}`}
+                                >
+                                    <span className="flex w-full items-center justify-between">
+                                        <button
+                                            onClick={() => dispatch.setCurrent(product)}
+                                            className="flex w-full items-center justify-between"
+                                        >
+                                            <div className="text-left">
+                                                <span className="text-xl">{product.name || "-"}</span>
+                                                <span className="flex gap-2 text-lg">
+                                                    <span>{i18n.format.money(product.price)}</span>
+                                                    <span>{"x"}</span>
+                                                    <span>{product.quantity}</span>
+                                                    <span>{"="}</span>
+                                                    <span>{i18n.format.money(product.quantity * product.price)}</span>
+                                                </span>
+                                            </div>
+                                        </button>
+                                        <Button
+                                            size="small"
+                                            theme="transparent-danger"
+                                            onClick={() => dispatch.removeProduct(product)}
+                                        >
+                                            <Trash2Icon />
+                                        </Button>
+                                    </span>
+                                    {quantitySum < product.quantity ? (
+                                        <Alert title="Aviso" theme="warn" className="my-6">
+                                            A soma do consumo é inferior a quantidade total de produtos
+                                        </Alert>
+                                    ) : null}
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableHeader>Pessoa</TableHeader>
+                                                <TableHeader>Quantidade</TableHeader>
+                                                <TableHeader>Total</TableHeader>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {product.consumers.map((consumer) =>
+                                                consumer.quantity === 0 ? null : (
+                                                    <TableRow key={`consumer-item-${consumer.id}`}>
+                                                        <TableCell>{consumer.name}</TableCell>
+                                                        <TableCell>{consumer.quantity}</TableCell>
+                                                        <TableCell>{i18n.format.money(consumer.amount)}</TableCell>
+                                                    </TableRow>
+                                                )
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </section>
-                <section className="flex flex-wrap gap-2">
-                    <SectionTitle titleClassName="text-2xl" title="Extras">
-                        Vai pagar a gorjeta do garçom ou couvert artístico?
-                    </SectionTitle>
-                    <div className="flex flex-wrap gap-2">
-                        <Checkbox checked={state.hasAdditional} onChange={dispatch.onChange} name="hasAdditional">
-                            Vai pagar a gorjeta?
-                        </Checkbox>
-                        {state.hasAdditional ? (
+                <SectionTitle headerClassName="min-w-full" titleClassName="text-2xl" title="Extras">
+                    Gorjeta? Couvert? Salvar a localização do bar? Essa sessão vai te ajudar nisso
+                </SectionTitle>
+                <section className="flex flex-wrap gap-4">
+                    <Checkbox checked={state.hasAdditional} onChange={dispatch.onChange} name="hasAdditional">
+                        Vai pagar a gorjeta?
+                    </Checkbox>
+                    {state.hasAdditional ? (
+                        <Fragment>
+                            <div className="grid min-w-full grid-cols-2 items-center justify-center gap-2">
+                                {bonusAdditional.map((bonus) => {
+                                    const formatted = i18n.format.percent(bonus);
+                                    return (
+                                        <Button
+                                            key={`bonus-key-${bonus}`}
+                                            theme={state.additional === formatted ? undefined : "muted"}
+                                            onClick={() => dispatch.onChangeBonus(bonus)}
+                                        >
+                                            {formatted}
+                                        </Button>
+                                    );
+                                })}
+                            </div>
                             <Input
                                 mask="percent"
                                 name="additional"
-                                onChange={dispatch.onChange}
                                 placeholder="10%"
-                                required
-                                title="Quantos % de gorjeta?"
+                                className="min-w-full"
                                 value={state.additional}
+                                onChange={dispatch.onChange}
+                                title="Outro valor de gorjeta"
                             />
-                        ) : null}
-                    </div>
+                        </Fragment>
+                    ) : null}
+                </section>
+                <section>
                     <div className="flex flex-wrap gap-2">
                         <Checkbox checked={state.hasCouvert} onChange={dispatch.onChange} name="hasCouvert">
                             Couvert artístico por pessoa?
