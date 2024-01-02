@@ -111,11 +111,13 @@ type UseReducer<
     Reducers extends ReducerActions<State, Props>,
 > = readonly [state: Selector, dispatchers: MapReducerReturn<State, ReturnType<Reducers>>];
 
+type ParseStr<T> = T extends string ? T : never;
+
 type ReducerMiddleware<
     State extends object,
     Props extends object,
     Reducers extends (args: ReducerArgs<State, Props>) => MappedReducers<State, FnMap<State>>,
-> = Array<(state: State, key: keyof ReturnType<Reducers>) => State>;
+> = Array<(state: State, key: ParseStr<keyof ReturnType<Reducers>> | string, prev: State) => State>;
 
 type Callback<T> = T | ((prev: T) => T);
 
@@ -156,14 +158,14 @@ export const dispatchCallback = <Prev extends any, T extends Callback<Prev>>(pre
 
 export type DispatchCallback<T extends any> = Callback<T>;
 
-const reduce = <State extends {}, Middlewares extends Array<(state: State, key: string) => State>>(
+const reduce = <State extends {}, Middlewares extends Array<(state: State, key: string, prev: State) => State>>(
     state: State,
     prev: State,
     middleware: Middlewares,
     key: string,
 ) => {
     const initial = Array.isArray(state) ? state : state.isPrototypeOf(Object) ? { ...prev, ...state } : state;
-    return middleware.reduce<State>((acc, fn) => fn(acc, key), initial);
+    return middleware.reduce<State>((acc, fn) => fn(acc, key, prev), initial);
 };
 
 export const useReducer = <

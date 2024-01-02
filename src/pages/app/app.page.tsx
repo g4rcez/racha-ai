@@ -15,7 +15,7 @@ export default function AppPage() {
     const [state, dispatch] = Preferences.use();
     const [history, historyDispatch] = History.use();
     const i18n = useTranslations();
-    const items = history.items.toSorted((a, b) => a.createdAt.getDate() - b.createdAt.getDate());
+    const items = history.items.toSorted((a, b) => b.createdAt.getDate() - a.createdAt.getDate());
     const firstStateName = useMemo(() => state.user.name, []);
 
     useEffect(() => {
@@ -49,7 +49,7 @@ export default function AppPage() {
             {items.length === 0 ? null : (
                 <section>
                     <SectionTitle title={i18n.get("historyTitle")}>{i18n.get("historicDescription")}</SectionTitle>
-                    <ul className="mt-4 space-y-2">
+                    <ul className="mt-4 space-y-6">
                         {items.map((item) => (
                             <li key={item.id}>
                                 <Link
@@ -58,7 +58,7 @@ export default function AppPage() {
                                 >
                                     <header className="flex items-end justify-between">
                                         <div className="flex gap-2">
-                                            <SoupIcon />
+                                            <SoupIcon className="group-hover:text-main-bg group-active:text-main-bg" />
                                             <h3 className="text-xl transition-colors group-hover:text-main-bg group-active:text-main-bg">
                                                 {item.title}
                                             </h3>

@@ -19,6 +19,7 @@ type Props = {
     onAddProduct: (product: CartProduct) => void;
     onRemoveProduct: (product: CartProduct) => void;
     onChangeProduct: (product: CartProduct) => void;
+    setCurrent: (product: CartProduct | null) => void;
     onChangeConsumedQuantity: (user: CartUser, product: CartProduct, quantity: number) => void;
 };
 
@@ -40,6 +41,7 @@ export const AnnotateProduct = (props: Props) => {
     }, [product, props.onChangeProduct]);
 
     const onChangeVisible = (b: boolean) => {
+        if (!b) props.setCurrent(null);
         if (product?.name === "") {
             setVisible(false);
             return props.onRemoveProduct(product);
@@ -101,7 +103,9 @@ export const AnnotateProduct = (props: Props) => {
                 ...product,
                 quantity: Number(product.quantity),
                 createdAt: product.createdAt.toISOString(),
-                consumers: consumers.map((item) => ({ ...item, createdAt: item.createdAt.toISOString() }))
+                consumers: consumers.map((item) => {
+                    return { ...item, createdAt: item.createdAt.toISOString() };
+                })
             });
             if (result.isError()) {
                 setVisible(false);

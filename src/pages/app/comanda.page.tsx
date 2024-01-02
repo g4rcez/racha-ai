@@ -80,6 +80,7 @@ export default function ComandaPage() {
                         users={state.users}
                         imAlone={state.justMe}
                         product={state.currentProduct}
+                        setCurrent={dispatch.setCurrent}
                         disabled={state.users.size === 0}
                         onAddProduct={dispatch.addProduct}
                         onRemoveProduct={dispatch.removeProduct}

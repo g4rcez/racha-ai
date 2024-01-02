@@ -41,6 +41,13 @@ const router = createMappedRouter({
             title: i18n.get("appPageTitle"),
         },
     },
+    config: {
+        path: "/app/config/",
+        element: asyncComponent(() => import("~/pages/app/config.page")),
+        data: {
+            title: "Customizar"
+        },
+    },
 });
 
 export const routerConfig = router.config;

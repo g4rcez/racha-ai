@@ -26,13 +26,21 @@ export namespace Entity {
         [K in `v${number}`]: ReturnType<typeof validator>;
     };
 
-    type Middleware<T> = (state: T) => T;
+    type Middleware<T> = (state: T, method: string, prev: T) => T;
 
     export const createStorageMiddleware = <State>(key: string): Middleware<State>[] => [
         (state: State) => {
             LocalStorage.set(key, state);
             return state;
         },
+        (state: State, method: string, prev: State) => {
+            console.group(key);
+            console.log("Update by", method);
+            console.log("Previous state", prev);
+            console.log(state);
+            console.groupEnd();
+            return state;
+        }
     ];
 
     export const getStorage = (name: string) => LocalStorage.get(`@app/${name}`) || undefined;
@@ -41,12 +49,12 @@ export namespace Entity {
         const Info extends { name: string; schemas: ValidatorsSchema; version: keyof Info["schemas"] },
         Getter extends (storage?: any) => any,
         Reducer extends ReducerActions<ReturnType<Getter>, {}>,
-        Actions extends { [k in string]: any },
+        Actions extends { [k in string]: any }
     >(
         info: Info,
         getState: Getter,
         reducer: Reducer,
-        actions: Actions,
+        actions: Actions
     ) => {
         type State = ReturnType<Getter>;
         const schema = info.schemas[info.version as any] as ReturnType<typeof validator>;
@@ -74,7 +82,7 @@ export namespace Entity {
             clearStorage: () => LocalStorage.delete(storageKey),
             action: useStore.dispatchers,
             __state: undefined as unknown as FullState,
-            initialState: getInitialState,
+            initialState: getInitialState
         };
     };
 

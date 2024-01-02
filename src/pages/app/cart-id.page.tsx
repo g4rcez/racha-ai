@@ -4,9 +4,11 @@ import { SectionTitle } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { CartMath } from "~/lib/cart-math";
 import { Dict } from "~/lib/dict";
+import { sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { CartState } from "~/store/cart.store";
 import { History } from "~/store/history.store";
+import { Preferences } from "~/store/preferences.store";
 import { ParseToRaw } from "~/types";
 
 type L = "/app/cart/:id";
@@ -26,14 +28,43 @@ export const loader = (context: LoaderProps<L>) => {
 };
 
 export default function CartId() {
+    const [me] = Preferences.use((state) => state.user);
     const data = useDataLoader<typeof loader>();
-    const cart = data?.cart ? History.parse(data.cart) : null;
     const i18n = useTranslations();
+    const cart = data?.cart ? History.parse(data.cart) : null;
     if (Is.nil(cart)) {
         return <main>Not found</main>;
     }
     const { additional, couvert, products: productsPrice, total } = CartMath.calculate(cart, i18n.format.money);
     const products = cart.products.toArray();
+    const users = cart.users
+        .toArray()
+        .map((user) => {
+            const result = CartMath.perUser(products, user, additional, couvert);
+            const ownProducts = products.reduce<Array<SimpleProduct & { totalN: number }>>((acc, p) => {
+                const consumed = Dict.toArray(p.consumers).find((x) => x.id === user.id);
+                return consumed === undefined
+                    ? acc
+                    : [
+                          ...acc,
+                          {
+                              name: p.name,
+                              id: p.id,
+                              price: p.monetary,
+                              quantity: consumed.quantity,
+                              totalN: consumed.quantity * p.price,
+                              total: i18n.format.money(consumed.quantity * p.price)
+                          }
+                      ];
+            }, []);
+            return {
+                ...user,
+                result,
+                products: ownProducts,
+                sum: ownProducts.reduce((acc, el) => sum(acc, el.totalN), 0)
+            };
+        })
+        .toSorted((a, b) => (a.id === me.id || b.id === me.id ? 1 : b.sum - a.sum));
     return (
         <main className="pb-6">
             <SectionTitle paragraphClassName="text-lg" title={cart.title}>
@@ -41,28 +72,12 @@ export default function CartId() {
             </SectionTitle>
             {cart.createdAt ? <p>Data do evento: {i18n.format.datetime(new Date(cart.createdAt))}</p> : null}
             <ul className="mt-6 space-y-4">
-                {cart.users.map((user) => {
-                    const result = CartMath.perUser(products, user, additional, couvert);
-                    const ownProducts = products.reduce<SimpleProduct[]>((acc, p) => {
-                        const consumed = Dict.toArray(p.consumers).find((x) => x.id === user.id);
-                        return consumed === undefined
-                            ? acc
-                            : [
-                                  ...acc,
-                                  {
-                                      name: p.name,
-                                      id: p.id,
-                                      price: p.monetary,
-                                      quantity: consumed.quantity,
-                                      total: i18n.format.money(consumed.quantity * p.price)
-                                  }
-                              ];
-                    }, []);
+                {users.map((user) => {
                     return (
                         <li className="flex flex-wrap justify-between" key={user.id}>
                             <span className="text-lg font-medium">{user.name}</span>
-                            <span>{i18n.format.money(result.totalWithCouvert)}</span>
-                            {ownProducts.length === 0 ? null : (
+                            <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
+                            {user.products.length === 0 ? null : (
                                 <Table>
                                     <TableHead>
                                         <TableRow>
@@ -72,7 +87,7 @@ export default function CartId() {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {ownProducts.map((product) =>
+                                        {user.products.map((product) =>
                                             product.quantity === 0 ? null : (
                                                 <TableRow key={`${user.id}-${product.id}`}>
                                                     <TableCell>{product.name}</TableCell>
@@ -84,9 +99,7 @@ export default function CartId() {
                                         {cart.hasAdditional ? (
                                             <TableRow>
                                                 <TableCell>Gorjeta</TableCell>
-                                                <TableCell>
-                                                    {i18n.format.money(result.total)}
-                                                </TableCell>
+                                                <TableCell>{i18n.format.money(user.result.total)}</TableCell>
                                                 <TableCell>1</TableCell>
                                             </TableRow>
                                         ) : null}

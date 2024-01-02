@@ -1,5 +1,5 @@
 import { Link } from "brouther";
-import { ReceiptIcon, UsersIcon } from "lucide-react";
+import { CogIcon, ReceiptIcon, UsersIcon } from "lucide-react";
 import React, { Fragment } from "react";
 import { links } from "~/router";
 
@@ -15,8 +15,7 @@ export const shortcuts: Shortcut[] = [
         icon: UsersIcon,
         text: (
             <Fragment>
-                Adicionar
-                <br /> amigos
+                Meus amigos
             </Fragment>
         )
     },
@@ -25,10 +24,14 @@ export const shortcuts: Shortcut[] = [
         icon: ReceiptIcon,
         text: (
             <Fragment>
-                Nova
-                <br /> comanda
+                Nova comanda
             </Fragment>
         )
+    },
+    {
+        href: links.config,
+        icon: CogIcon,
+        text: <Fragment>Minhas configurações</Fragment>
     }
 ];
 
@@ -36,7 +39,7 @@ export const Shortcut = (props: Shortcut) => (
     <Link
         href={props.href}
         key={`shortcuts-${props.href}`}
-        className="flex flex-col items-center gap-2 rounded border border-main-bg border-opacity-60 p-2 px-4"
+        className="flex flex-col items-center justify-center max-w-32 h-full text-center gap-2 rounded border border-main-bg border-opacity-60 p-4"
     >
         {<props.icon aria-hidden="true" size={24} strokeWidth={2} absoluteStrokeWidth />} {props.text}
     </Link>
