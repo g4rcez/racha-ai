@@ -11,7 +11,7 @@ import { Title } from "~/components/typography";
 import { links } from "~/router";
 import { Preferences } from "~/store/preferences.store";
 
-const WhySectionItem = ({ title, Icon, children }: React.PropsWithChildren<{ title: string; Icon: LucideIcon }>) => (
+export const WhySectionItem = ({ title, Icon, children }: React.PropsWithChildren<{ title: string; Icon: LucideIcon }>) => (
     <div>
         <header className="flex flex-col items-center justify-center text-center">
             <Icon absoluteStrokeWidth strokeWidth={2} size={24} />
