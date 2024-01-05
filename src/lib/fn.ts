@@ -69,3 +69,5 @@ export const isReactComponent = (a: any): a is React.FC => {
 };
 
 export const fixed = (n: number, decimalPlaces: number = 2) => Number(n.toFixed(decimalPlaces));
+
+export const sortId = <A extends {id: string}>(a: A, b: A) => b.id.localeCompare(a.id)

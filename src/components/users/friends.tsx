@@ -118,6 +118,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
         dispatch.new(user);
         form.reset();
         input.focus();
+        props.onAdd(user);
     };
 
     const onCheckFriend = (u: User) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,29 +131,26 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
     return (
         <div className="my-2 grid grid-cols-2 items-end gap-4">
             <Button onClick={() => props.onAdd(Cart.newUser(me), true)}>Tô sozinho</Button>
-            <Drawer
-                open={visible}
-                onChange={setVisible}
-            >
+            <Drawer open={visible} onChange={setVisible}>
                 <Drawer.Trigger asChild>
                     <Button>Com os amigos</Button>
                 </Drawer.Trigger>
                 <Drawer.Content>
                     <Drawer.Title>Lista de amigos</Drawer.Title>
-                    <ul className="space-y-4 my-4">
+                    <ul className="my-4 space-y-4">
                         <li>
                             <Form className="flex flex-nowrap items-end gap-2" onSubmit={createNewUser}>
                                 <Input
                                     name="name"
-                                    autoComplete="off"
+                                    autoComplete="name"
                                     title="Nome do amigo"
                                     placeholder={i18n.get("userInputPlaceholder")}
                                 />
                                 <Mobile>
                                     <Button
-                                        aria-label="Adicionar amigo"
-                                        title="Adicionar amigo"
                                         type="submit"
+                                        title="Adicionar amigo"
+                                        aria-label="Adicionar amigo"
                                         icon={<PlusIcon absoluteStrokeWidth strokeWidth={2} aria-hidden="true" />}
                                     />
                                 </Mobile>

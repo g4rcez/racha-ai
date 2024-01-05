@@ -1,5 +1,7 @@
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
+import { Is } from "~/lib/is";
+import { FN } from "~/types";
 import { createGlobalReducer, ReducerActions } from "~/use-typed-reducer";
 
 export namespace Entity {
@@ -43,13 +45,13 @@ export namespace Entity {
         }
     ];
 
-    export const getStorage = (name: string) => LocalStorage.get(`@app/${name}`) || undefined;
-
     export const create = <
         const Info extends { name: string; schemas: ValidatorsSchema; version: keyof Info["schemas"] },
         Getter extends (storage?: any) => any,
         Reducer extends ReducerActions<ReturnType<Getter>, {}>,
-        Actions extends { [k in string]: any }
+        Actions extends
+            | { [k in string]: any }
+            | ((args: { storageKey: string; getState: () => ReturnType<Getter> }) => { [k in string]: any })
     >(
         info: Info,
         getState: Getter,
@@ -57,12 +59,17 @@ export namespace Entity {
         actions: Actions
     ) => {
         type State = ReturnType<Getter>;
+        type FullState = State & Metadata;
+
         const schema = info.schemas[info.version as any] as ReturnType<typeof validator>;
+
         const storageKey = `@app/${info.name}@${info.version as string}`;
+
         const getInitialState = (): State => {
             const storageData = LocalStorage.get(storageKey);
             return schema<State>(storageData, getState) as State;
         };
+
         const setStore = (state: State) => LocalStorage.set(storageKey, state);
 
         const middleware = createStorageMiddleware<State>(storageKey);
@@ -73,20 +80,21 @@ export namespace Entity {
             const storageData = LocalStorage.get(storageKey);
             return storageData ? setStore(getState(storageData)) : setStore(getState());
         };
-        type FullState = State & Metadata;
+
+        const act: Actions extends FN ? ReturnType<Actions> : Actions = Is.function(actions)
+            ? actions({ storageKey, getState: getInitialState })
+            : actions;
+
         setup();
+
         return {
-            ...actions,
+            ...act,
             use,
             getState,
             clearStorage: () => LocalStorage.delete(storageKey),
             action: useStore.dispatchers,
             __state: undefined as unknown as FullState,
             initialState: getInitialState
-        };
-    };
-
-    export type infer<T extends ReturnType<typeof create>> = {
-        state: T["__state"];
+        } as const;
     };
 }

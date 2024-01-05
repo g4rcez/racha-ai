@@ -1,12 +1,11 @@
 import { Link } from "brouther";
 import { SoupIcon } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { CSSProperties, useEffect, useMemo } from "react";
 import { Shortcut, shortcuts } from "~/components/admin/shortcuts";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { SectionTitle, Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { CartMath } from "~/lib/cart-math";
 import { link, links } from "~/router";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
@@ -15,11 +14,11 @@ export default function AppPage() {
     const [state, dispatch] = Preferences.use();
     const [history, historyDispatch] = History.use();
     const i18n = useTranslations();
-    const items = history.items.toSorted((a, b) => b.createdAt.getDate() - a.createdAt.getDate());
+    const items = history.items.toSorted((a, b) => b.id.localeCompare(a.id));
     const firstStateName = useMemo(() => state.user.name, []);
 
     useEffect(() => {
-        historyDispatch.init();
+        historyDispatch.refresh(History.init());
     }, []);
 
     return (
@@ -39,9 +38,12 @@ export default function AppPage() {
                     </Form>
                 ) : null}
             </header>
-            <ul className="flex snap-x snap-mandatory snap-center flex-nowrap gap-4 overflow-x-auto scroll-smooth py-2">
+            <ul
+                style={{ "--items": shortcuts.length } as CSSProperties}
+                className="flex flex-1 snap-x snap-mandatory snap-center flex-row flex-nowrap gap-4 overflow-x-auto"
+            >
                 {shortcuts.map((shortcut) => (
-                    <li key={`shortcut-${shortcut.href}`}>
+                    <li key={`shortcut-${shortcut.href}`} className="min-w-36 flex-1 shrink basis-full text-center">
                         <Shortcut {...shortcut} />
                     </li>
                 ))}
@@ -65,8 +67,12 @@ export default function AppPage() {
                                         </div>
                                         <p className="text-sm">{i18n.format.date(item.createdAt)}</p>
                                     </header>
-                                    <p>Total: {CartMath.calculate(item as never, i18n.format.money).total}</p>
-                                    <p>Dividido por: {item.users.size.toString()} pessoas</p>
+                                    <p>Total: {i18n.format.money(item.total)}</p>
+                                    {item.justMe ? (
+                                        <p>Sozinho</p>
+                                    ) : (
+                                        <p>Dividido por: {item.users.size.toString()} pessoas</p>
+                                    )}
                                 </Link>
                             </li>
                         ))}

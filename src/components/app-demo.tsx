@@ -28,7 +28,7 @@ AppScreen.Subtitle = forwardRef<React.ElementRef<"div">, { children: React.React
 
 AppScreen.Body = forwardRef<React.ElementRef<"div">, { className?: string; children: React.ReactNode }>(
     ({ children, className }, ref) => (
-        <div ref={ref} className={clsx("mt-6 flex-1 rounded-t-2xl bg-white", className)}>
+        <div ref={ref} className={clsx("mt-6 flex-1 rounded-t-2xl bg-white overflow-y-hidden will-change-transform isolate phone-emulate-body", className)}>
             {children}
         </div>
     ),
@@ -39,7 +39,7 @@ const ComandaPage = lazy(() => import("~/pages/app/comanda.page"));
 export const AppDemo = () => (
     <AppScreen>
         <AppScreen.Body>
-            <div className="p-4">
+            <div className="p-4 isolate overflow-hidden">
                 <React.Suspense fallback="Loading...">
                     <ComandaPage />
                 </React.Suspense>

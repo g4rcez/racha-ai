@@ -28,3 +28,90 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     -moz-appearance: textfield;
 }
+
+input[type="color"],
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"],
+select:focus,
+textarea {
+    font-size: 16px;
+}
+
+.phone-emulate-body {
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+@keyframes overlay-show {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes overlay-hide {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes content-show {
+    from {
+        opacity: 0.5;
+        transform: scaleY(0);
+    }
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+@keyframes content-hide {
+    from {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+    to {
+        opacity: 0;
+        transform: scaleY(0);
+    }
+}
+
+@media screen(lg) {
+    @keyframes content-show {
+        from {
+            opacity: 0.5;
+            width: 30%;
+        }
+        to {
+            opacity: 1;
+            width: 100%;
+        }
+    }
+
+    @keyframes content-hide {
+        from {
+            opacity: 1;
+            width: 100%;
+        }
+        to {
+            opacity: 0.3;
+            width: 20%;
+        }
+    }
+}

@@ -1,6 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { motion } from "framer-motion";
+import { DialogCloseProps } from "@radix-ui/react-dialog";
+import { XIcon } from "lucide-react";
 import React, { ComponentProps, PropsWithChildren } from "react";
+import { Button } from "~/components/button";
 import { Mobile } from "~/components/mobile";
 import { Title } from "~/components/typography";
 import { css } from "~/lib/dom";
@@ -15,48 +17,32 @@ Drawer.Trigger = React.forwardRef((props: Dialog.DialogTriggerProps, ref: any) =
     <Dialog.Trigger {...props} ref={ref} />
 ));
 
-const desktopProps = {
-    exit: { opacity: 0.8, width: 0 },
-    initial: { opacity: 0.6, width: 0 },
-    animate: { opacity: 1, width: "100%" },
-    transition: { ease: "easeOut", duration: 0.3 }
-};
-
-const mobileProps = {
-    exit: { opacity: 0.8, height: 0 },
-    initial: { opacity: 0.6, height: 0 },
-    animate: { opacity: 1, height: "100%" },
-    transition: { ease: "easeOut", duration: 0.3 }
-};
-
 Drawer.Content = React.forwardRef((props: Dialog.DialogContentProps, ref: any) => {
-    const f = Mobile.use() ? mobileProps : desktopProps;
     return (
         <Dialog.Portal>
             <Dialog.Overlay asChild>
-                <motion.div layout className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-overlayShow" />
+                <div className="fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-[overlay-hide_300ms] data-[state=open]:animate-[overlay-show_300ms]" />
             </Dialog.Overlay>
             <Dialog.Content asChild>
-                <motion.div
-                    layout
+                <div
                     ref={ref}
-                    exit={f.exit}
-                    animate={f.animate}
-                    initial={f.initial}
-                    transition={f.transition}
                     className={css(
+                        "origin-bottom lg:origin-right",
+                        "data-[state=closed]:animate-[content-hide_300ms] data-[state=open]:animate-[content-show_300ms]",
                         Mobile.use()
-                            ? "fixed bottom-0 z-50 h-screen max-h-[90vh] w-screen bg-body-bg p-6 text-body focus:outline-none"
+                            ? "fixed bottom-0 z-50 h-screen max-h-[80vh] w-screen bg-body-bg p-6 text-body focus:outline-none"
                             : "container fixed right-0 top-0 z-50 h-screen w-[90vw] max-w-[40rem] rounded-l-md bg-body-bg p-6 text-body focus:outline-none"
                     )}
                 >
                     <div className="relative h-full w-full">
-                        <Mobile>
-                            <div aria-hidden className="container mx-auto mb-4 h-2 w-1/2 rounded bg-muted lg:hidden"/>
-                        </Mobile>
+                        <Dialog.Close asChild>
+                            <Button theme="transparent" className="absolute right-0 lg:-top-5 top-0 link:text-danger-bg">
+                                <XIcon aria-hidden />
+                            </Button>
+                        </Dialog.Close>
                         {props.children}
                     </div>
-                </motion.div>
+                </div>
             </Dialog.Content>
         </Dialog.Portal>
     );
@@ -68,4 +54,4 @@ Drawer.Title = React.forwardRef((props: ComponentProps<"h1">, ref: any) => <Titl
 
 Drawer.Description = React.forwardRef((props: ComponentProps<"p">, ref: any) => <p {...props} ref={ref} />);
 
-Drawer.Close = React.forwardRef((props, ref: any) => <Dialog.Close {...props} ref={ref} />);
+Drawer.Close = React.forwardRef((props: DialogCloseProps, ref: any) => <Dialog.Close {...props} ref={ref} />);

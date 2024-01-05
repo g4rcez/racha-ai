@@ -16,8 +16,8 @@ const createColor = (name, prefix = "") => ({
                 ? `${COLOR_OPERATOR}(var(--${name}), ${val})`
                 : `${COLOR_OPERATOR}(var(--${prefix}-${name}), ${val})`
             : prefix === ""
-                ? `$COLOR_OPERATOR(var(--${name}))`
-                : `$COLOR_OPERATOR(var(--${prefix}-${name}))`;
+              ? `$COLOR_OPERATOR(var(--${name}))`
+              : `$COLOR_OPERATOR(var(--${prefix}-${name}))`;
     }
 });
 
@@ -43,32 +43,19 @@ export default {
                 sm: "calc(var(--radius) / 2)",
                 xs: "calc(var(--radius) / 4)",
                 lg: "calc(var(--radius) * 1.25)"
-            },
-            keyframes: {
-                overlayShow: {
-                    from: { opacity: 0 },
-                    to: { opacity: 1 },
-                },
-                drawerDesktop: {
-                    from: { opacity: 0, transform: 'translate(0%, 100%)' },
-                    to: { opacity: 1, transform: 'translate(100%, 100%)' },
-                },
-
-            },
-            animation: {
-                overlayShow: 'overlayShow 300ms cubic-bezier(.17,.67,.77,.75)',
-                "drawer-desktop": 'drawerDesktop 300ms ease-in',
-                contentShow: 'contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)',
-            },
+            }
         }
     },
     plugins: [
         animate,
         containerQueries,
         form({ strategy: "class" }),
-        plugin(function({ addVariant }) {
+        plugin(function ({ addVariant }) {
             addVariant("link", ["&:hover", "&:focus"]);
-            addVariant("group-error", ":merge(.group):invalid:has(.input:not(:focus):invalid[data-initialized=true]) &");
+            addVariant(
+                "group-error",
+                ":merge(.group):invalid:has(.input:not(:focus):invalid[data-initialized=true]) &"
+            );
             addVariant("group-assert", [":merge(.group):valid:has(.input:valid:not(:placeholder-shown)) &"]);
         })
     ]
