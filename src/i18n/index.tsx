@@ -29,8 +29,17 @@ const native = createPolyglotNative("pt-BR", () => ({
     historicDescription: "Aqui você pode conferir tudo o que você já rachou com a galera.",
     closeModal: (props: { title: string }) => `Fechar sessão de ${props.title}`,
     welcome: (props: { name: string }) => (
-        <Fragment>Olá{props.name === "" ? "" : <span className="text-main-bg">, {props.name}</span>}</Fragment>
-    ),
+        <Fragment>
+            Olá
+            {props.name === "" ? (
+                ""
+            ) : (
+                <Fragment>
+                    , <span className="text-main-bg">{props.name}</span>
+                </Fragment>
+            )}
+        </Fragment>
+    )
 }));
 
 export const i18n = createPolyglot(native, { "en-US": () => import("./en-us") });

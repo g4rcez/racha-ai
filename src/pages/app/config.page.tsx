@@ -2,6 +2,8 @@ import { EyeIcon, EyeOff } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "~/components/button";
 import { ColorPicker } from "~/components/color-picker";
+import { Form } from "~/components/form/form";
+import { Input } from "~/components/form/input";
 import { Resizable } from "~/components/resizable";
 import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
@@ -34,19 +36,19 @@ const Customize = () => {
         { name: i18n.get("colorIndigo"), color: "#4f46e5" },
         { name: "Violeta", color: "#7c3aed" },
         { name: "Pink", color: "#db2777" },
-        { name: "Rose", color: "#f43f5e" },
+        { name: "Rose", color: "#f43f5e" }
     ];
 
     return (
         <Resizable>
-            <header className="flex w-full flex-row flex-nowrap items-center justify-between">
+            <section className="flex w-full flex-row flex-nowrap items-center justify-between">
                 <Title>{i18n.get("welcomeCustomizeTitle")}</Title>
                 <Button
                     theme="transparent"
                     onClick={() => setHide((p) => !p)}
                     icon={hide ? <EyeIcon size={20} /> : <EyeOff size={20} />}
                 />
-            </header>
+            </section>
             {hide ? null : (
                 <ul className="grid grid-cols-2 gap-4 whitespace-pre-wrap">
                     {state.devMode ? (
@@ -73,9 +75,30 @@ const Customize = () => {
     );
 };
 
-export default function AppProfilePage() {
+const MyName = () => {
+    const [state, dispatch] = Preferences.use();
+    const i18n = useTranslations();
     return (
-        <main>
+        <header className="flex flex-col gap-2">
+            <Title>Configurações</Title>
+            <Form className="flex flex-col gap-4">
+                <Input
+                    required
+                    name="name"
+                    value={state.name}
+                    title={i18n.get("welcomeInputTitle")}
+                    placeholder={i18n.get("welcomeInputPlaceholder")}
+                    onChange={(e) => dispatch.onChangeName(e.target.value)}
+                />
+            </Form>
+        </header>
+    );
+};
+
+export default function ConfigPage() {
+    return (
+        <main className="w-full flex flex-col gap-6">
+            <MyName />
             <Customize />
         </main>
     );

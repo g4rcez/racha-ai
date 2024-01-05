@@ -8,39 +8,37 @@ const router = createMappedRouter({
         path: "/",
         actions: asyncActions(getIndexPage),
         element: asyncComponent(getIndexPage),
-        data: {
-            title: i18n.get("landingPageTitle"),
-        },
+        data: { title: i18n.get("landingPageTitle"), name: "" }
     },
     app: {
         path: "/app",
         element: asyncComponent(() => import("~/pages/app/app.page")),
         data: {
             title: i18n.get("appPageTitle"),
-        },
+            name: "Racha aí"
+        }
     },
     friends: {
         path: "/app/friends",
         element: asyncComponent(() => import("~/pages/app/friends.page")),
-        data: {
-            title: i18n.get("friendsPageTitle"),
-        },
+        data: { title: i18n.get("friendsPageTitle"), name: "Amigos" }
     },
     cart: {
         path: "/app/cart",
         element: asyncComponent(() => import("~/pages/app/comanda.page")),
-        data: {
-            title: i18n.get("appPageTitle"),
-        },
+        data: { title: i18n.get("appPageTitle"), name: "Comanda" }
     },
     cartHistory: {
         path: "/app/cart/:id",
         element: asyncComponent(() => import("~/pages/app/cart-id.page")),
         loader: asyncLoader(() => import("~/pages/app/cart-id.page")),
-        data: {
-            title: i18n.get("appPageTitle"),
-        },
+        data: { title: i18n.get("appPageTitle"), name: "Histórico" }
     },
+    config: {
+        path: "/app/config/",
+        element: asyncComponent(() => import("~/pages/app/config.page")),
+        data: { title: "Configurações", name: "Configurações" }
+    }
 });
 
 export const routerConfig = router.config;

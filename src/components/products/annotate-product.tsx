@@ -3,6 +3,7 @@ import { Button } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
+import { Mobile } from "~/components/mobile";
 import { Dict } from "~/lib/dict";
 import { clamp, diff, sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
@@ -12,15 +13,18 @@ import { User } from "~/store/friends.store";
 import { Preferences } from "~/store/preferences.store";
 
 type Props = {
-    imAlone: boolean;
+    justMe: boolean;
     disabled: boolean;
     users: Dict<string, User>;
     product: CartProduct | null;
     onAddProduct: (product: CartProduct) => void;
     onRemoveProduct: (product: CartProduct) => void;
     onChangeProduct: (product: CartProduct) => void;
+    setCurrent: (product: CartProduct | null) => void;
     onChangeConsumedQuantity: (user: CartUser, product: CartProduct, quantity: number) => void;
 };
+
+const calculateAmount = (price: number, quantity: number) => price * quantity;
 
 export const AnnotateProduct = (props: Props) => {
     const [me] = Preferences.use((state) => state.user);
@@ -36,10 +40,13 @@ export const AnnotateProduct = (props: Props) => {
     }, [props.product]);
 
     useEffect(() => {
-        if (visible && product) props.onChangeProduct(product);
+        if (visible && product) {
+            if (product.name !== "") props.onChangeProduct(product);
+        }
     }, [product, props.onChangeProduct]);
 
     const onChangeVisible = (b: boolean) => {
+        if (!b) props.setCurrent(null);
         if (product?.name === "") {
             setVisible(false);
             return props.onRemoveProduct(product);
@@ -52,12 +59,12 @@ export const AnnotateProduct = (props: Props) => {
         const value = e.target.type === "number" ? e.target.valueAsNumber : e.target.value;
         if (name !== "quantity") return setProduct((prev) => (Is.nil(prev) ? prev : { ...prev, [name]: value }));
         const quantity = (value as number) || 0;
-        return props.imAlone
+        return props.justMe
             ? setProduct((prev) => {
                   if (Is.nil(prev)) return null;
                   const clone = prev.consumers.clone();
                   const ownUser = clone.get(me.id)!;
-                  clone.set(me.id, { ...ownUser, quantity, amount: (product?.price ?? 0) * quantity });
+                  clone.set(me.id, { ...ownUser, quantity, amount: calculateAmount(product?.price ?? 0, quantity) });
                   return { ...prev, quantity: value as number };
               })
             : setProduct((prev) => (Is.nil(prev) ? prev : { ...prev, quantity }));
@@ -70,13 +77,10 @@ export const AnnotateProduct = (props: Props) => {
     };
 
     const onClickNewProduct = () => {
-        const users: Dict<string, CartUser> = props.imAlone
+        const users: Dict<string, CartUser> = props.justMe
             ? new Dict<string, CartUser>([[me.id, { ...Cart.newUser(me), quantity: 1 }]])
             : new Dict<string, CartUser>(props.users.map((x) => [x.id, Cart.newUser(x)]));
-        const p = Cart.newProduct(users);
-        setProduct(p);
-        if (props.product) return;
-        props.onAddProduct(p);
+        setProduct(Cart.newProduct(users));
     };
 
     const onClickQuantity = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -84,7 +88,7 @@ export const AnnotateProduct = (props: Props) => {
         setProduct((prev) => {
             if (Is.nil(prev)) return null;
             const quantity = clamp(0, operation(Number(prev.quantity), 1), Number.MAX_SAFE_INTEGER);
-            return props.imAlone
+            return props.justMe
                 ? {
                       ...prev,
                       quantity,
@@ -101,7 +105,7 @@ export const AnnotateProduct = (props: Props) => {
                 ...product,
                 quantity: Number(product.quantity),
                 createdAt: product.createdAt.toISOString(),
-                consumers: consumers.map((item) => ({ ...item, createdAt: item.createdAt.toISOString() }))
+                consumers: consumers.map((item) => ({ ...item, createdAt: new Date(item.createdAt).toISOString() }))
             });
             if (result.isError()) {
                 setVisible(false);
@@ -114,6 +118,25 @@ export const AnnotateProduct = (props: Props) => {
             }
         }
         setVisible(false);
+    };
+
+    const onSplitByEquality = () => {
+        setProduct((prev) => {
+            if (!prev) return null;
+            const consumers = prev.consumers.toArray();
+            const floor = Math.floor(prev.quantity / consumers.length);
+            const { consumers: newConsumers } = consumers.reduce(
+                ({ total, consumers }, el) => {
+                    const x = total - floor;
+                    const quantity = x < 0 ? 0 : floor;
+                    const amount = calculateAmount(product?.price ?? 0, quantity);
+                    const consumer = { ...el, quantity, amount };
+                    return { total: x, consumers: [...consumers, consumer] };
+                },
+                { total: prev.quantity, consumers: [] as CartUser[] }
+            );
+            return { ...prev, consumers: Dict.from("id", newConsumers) };
+        });
     };
 
     return (
@@ -129,7 +152,7 @@ export const AnnotateProduct = (props: Props) => {
                         <Fragment>
                             <Drawer.Title>
                                 {props.product || product
-                                    ? props.product?.name ?? product?.name ?? "---"
+                                    ? props.product?.name || product?.name || "---"
                                     : "Novo Produto"}
                             </Drawer.Title>
                             <Form ref={form} onSubmit={onSubmit} className="grid grid-cols-2 gap-4">
@@ -137,7 +160,7 @@ export const AnnotateProduct = (props: Props) => {
                                     onChange={onChange}
                                     value={product.name}
                                     autoComplete="off"
-                                    autoFocus
+                                    autoFocus={!Mobile.use()}
                                     required
                                     name="name"
                                     placeholder="Latão"
@@ -186,11 +209,16 @@ export const AnnotateProduct = (props: Props) => {
                                         </Button>
                                     }
                                 />
+                                <section className="empty:hidden empty:h-0">
+                                    {props.justMe ? null : (
+                                        <Button onClick={onSplitByEquality}>Dividir igualmente</Button>
+                                    )}
+                                </section>
                                 <ul className="col-span-2 space-y-4">
                                     {props.users.map((user) => {
                                         const consumer = product.consumers.get(user.id) ?? null;
                                         if (Is.nil(consumer)) return null;
-                                        if (props.users.size === 1 && props.imAlone) return null;
+                                        if (props.users.size === 1 && props.justMe) return null;
                                         const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                                             if (Is.null(product)) return;
                                             const number = e.target.valueAsNumber;
@@ -215,7 +243,7 @@ export const AnnotateProduct = (props: Props) => {
                                                     title={user.name}
                                                     type="number"
                                                     value={
-                                                        user.id === me.id && props.imAlone
+                                                        user.id === me.id && props.justMe
                                                             ? product.quantity
                                                             : consumer.quantity
                                                     }

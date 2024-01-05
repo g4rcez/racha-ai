@@ -22,13 +22,19 @@ export default function ComandaPage() {
 
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         const submitter = ((e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement)?.value;
-        if (submitter === "submit") Cart.onSubmit(state);
+        if (submitter === "submit") Cart.onSubmit(me.id, state);
     };
 
     return (
         <main className="pb-8">
             <Title className="font-bold">{state.title || "Bar sem nome..."}</Title>
-            <Form className="flex flex-col gap-6" onSubmit={onSubmit}>
+            <Form
+                onSubmit={onSubmit}
+                className="flex flex-col gap-6"
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") return e.preventDefault();
+                }}
+            >
                 <Input
                     required
                     name="title"
@@ -78,8 +84,9 @@ export default function ComandaPage() {
                     </SectionTitle>
                     <AnnotateProduct
                         users={state.users}
-                        imAlone={state.justMe}
+                        justMe={state.justMe}
                         product={state.currentProduct}
+                        setCurrent={dispatch.setCurrent}
                         disabled={state.users.size === 0}
                         onAddProduct={dispatch.addProduct}
                         onRemoveProduct={dispatch.removeProduct}

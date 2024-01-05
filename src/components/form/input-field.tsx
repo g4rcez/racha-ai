@@ -20,7 +20,7 @@ export type InputFieldProps<T extends "input" | "select"> = PolymorphicProps<
 >;
 
 export const InputField = <T extends "input" | "select">({
-    optionalText = "Optional",
+    optionalText = "Opcional",
     left,
     rightLabel,
     container,

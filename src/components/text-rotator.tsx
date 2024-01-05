@@ -27,7 +27,7 @@ export const TextRotator = (props: Props) => {
                         <motion.span
                             className="absolute block text-left text-balance leading-snug lg:whitespace-nowrap -top-1 left-0"
                             animate={{ opacity: 1 }}
-                            exit={{ opacity: 0.1, mode: "spring" }}
+                            exit={{ opacity: 0.1 }}
                             key={`rotator-${x}`}
                         >
                             {x}
