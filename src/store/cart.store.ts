@@ -34,7 +34,7 @@ export type CartState = Entity.New<{
 }>;
 
 const product = Product.schema.extend({
-    consumers: z.array(Friends.schema.extend({ amount: z.number(), quantity: z.number().int() }))
+    consumers: z.array(Friends.schema.extend({ amount: z.number(), quantity: z.number() }))
 });
 
 const defaultSchema = z.object({
