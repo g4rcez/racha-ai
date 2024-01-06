@@ -65,17 +65,24 @@ export const shortcuts: Shortcut[] = [
       const content = JSON.stringify(json, null, 4);
       const opts = { type: "application/json" };
       const file = new File([content], "racha-ai.json", opts);
-      try {
-        await navigator.share({ files: [file] });
-      } catch (e) {
-        console.log(e);
+      if (Is.function(navigator.share)) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: "Racha aí",
+            url: window.location.origin,
+            text: "Exportando seus dados do app",
+          });
+        } catch (e) {
+          console.log(e);
+        }
       }
     },
   },
 ];
 
 const className =
-  "flex flex-col text-center justify-center items-center border border-main-bg/60 p-4 min-w-32 max-w-36 rounded gap-2";
+  "flex flex-col w-full text-center justify-center items-center border border-main-bg/60 p-4 max-w-36 rounded gap-2";
 
 export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
   !Is.nil((props as AsLink).href) ? (
