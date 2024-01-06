@@ -1,5 +1,5 @@
 import { Link } from "brouther";
-import { ReceiptIcon, UploadIcon, UsersIcon } from "lucide-react";
+import { CogIcon, ReceiptIcon, UploadIcon, UsersIcon } from "lucide-react";
 import React, { Fragment } from "react";
 import { LocalStorage } from "storage-manager-js";
 import { Is } from "~/lib/is";
@@ -41,6 +41,16 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
+    href: links.config,
+    icon: CogIcon,
+    text: (
+      <Fragment>
+        Minhas
+        <br /> configurações
+      </Fragment>
+    ),
+  },
+  {
     action: async () => {
       const json = LocalStorage.json();
       const file = new File([JSON.stringify(json, null, 4)], "racha-ai.json", {
@@ -53,12 +63,15 @@ export const shortcuts: Shortcut[] = [
   },
 ];
 
+const className =
+  "flex flex-col text-center justify-center items-center border border-main-bg/60 p-4 min-w-32 max-w-36 rounded gap-2";
+
 export const Shortcut = (props: Shortcut) =>
   !Is.nil((props as AsLink).href) ? (
     <Link
       href={(props as AsLink).href}
       key={`shortcuts-${(props as AsLink).href}`}
-      className="flex flex-col items-center gap-2 rounded border border-main-bg border-opacity-60 p-2 px-4"
+      className={className}
     >
       {
         <props.icon
@@ -71,7 +84,7 @@ export const Shortcut = (props: Shortcut) =>
       {props.text}
     </Link>
   ) : (
-    <button className="flex flex-col items-center gap-2 rounded border border-main-bg border-opacity-60 p-2 px-4">
+    <button className={className}>
       {
         <props.icon
           aria-hidden="true"
