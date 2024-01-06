@@ -53,15 +53,24 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
+    icon: UploadIcon,
+    text: (
+      <Fragment>
+        Exportar
+        <br /> dados
+      </Fragment>
+    ),
     action: async () => {
       const json = LocalStorage.json();
-      const file = new File([JSON.stringify(json, null, 4)], "racha-ai.json", {
-        type: "application/json",
-      });
-      await navigator.share([file] as any);
+      const content = JSON.stringify(json, null, 4);
+      const opts = { type: "application/json" };
+      const file = new File([content], "racha-ai.json", opts);
+      try {
+        await navigator.share({ files: [file] });
+      } catch (e) {
+        console.log(e);
+      }
     },
-    icon: UploadIcon,
-    text: <Fragment>Exportar dados</Fragment>,
   },
 ];
 
@@ -87,7 +96,13 @@ export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
       {props.text}
     </Link>
   ) : (
-    <button onClick={props.onClick} className={className}>
+    <button
+      onClick={() => {
+        (props as AsButton).action?.();
+        props.onClick?.();
+      }}
+      className={className}
+    >
       {
         <props.icon
           aria-hidden="true"
