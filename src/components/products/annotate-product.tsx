@@ -146,7 +146,7 @@ export const AnnotateProduct = (props: Props) => {
                     Novo produto
                 </Button>
             </Drawer.Trigger>
-            <Drawer.Content>
+            <Drawer.Content className="overflow-y-auto">
                 <Fragment>
                     {product === null ? null : (
                         <Fragment>
