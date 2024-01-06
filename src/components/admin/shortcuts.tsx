@@ -87,7 +87,7 @@ export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
       {props.text}
     </Link>
   ) : (
-    <button className={className}>
+    <button onClick={props.onClick} className={className}>
       {
         <props.icon
           aria-hidden="true"
