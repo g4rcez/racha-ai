@@ -36,7 +36,7 @@ Drawer.Content = React.forwardRef((props: Dialog.DialogContentProps, ref: any) =
                 >
                     <div className="relative h-full w-full">
                         <Dialog.Close asChild>
-                            <Button theme="transparent" className="absolute right-0 lg:-top-5 top-0 link:text-danger-bg">
+                            <Button theme="transparent" className="absolute right-0 lg:-top-5 top-0 link:text-danger-bg text-danger-bg/50">
                                 <XIcon aria-hidden />
                             </Button>
                         </Dialog.Close>

@@ -19,6 +19,8 @@ export type AsButton = {
 
 type Shortcut = AsLink | AsButton;
 
+export const isShortcutLink = (a: any): a is AsLink => !Is.nil(a.href);
+
 export const shortcuts: Shortcut[] = [
   {
     href: links.friends,
@@ -66,12 +68,13 @@ export const shortcuts: Shortcut[] = [
 const className =
   "flex flex-col text-center justify-center items-center border border-main-bg/60 p-4 min-w-32 max-w-36 rounded gap-2";
 
-export const Shortcut = (props: Shortcut) =>
+export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
   !Is.nil((props as AsLink).href) ? (
     <Link
+      className={className}
+      onClick={props.onClick}
       href={(props as AsLink).href}
       key={`shortcuts-${(props as AsLink).href}`}
-      className={className}
     >
       {
         <props.icon

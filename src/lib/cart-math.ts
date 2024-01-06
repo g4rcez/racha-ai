@@ -1,8 +1,7 @@
 import { Dict } from "~/lib/dict";
-import { fixed, fromStrNumber, sum } from "~/lib/fn";
-import { CartProduct, CartState } from "~/store/cart.store";
+import {fixed, fromStrNumber, sum} from "~/lib/fn";
+import {CartProduct, CartState} from "~/store/cart.store";
 import { User } from "~/store/friends.store";
-import { HistoryType } from "~/store/history.store";
 
 export namespace CartMath {
   type Couvert = { total: number; each: number };

@@ -1,7 +1,7 @@
 import { Link, Outlet, useRouteError } from "brouther";
 import { MenuIcon } from "lucide-react";
 import { Fragment, useState } from "react";
-import { Shortcut, shortcuts } from "~/components/admin/shortcuts";
+import { Shortcut, isShortcutLink, shortcuts } from "~/components/admin/shortcuts";
 import { Button } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Logo } from "~/components/logo";
@@ -36,7 +36,7 @@ export default function AdminLayout() {
                                     </Drawer.Description>
                                 </Drawer.Header>
                                 <ul className="mt-4 grid w-full grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {shortcuts.map((shortcut) => (
+                                    {shortcuts.filter(isShortcutLink).map((shortcut) => (
                                         <li key={`shortcut-${shortcut.href}`}>
                                             <Shortcut {...shortcut} onClick={toggle} />
                                         </li>
