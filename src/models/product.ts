@@ -34,7 +34,7 @@ export namespace Product {
     products: number;
     consumed: number;
   }) =>
-    args.consumed < 1
-      ? fraction(args.products, args.consumers)
-      : args.consumed;
+    Number.isInteger(args.consumed)
+      ? args.consumed
+      : fraction(args.products, args.consumers);
 }

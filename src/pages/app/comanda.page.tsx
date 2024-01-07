@@ -110,6 +110,8 @@ export default function ComandaPage() {
               const quantitySum = product.consumers
                 .toArray()
                 .reduce((acc, el) => sum(acc, el.quantity), 0);
+              const diff = Math.abs(quantitySum - product.quantity)
+              const showAlert = diff > 0.2;
               return (
                 <li
                   className="flex flex-col items-center justify-between"
@@ -143,7 +145,7 @@ export default function ComandaPage() {
                       <Trash2Icon />
                     </Button>
                   </span>
-                  {quantitySum < product.quantity ? (
+                  {showAlert ? (
                     <Alert title="Aviso" theme="warn" className="my-6">
                       A soma do consumo é inferior a quantidade total de
                       produtos
@@ -206,9 +208,7 @@ export default function ComandaPage() {
                   return (
                     <Button
                       key={`bonus-key-${bonus}`}
-                      theme={
-                        state.additional === formatted ? undefined : "muted"
-                      }
+                      theme={state.additional === formatted ? undefined : "muted"}
                       onClick={() => dispatch.onChangeBonus(bonus)}
                     >
                       {formatted}
@@ -239,13 +239,13 @@ export default function ComandaPage() {
             </Checkbox>
             {state.hasCouvert ? (
               <Input
+                required
                 mask="money"
                 name="couvert"
-                onChange={dispatch.onChange}
-                placeholder="R$ 10,00"
-                required
-                title="Qual o valor do couvert?"
                 value={state.couvert}
+                placeholder="R$ 10,00"
+                onChange={dispatch.onChange}
+                title="Qual o valor do couvert?"
               />
             ) : null}
           </div>

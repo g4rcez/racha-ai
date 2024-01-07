@@ -27,7 +27,7 @@ Drawer.Content = React.forwardRef((props: Dialog.DialogContentProps, ref: any) =
                 <div
                     ref={ref}
                     className={css(
-                        "origin-bottom lg:origin-right",
+                        "origin-bottom lg:origin-right overflow-y-auto",
                         "data-[state=closed]:animate-[content-hide_300ms] data-[state=open]:animate-[content-show_300ms]",
                         Mobile.use()
                             ? "fixed bottom-0 z-50 h-screen max-h-[80vh] w-screen bg-body-bg p-6 text-body focus:outline-none"

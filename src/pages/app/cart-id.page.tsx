@@ -41,18 +41,19 @@ export default function CartId() {
     <main>
       <section className="flex gap-2 flex-col">
         <Title>{history.title}</Title>
+        <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
         <div className="flex justify-between items-center">
           <p>
             Total: <b className="text-main-bg">{total}</b>
           </p>
           <Link
             href={links.cart}
+            className="underline underline-offset-4"
             onClick={() => dispatch.set(History.parseToCart(history))}
           >
             Editar comanda
           </Link>
         </div>
-        <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
       </section>
       <ul className="mt-6 space-y-4">
         {history.users.map((user) => {
