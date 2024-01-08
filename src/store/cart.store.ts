@@ -17,7 +17,7 @@ export type CartUser = User & {
   paidAt: Date | null;
 };
 
-type Division = "equals" | "percent" | "perConsume" | "absolute";
+export type Division = "equals" | "percent" | "perConsume" | "absolute";
 
 export type CartProduct = Product & {
   consumers: Dict<string, CartUser>;

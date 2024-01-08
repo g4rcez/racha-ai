@@ -8,7 +8,7 @@ import { Dict } from "~/lib/dict";
 import { clamp, diff, fixed, sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
-import { Cart, CartProduct, CartUser } from "~/store/cart.store";
+import { Cart, CartProduct, CartUser, Division } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
 import { Preferences } from "~/store/preferences.store";
 import { useReducer } from "~/use-typed-reducer";
@@ -51,7 +51,7 @@ const updateWithEquality = (
   return {
     ...product,
     quantity,
-    division: "equals",
+    division: "equals" as Division,
     consumers: Dict.from(
       "id",
       product.consumers.toArray().map((consumer) => ({
@@ -125,7 +125,7 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
       equalityMode: isEqualityMode(quantity),
       product: {
         ...state.product,
-        division: "equals",
+        division: "equals" as Division,
         consumers: Dict.from(
           "id",
           consumers.map((x) => ({
