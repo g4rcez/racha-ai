@@ -33,12 +33,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                     {...props}
                     type={type}
                     ref={mergeRefs(ref, inputRef)}
+                    id={id}
+                    name={id}
                     className={css(
                         "input group h-10 w-full flex-1 rounded-md bg-transparent p-2 placeholder-input-mask outline-none transition-colors group-error:text-danger group-error:placeholder-danger-mask",
                         props.className,
                     )}
-                    id={id}
-                    name={id}
                 />
             </InputField>
         );

@@ -146,6 +146,21 @@ export const Cart = Entity.create(
           currentProduct: product,
           products: new Dict(get.state().products).set(product.id, product),
         }),
+      onChangeUsername: (id: string, name: string) => {
+        const state = get.state();
+        const users = Dict.from(
+          "id",
+          state.users.map((x) => {
+            if (x.id === id) {
+              const user = { ...x, name };
+              Friends.action.update(user);
+              return user;
+            }
+            return x;
+          }),
+        );
+        return { users };
+      },
       removeUser: (user: User) => {
         const state = get.state();
         const id = user.id;

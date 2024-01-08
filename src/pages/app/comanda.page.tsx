@@ -35,10 +35,13 @@ export default function ComandaPage() {
     if (submitter === "submit") Cart.onSubmit(me.id, state);
   };
 
+  const onReset = () => dispatch.set(Cart.getState());
+
   return (
     <main className="pb-8">
       <Title className="font-bold">{state.title || "Bar sem nome..."}</Title>
       <Form
+        onReset={onReset}
         onSubmit={onSubmit}
         className="flex flex-col gap-6"
         onKeyDown={(e) => {
@@ -61,6 +64,7 @@ export default function ComandaPage() {
             friends={state.users}
             onAdd={dispatch.onAddFriend}
             onDelete={dispatch.onRemoveFriend}
+            onChangeUser={dispatch.onChangeUsername}
           />
           <ul className="space-y-4">
             {state.users.map((user) => {
@@ -252,6 +256,9 @@ export default function ComandaPage() {
         </section>
         <Button name="submit" value="submit" type="submit">
           Fecha a conta aí
+        </Button>
+        <Button theme="warn" name="reset" value="reset" type="reset">
+          Resetar
         </Button>
       </Form>
     </main>

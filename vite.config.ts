@@ -2,9 +2,6 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
-import PackageJson from "./package.json";
-
-const version = `${PackageJson.version}`;
 
 export default defineConfig({
     resolve: { alias: { "~": path.resolve(__dirname, "./src/") } },
@@ -13,15 +10,6 @@ export default defineConfig({
         manifest: true,
         minify: "terser",
         sourcemap: false,
-        rollupOptions: {
-            output: {
-                assetFileNames: `${version}/assets/[name][extname]`,
-                chunkFileNames: (a) => (a.name.endsWith(".js") ? `${version}/${a.name}` : `${version}/[name].js`),
-                entryFileNames: (a) => (a.name.endsWith(".js") ? `${version}/${a.name}` : `${version}/[name].js`),
-                sourcemap: false,
-                strict: true
-            }
-        }
     },
     plugins: [
         react(),
