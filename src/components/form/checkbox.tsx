@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { css } from "~/lib/dom";
 import { Label } from "~/types";
 
@@ -20,7 +20,7 @@ export const Checkbox = ({ children, container, className, ...props }: Props) =>
                     type="checkbox"
                     className="form-checkbox cursor-pointer rounded-xs border text-main-bg outline-main-bg focus:ring-main-bg disabled:cursor-not-allowed group-disabled:text-muted-input"
                 />
-                <span>{children}</span>
+                <Fragment>{children}</Fragment>
             </label>
         </fieldset>
     );

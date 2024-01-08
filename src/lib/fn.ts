@@ -1,6 +1,7 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import React from "react";
 import { Is } from "~/lib/is";
+import Fraction from "fraction.js";
 
 export const reduceObject = <T extends {}, V>(object: T, fn: <K extends keyof T>(k: K, value: T[K]) => V) =>
     Object.keys(object).reduce(
@@ -71,3 +72,10 @@ export const isReactComponent = (a: any): a is React.FC => {
 export const fixed = (n: number, decimalPlaces: number = 2) => Number(n.toFixed(decimalPlaces));
 
 export const sortId = <A extends {id: string}>(a: A, b: A) => b.id.localeCompare(a.id)
+
+export const fraction = (a: number, b: number): string => new Fraction(a, b).toFraction();
+
+export const toFraction = (a: number): string => new Fraction(a).toFraction(true);
+
+
+

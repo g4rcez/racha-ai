@@ -7,8 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/table";
-import { SectionTitle } from "~/components/typography";
+import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
+import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { links } from "~/router";
 import { Cart } from "~/store/cart.store";
@@ -38,21 +39,21 @@ export default function CartId() {
   const total = i18n.format.money(history.total);
   return (
     <main>
-      <section className="flex flex-col">
-        <SectionTitle paragraphClassName="text-lg" title={history.title}>
-          Total: <b className="text-main-bg">{total}</b>
-        </SectionTitle>
-        {history.createdAt ? (
+      <section className="flex gap-2 flex-col">
+        <Title>{history.title}</Title>
+        <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
+        <div className="flex justify-between items-center">
           <p>
-            Data do evento: {i18n.format.datetime(new Date(history.createdAt))}
+            Total: <b className="text-main-bg">{total}</b>
           </p>
-        ) : null}
-        <Link
-          href={links.cart}
-          onClick={() => dispatch.set(History.parseToCart(history))}
-        >
-          Editar
-        </Link>
+          <Link
+            href={links.cart}
+            className="underline underline-offset-4"
+            onClick={() => dispatch.set(History.parseToCart(history))}
+          >
+            Editar comanda
+          </Link>
+        </div>
       </section>
       <ul className="mt-6 space-y-4">
         {history.users.map((user) => {
@@ -77,7 +78,7 @@ export default function CartId() {
                           <TableCell>
                             {i18n.format.money(product.total)}
                           </TableCell>
-                          <TableCell>{product.quantity}</TableCell>
+                          <TableCell>{toFraction(product.quantity)}</TableCell>
                         </TableRow>
                       ),
                     )}
