@@ -1,17 +1,18 @@
 import React, { Fragment, useEffect, useRef } from "react";
-import { Button } from "~/components/button";
+import { Button, ButtonGroup } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { Mobile } from "~/components/mobile";
 import { Dict } from "~/lib/dict";
-import { clamp, diff, fixed, sum } from "~/lib/fn";
+import { clamp, diff, fixed, sum, toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
 import { Cart, CartProduct, CartUser, Division } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
 import { Preferences } from "~/store/preferences.store";
 import { useReducer } from "~/use-typed-reducer";
+import { Title } from "../typography";
 
 type Props = {
   justMe: boolean;
@@ -46,22 +47,19 @@ const isEqualityMode = (quantity: number) => quantity < 1;
 const updateWithEquality = (
   quantity: number,
   product: CartProduct,
-): CartProduct => {
-  const eqQuantity = fixed(quantity / product.consumers.size);
-  return {
-    ...product,
-    quantity,
-    division: "equals" as Division,
-    consumers: Dict.from(
-      "id",
-      product.consumers.toArray().map((consumer) => ({
-        ...consumer,
-        quantity: eqQuantity,
-        amount: calculateAmount(product!.price, quantity),
-      })),
-    ),
-  };
-};
+): CartProduct => ({
+  ...product,
+  quantity,
+  division: "equals" as Division,
+  consumers: Dict.from(
+    "id",
+    product.consumers.toArray().map((consumer) => ({
+      ...consumer,
+      quantity: quantity / product.consumers.size,
+      amount: calculateAmount(product!.price, quantity),
+    })),
+  ),
+});
 
 const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
   visible: (visible: boolean) => ({ visible }),
@@ -76,6 +74,11 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
             .toArray()
             .some((x) => isEqualityMode(x.quantity)),
         },
+  changeDivision: (division: Division) => {
+    const state = args.state();
+    if (state.product === null) return state;
+    return { product: { ...state.product, division } };
+  },
   onChange: (e: React.ChangeEvent<HTMLInputElement>): Partial<State> => {
     const state = args.state();
     const props = args.props();
@@ -90,12 +93,7 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
     if (!props.justMe) {
       return state.equalityMode
         ? { product: updateWithEquality(quantity, state.product) }
-        : {
-            product: {
-              ...state.product,
-              quantity,
-            },
-          };
+        : { product: { ...state.product, quantity } };
     }
     const clone = state.product.consumers.clone();
     const ownUser = clone.get(props.me.id)!;
@@ -125,13 +123,13 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
       equalityMode: isEqualityMode(quantity),
       product: {
         ...state.product,
-        division: "equals" as Division,
+        division: Division.Equals,
         consumers: Dict.from(
           "id",
           consumers.map((x) => ({
             ...x,
             quantity,
-            amount: calculateAmount(state.product!.price, quantity),
+            amount: calculateAmount(state.product?.price!, quantity),
           })),
         ),
       },
@@ -307,11 +305,31 @@ export const AnnotateProduct = (props: Props) => {
                     </Button>
                   }
                 />
-                <section className="empty:hidden empty:h-0">
+                <section className="empty:hidden flex gap-2 py-2 empty:py-0 flex-col empty:h-0 col-span-2">
                   {props.justMe ? null : (
-                    <Button onClick={dispatch.onSplitByEquality}>
-                      Dividir igualmente
-                    </Button>
+                    <Fragment>
+                      <Title>Vamos rachar?</Title>
+                      <p className="text-sm">
+                        Escolha entre divisão igual para todos ou inserir
+                        manualmente o consumo de cada um
+                      </p>
+                      <ButtonGroup
+                        active={product.division}
+                        buttons={[
+                          {
+                            name: Division.Equals,
+                            children: "Igual",
+                            onClick: dispatch.onSplitByEquality,
+                          },
+                          {
+                            name: Division.PerConsume,
+                            children: "Por consumo",
+                            onClick: () =>
+                              dispatch.changeDivision(Division.PerConsume),
+                          },
+                        ]}
+                      />
+                    </Fragment>
                   )}
                 </section>
                 <ul className="col-span-2 space-y-4">
@@ -344,7 +362,11 @@ export const AnnotateProduct = (props: Props) => {
                       props.onChangeConsumedQuantity(consumer, product, result);
                     };
 
-                    return (
+                    return product.division === Division.Equals ? (
+                      <li key={`cart-user-${user.id}-${Division.Equals}`}>
+                        {toFraction(consumer.quantity)}
+                      </li>
+                    ) : (
                       <li className="w-full" key={`cart-user-${user.id}`}>
                         <Input
                           type="number"
