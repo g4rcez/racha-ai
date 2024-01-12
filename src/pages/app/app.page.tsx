@@ -1,12 +1,15 @@
 import { Link } from "brouther";
-import { SoupIcon } from "lucide-react";
+import { UtensilsIcon } from "lucide-react";
 import { CSSProperties, useEffect, useMemo } from "react";
-import { AsLink, Shortcut, shortcuts } from "~/components/admin/shortcuts";
+import {
+  Shortcut,
+  getHomeShortcuts,
+  shortcuts,
+} from "~/components/admin/shortcuts";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { SectionTitle, Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { Is } from "~/lib/is";
 import { link, links } from "~/router";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
@@ -43,19 +46,14 @@ export default function AppPage() {
         style={{ "--items": shortcuts.length } as CSSProperties}
         className="flex flex-1 snap-x snap-mandatory snap-center flex-row flex-nowrap gap-4 overflow-x-auto"
       >
-        {shortcuts
-          .filter(
-            (shortcut): shortcut is AsLink =>
-              !Is.nil((shortcut as AsLink).href),
-          )
-          .map((shortcut) => (
-            <li
-              key={`shortcut-${shortcut.href}`}
-              className="min-w-36 flex-1 shrink basis-full text-center"
-            >
-              <Shortcut {...shortcut} />
-            </li>
-          ))}
+        {getHomeShortcuts().map((shortcut) => (
+          <li
+            key={`shortcut-${shortcut.href}`}
+            className="min-w-36 flex-1 shrink basis-full text-center"
+          >
+            <Shortcut {...shortcut} />
+          </li>
+        ))}
       </ul>
       {items.length === 0 ? null : (
         <section>
@@ -70,8 +68,11 @@ export default function AppPage() {
                   href={link(links.cartHistory, { id: item.id })}
                 >
                   <header className="flex items-end justify-between">
-                    <div className="flex gap-2">
-                      <SoupIcon className="group-hover:text-main-bg group-active:text-main-bg" />
+                    <div className="flex gap-2 items-center">
+                      <UtensilsIcon
+                        size={18}
+                        className="group-hover:text-main-bg group-active:text-main-bg"
+                      />
                       <h3 className="text-xl transition-colors group-hover:text-main-bg group-active:text-main-bg">
                         {item.title}
                       </h3>

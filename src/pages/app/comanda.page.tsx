@@ -114,7 +114,7 @@ export default function ComandaPage() {
               const quantitySum = product.consumers
                 .toArray()
                 .reduce((acc, el) => sum(acc, el.quantity), 0);
-              const diff = Math.abs(quantitySum - product.quantity)
+              const diff = Math.abs(quantitySum - product.quantity);
               const showAlert = diff > 0.2;
               return (
                 <li
@@ -212,7 +212,9 @@ export default function ComandaPage() {
                   return (
                     <Button
                       key={`bonus-key-${bonus}`}
-                      theme={state.additional === formatted ? undefined : "muted"}
+                      theme={
+                        state.additional === formatted ? undefined : "muted"
+                      }
                       onClick={() => dispatch.onChangeBonus(bonus)}
                     >
                       {formatted}

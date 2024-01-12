@@ -1,30 +1,39 @@
 import { Link } from "brouther";
-import { CogIcon, ReceiptIcon, UploadIcon, UsersIcon } from "lucide-react";
+import {
+  CogIcon,
+  HistoryIcon,
+  ReceiptIcon,
+  UploadIcon,
+  UsersIcon,
+} from "lucide-react";
 import React, { Fragment } from "react";
 import { LocalStorage } from "storage-manager-js";
 import { Is } from "~/lib/is";
 import { links } from "~/router";
 
-export type AsLink = {
+export type ShortcutLink = {
   icon: React.FC<any>;
   text: React.ReactNode;
   href: (typeof links)[keyof typeof links];
+  tags: string[];
 };
 
-export type AsButton = {
+export type ShortcutButton = {
   action: () => Promise<any> | any;
   icon: React.FC<any>;
   text: React.ReactNode;
+  tags: string[];
 };
 
-type Shortcut = AsLink | AsButton;
+type Shortcut = ShortcutLink | ShortcutButton;
 
-export const isShortcutLink = (a: any): a is AsLink => !Is.nil(a.href);
+export const isShortcutLink = (a: any): a is ShortcutLink => !Is.nil(a.href);
 
 export const shortcuts: Shortcut[] = [
   {
     href: links.friends,
     icon: UsersIcon,
+    tags: ["home", "menu"],
     text: (
       <Fragment>
         Adicionar
@@ -35,6 +44,7 @@ export const shortcuts: Shortcut[] = [
   {
     href: links.cart,
     icon: ReceiptIcon,
+    tags: ["home", "menu"],
     text: (
       <Fragment>
         Nova
@@ -45,6 +55,7 @@ export const shortcuts: Shortcut[] = [
   {
     href: links.config,
     icon: CogIcon,
+    tags: ["home", "menu"],
     text: (
       <Fragment>
         Minhas
@@ -54,6 +65,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     icon: UploadIcon,
+    tags: ["menu"],
     text: (
       <Fragment>
         Exportar
@@ -79,18 +91,29 @@ export const shortcuts: Shortcut[] = [
       }
     },
   },
+  {
+    href: links.app,
+    icon: HistoryIcon,
+    tags: ["menu"],
+    text: (
+      <Fragment>
+        Meu
+        <br /> histórico
+      </Fragment>
+    ),
+  },
 ];
 
 const className =
   "flex flex-col w-full text-center justify-center items-center border border-main-bg/60 p-4 max-w-36 rounded gap-2";
 
 export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
-  !Is.nil((props as AsLink).href) ? (
+  !Is.nil((props as ShortcutLink).href) ? (
     <Link
       className={className}
       onClick={props.onClick}
-      href={(props as AsLink).href}
-      key={`shortcuts-${(props as AsLink).href}`}
+      href={(props as ShortcutLink).href}
+      key={`shortcuts-${(props as ShortcutLink).href}`}
     >
       {
         <props.icon
@@ -105,7 +128,7 @@ export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
   ) : (
     <button
       onClick={() => {
-        (props as AsButton).action?.();
+        (props as ShortcutButton).action?.();
         props.onClick?.();
       }}
       className={className}
@@ -121,3 +144,13 @@ export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
       {props.text}
     </button>
   );
+
+export const getHomeShortcuts = (): ShortcutLink[] =>
+  shortcuts.filter(
+    (shortcut): shortcut is ShortcutLink =>
+      !Is.nil((shortcut as ShortcutLink).href) &&
+      shortcut.tags.includes("home"),
+  );
+
+export const getMenuShortcuts = () =>
+  shortcuts.filter((shortcut) => shortcut.tags.includes("menu"));

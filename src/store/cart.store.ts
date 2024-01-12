@@ -17,7 +17,12 @@ export type CartUser = User & {
   paidAt: Date | null;
 };
 
-export type Division = "equals" | "percent" | "perConsume" | "absolute";
+export enum Division {
+  Equals = "equals",
+  Percent = "percent",
+  Absolute = "absolute",
+  PerConsume = "perConsume",
+}
 
 export type CartProduct = Product & {
   consumers: Dict<string, CartUser>;
@@ -47,6 +52,7 @@ export type CartState = Entity.New<{
 }>;
 
 const product = Product.schema.extend({
+  division: z.nativeEnum(Division).optional().default(Division.Equals),
   consumers: z.array(
     Friends.schema.extend({ amount: z.number(), quantity: z.number() }),
   ),
@@ -106,7 +112,7 @@ export const Cart = Entity.create(
     hasCouvert: storage?.hasCouvert ?? false,
     couvert: storage?.couvert ?? i18n.format.money(10),
     currentProduct: null,
-    type: storage?.type ?? "perConsume",
+    type: storage?.type ?? Division.PerConsume,
     users: new Dict(
       storage?.users.map((x) => [
         x.id,
@@ -173,11 +179,8 @@ export const Cart = Entity.create(
         if (state.currentProduct) {
           const p = { ...state.currentProduct };
           p.consumers = p.consumers.clone().remove(id);
-          return merge({
-            users: new Dict(get.state().users).remove(user.id),
-            products,
-            currentProduct: p,
-          });
+          const users = new Dict(get.state().users).remove(user.id);
+          return merge({ users, products, currentProduct: p });
         }
         return merge({
           users: new Dict(get.state().users).remove(user.id),
@@ -247,7 +250,7 @@ export const Cart = Entity.create(
     newProduct: (consumers: Dict<string, CartUser>): CartProduct => ({
       ...Product.create(),
       consumers: new Dict(consumers.map((x) => [x.id, newUser(x)])),
-      division: "perConsume",
+      division: Division.PerConsume,
     }),
     onSubmit: (ownerId: string, state: CartState) => {
       const now = new Date();

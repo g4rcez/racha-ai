@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import {
   isShortcutLink,
   Shortcut,
-  shortcuts,
+  getMenuShortcuts,
 } from "~/components/admin/shortcuts";
 import { Button } from "~/components/button";
 import { Drawer } from "~/components/drawer";
@@ -45,7 +45,7 @@ export default function AdminLayout() {
                   </Drawer.Description>
                 </Drawer.Header>
                 <ul className="mt-4 grid w-full grid-cols-2 lg:grid-cols-3 gap-8">
-                  {shortcuts.map((shortcut, index) =>
+                  {getMenuShortcuts().map((shortcut, index) =>
                     isShortcutLink(shortcut) ? (
                       <li key={`shortcut-${shortcut.href}`}>
                         <Shortcut {...shortcut} onClick={toggle} />
