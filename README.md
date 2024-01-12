@@ -1,5 +1,3 @@
-# divide-ai
+# rach-ai
 
-# bugs
-
-- Cadastro de produtos
+[racha.ai](https://racha.ai)
