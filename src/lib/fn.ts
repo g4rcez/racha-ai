@@ -1,7 +1,7 @@
 import { uuidv7 } from "@kripod/uuidv7";
+import Fraction from "fraction.js";
 import React from "react";
 import { Is } from "~/lib/is";
-import Fraction from "fraction.js";
 
 export const reduceObject = <T extends {}, V>(
   object: T,
@@ -97,5 +97,9 @@ export const sortId = <A extends { id: string }>(a: A, b: A) =>
 export const fraction = (a: number, b: number): string =>
   new Fraction(a, b).toFraction();
 
-export const toFraction = (a: number): string =>
-  new Fraction(a).toFraction(true);
+export const toFraction = (a: number): string => {
+  const result = new Fraction(a).toFraction(true);
+  if (!result.includes(" ")) return result;
+  const [int, fract] = result.split(" ");
+  return `${int} + ${fract}`;
+};

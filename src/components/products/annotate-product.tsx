@@ -5,7 +5,7 @@ import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { Mobile } from "~/components/mobile";
 import { Dict } from "~/lib/dict";
-import { clamp, diff, fixed, sum, toFraction } from "~/lib/fn";
+import { clamp, diff, sum, toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
 import { Cart, CartProduct, CartUser, Division } from "~/store/cart.store";
@@ -27,6 +27,7 @@ type Props = {
     user: CartUser,
     product: CartProduct,
     quantity: number,
+    division: Division,
   ) => void;
 };
 
@@ -34,8 +35,8 @@ const calculateAmount = (price: number, quantity: number) => price * quantity;
 
 const initialState = {
   visible: false,
-  equalityMode: false,
   product: null as CartProduct | null,
+  division: Division.Equals as Division,
 };
 
 type State = typeof initialState;
@@ -91,7 +92,7 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
     }
     const quantity = (value as number) || 0;
     if (!props.justMe) {
-      return state.equalityMode
+      return state.division
         ? { product: updateWithEquality(quantity, state.product) }
         : { product: { ...state.product, quantity } };
     }
@@ -103,7 +104,7 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
       amount: calculateAmount(state.product.price ?? 0, quantity),
     });
     return {
-      equalityMode: false,
+      division: Division.PerConsume,
       product: { ...state.product, quantity: value as number },
     };
   },
@@ -118,7 +119,7 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
     const state = args.state();
     if (Is.nil(state.product)) return state;
     const consumers = state.product.consumers.toArray();
-    const quantity = fixed(state.product.quantity / consumers.length);
+    const quantity = state.product.quantity / consumers.length;
     return {
       equalityMode: isEqualityMode(quantity),
       product: {
@@ -137,7 +138,6 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
   },
   onClickQuantity: (e: React.MouseEvent<HTMLButtonElement>): Partial<State> => {
     const state = args.state();
-    const props = args.props();
     if (Is.nil(state.product)) return state;
     const operation = e.currentTarget.dataset.operation === "+" ? sum : diff;
     const quantity = clamp(
@@ -145,9 +145,10 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
       operation(Number(state.product.quantity), 1),
       Number.MAX_SAFE_INTEGER,
     );
+    const props = args.props();
     if (!props.justMe)
       return {
-        product: state.equalityMode
+        product: state.division
           ? updateWithEquality(quantity, state.product)
           : { ...state.product, quantity },
       };
@@ -345,42 +346,58 @@ export const AnnotateProduct = (props: Props) => {
                       e: React.ChangeEvent<HTMLInputElement>,
                     ) => {
                       if (Is.null(product)) return;
-                      const number = e.target.valueAsNumber;
-                      props.onChangeConsumedQuantity(consumer, product, number);
+                      const number = Number(e.target.valueAsNumber);
+                      props.onChangeConsumedQuantity(
+                        consumer,
+                        product,
+                        number,
+                        state.division,
+                      );
                     };
 
                     const onChangeByOperation = (
                       e: React.MouseEvent<HTMLButtonElement>,
                     ) => {
-                      const signal = e.currentTarget.dataset.operation === "+";
-                      const operation = signal ? sum : diff;
-                      const result = clamp(
-                        0,
-                        operation(consumer.quantity, 1),
-                        product.quantity,
+                      if (state.product === null) return;
+                      const isSum = e.currentTarget.dataset.operation === "+";
+                      const operation = isSum ? sum : diff;
+                      const c = state.product.consumers
+                        .toArray()
+                        .filter((x) => x.quantity > 0).length;
+                      const quantity =
+                        state.division === Division.PerConsume
+                          ? 1
+                          : state.product.quantity /
+                            (Math.max(c, 1) +
+                              (consumer.quantity === 0 && isSum ? 1 : 0));
+                      const calc = operation(consumer.quantity, quantity);
+                      const result = clamp(0, calc, product.quantity);
+                      props.onChangeConsumedQuantity(
+                        consumer,
+                        product,
+                        result,
+                        state.division,
                       );
-                      props.onChangeConsumedQuantity(consumer, product, result);
                     };
 
-                    return product.division === Division.Equals ? (
-                      <li key={`cart-user-${user.id}-${Division.Equals}`}>
-                        {toFraction(consumer.quantity)}
-                      </li>
-                    ) : (
+                    return (
                       <li className="w-full" key={`cart-user-${user.id}`}>
                         <Input
-                          type="number"
-                          data-id={user.id}
-                          max={product.quantity}
-                          onChange={onChange}
                           min={0}
-                          step={0.000000000000001}
                           required
                           title={user.name}
+                          data-id={user.id}
+                          onChange={onChange}
+                          max={product.quantity}
+                          type={state.division ? "text" : "number"}
+                          readOnly={state.division === Division.Equals}
+                          step={state.division ? undefined : 0.000000000000001}
                           value={
                             user.id === me.id && props.justMe
                               ? product.quantity
-                              : consumer.quantity
+                              : state.division === Division.Equals
+                                ? toFraction(consumer.quantity)
+                                : consumer.quantity
                           }
                           left={
                             <Button

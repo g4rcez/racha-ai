@@ -44,9 +44,9 @@ export namespace Entity {
     },
     (state: State, method: string, prev: State) => {
       console.group(key);
-      console.log("Update by", method);
-      console.log("Previous state", prev);
-      console.log(state);
+      console.info("Update by", method);
+      console.info("Previous state", prev);
+      console.info(state);
       console.groupEnd();
       return state;
     },

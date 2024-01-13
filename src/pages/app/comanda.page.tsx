@@ -17,8 +17,7 @@ import {
 import { SectionTitle, Title } from "~/components/typography";
 import { SelectConsumerFriends } from "~/components/users/friends";
 import { i18n } from "~/i18n";
-import { fixed, sum } from "~/lib/fn";
-import { Product } from "~/models/product";
+import { fixed, sum, toFraction } from "~/lib/fn";
 import { Cart } from "~/store/cart.store";
 import { Preferences } from "~/store/preferences.store";
 
@@ -169,11 +168,7 @@ export default function ComandaPage() {
                           <TableRow key={`consumer-item-${consumer.id}`}>
                             <TableCell>{consumer.name}</TableCell>
                             <TableCell>
-                              {Product.quantity({
-                                consumed: consumer.quantity,
-                                consumers: product.consumers.size,
-                                products: product.quantity,
-                              })}
+                              {toFraction(consumer.quantity)}
                             </TableCell>
                             <TableCell>
                               {i18n.format.money(fixed(consumer.amount, 2))}

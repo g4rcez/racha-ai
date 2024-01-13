@@ -1,6 +1,5 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { z } from "zod";
-import { fraction } from "~/lib/fn";
 import { Entity } from "~/models/entity";
 
 export type Product = Entity.New<{
@@ -28,13 +27,4 @@ export namespace Product {
     monetary: "",
     quantity: 1,
   });
-
-  export const quantity = (args: {
-    consumers: number;
-    products: number;
-    consumed: number;
-  }) =>
-    Number.isInteger(args.consumed)
-      ? args.consumed
-      : fraction(args.products, args.consumers);
 }

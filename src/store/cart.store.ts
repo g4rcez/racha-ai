@@ -5,6 +5,7 @@ import { FormError } from "~/components/form/form";
 import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { Either } from "~/lib/either";
+import { Is } from "~/lib/is";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { Friends, User } from "~/store/friends.store";
@@ -98,6 +99,54 @@ const newUser = (user: User | CartUser): CartUser => ({
   amount: (user as any)?.amount || 0,
   quantity: (user as any)?.quantity || 0,
 });
+
+const splitAccountValue = {
+  [Division.PerConsume]: (
+    state: CartState,
+    user: CartUser,
+    product: CartProduct,
+    quantity: number,
+  ): Partial<CartState> => {
+    const userAmount = product.price * quantity;
+    const consumers = product.consumers.clone();
+    const newUser = { ...user, quantity, amount: userAmount };
+    consumers.set(user.id, newUser);
+    const cartProduct = { ...product, consumers };
+    const products = new Dict(state.products);
+    products.set(cartProduct.id, cartProduct);
+    return { currentProduct: cartProduct, products };
+  },
+  [Division.Equals]: (
+    state: CartState,
+    user: CartUser,
+    product: CartProduct,
+    quantity: number,
+  ): Partial<CartState> => {
+    const consumers = product.consumers.toArray();
+    const withConsume = consumers.filter((x) =>
+      x.id === user.id ? quantity > 0 : x.quantity > 0,
+    );
+    const splitQuantity = product.quantity / withConsume.length;
+    const total = product.price * splitQuantity;
+    console.log({ total, consumers, withConsume, quantity, splitQuantity });
+    const newProduct: CartProduct = {
+      ...product,
+      consumers: Dict.from(
+        "id",
+        consumers.map((consumer) => {
+          if (consumer.id === user.id)
+            return { ...consumer, quantity, amount: product.price * quantity };
+          if (consumer.quantity === 0)
+            return { ...consumer, quantity: 0, amount: 0 };
+          return { ...consumer, amount: total, quantity: splitQuantity };
+        }),
+      ),
+    };
+    const products = new Dict(state.products);
+    products.set(newProduct.id, newProduct);
+    return { currentProduct: newProduct, products };
+  },
+};
 
 export const Cart = Entity.create(
   { name: "cart", version: "v2", schemas },
@@ -233,16 +282,13 @@ export const Cart = Entity.create(
         user: CartUser,
         product: CartProduct,
         quantity: number,
-      ) => {
-        const userAmount = product.price * quantity;
-        const consumers = new Dict(product.consumers);
-        const newUser = { ...user, quantity, amount: userAmount };
-        consumers.set(user.id, newUser);
-        const cartProduct = { ...product, consumers };
-        const products = new Dict(get.state().products);
-        products.set(cartProduct.id, cartProduct);
-        return merge({ currentProduct: cartProduct, products });
-      },
+        division: Division,
+      ) =>
+        Is.keyof(splitAccountValue, division)
+          ? merge(
+              splitAccountValue[division](get.state(), user, product, quantity),
+            )
+          : get.state(),
     };
   },
   {

@@ -86,7 +86,7 @@ export const shortcuts: Shortcut[] = [
             text: "Exportando seus dados do app",
           });
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
       }
     },
