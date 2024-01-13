@@ -1,5 +1,12 @@
 import { ActionProps, Form, Link, redirectResponse } from "brouther";
-import { LucideIcon } from "lucide-react";
+import {
+  FastForwardIcon,
+  FolderKeyIcon,
+  GithubIcon,
+  LucideIcon,
+  TwitterIcon,
+  UserCheckIcon,
+} from "lucide-react";
 import React from "react";
 import { AppDemo } from "~/components/app-demo";
 import { Button } from "~/components/button";
@@ -18,7 +25,7 @@ export const WhySectionItem = ({
 }: React.PropsWithChildren<{ title: string; Icon: LucideIcon }>) => (
   <div>
     <header className="flex flex-col items-center justify-center text-center">
-      <Icon absoluteStrokeWidth strokeWidth={2} size={24} />
+      <Icon absoluteStrokeWidth strokeWidth={3} size={40} />
       <Title as="h4">{title}</Title>
     </header>
     <p className="text-balance text-center">{children}</p>
@@ -116,19 +123,46 @@ export default function IndexPage() {
           geram confusão na hora de pagar.
         </p>
       </section>
-      {/*<section hidden aria-hidden className="my-12 flex flex-col items-center justify-center gap-6 px-4">*/}
-      {/*    <Title className="text-balance text-center" as="h3">*/}
-      {/*        Por quê usar o racha aí?*/}
-      {/*    </Title>*/}
-      {/*    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">*/}
-      {/*        <WhySectionItem title="Praticidade" Icon={FastForwardIcon}>*/}
-      {/*            É fácil, rápido e você ainda pode usar sem estar conectado à internet.*/}
-      {/*        </WhySectionItem>*/}
-      {/*        <WhySectionItem title="Privacidade" Icon={FolderKeyIcon}>*/}
-      {/*            Os dados são seus. Você pode usar o <b>Racha aí</b>*/}
-      {/*        </WhySectionItem>*/}
-      {/*    </div>*/}
-      {/*</section>*/}
+      <section
+        hidden
+        aria-hidden
+        className="my-12 flex flex-col items-center justify-center gap-6 px-4"
+      >
+        <Title className="text-balance text-center" as="h3">
+          Por quê usar o racha aí?
+        </Title>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <WhySectionItem title="Praticidade" Icon={FastForwardIcon}>
+            É fácil, rápido e você ainda pode usar sem estar conectado à
+            internet.
+          </WhySectionItem>
+          <WhySectionItem title="Privacidade" Icon={FolderKeyIcon}>
+            Os dados são seus. Você pode usar o <b>Racha aí</b> de forma offline
+            e sem compartilhar seus dados.
+          </WhySectionItem>
+          <WhySectionItem title="Do seu jeito" Icon={UserCheckIcon}>
+            Você pode utilizar como quiser, seja como comanda individual ou para
+            a galera toda. Além de customizar a aparência como bem quiser.
+          </WhySectionItem>
+        </div>
+      </section>
+      <footer className="w-full bg-black text-white py-8">
+        <div className="flex container gap-4 w-full mx-auto flex-col items-end justify-between">
+          <header>
+            <Title as="h3" className="text-lg">
+              Racha aí
+            </Title>
+          </header>
+          <section className="flex flex-row gap-8">
+            <a className="flex gap-1" href="https://twitter.com/garcez_allan">
+              <TwitterIcon /> Twitter/X
+            </a>
+            <a className="flex gap-1" href="https://github.com/g4rcez">
+              <GithubIcon /> Github
+            </a>
+          </section>
+        </div>
+      </footer>
     </div>
   );
 }
