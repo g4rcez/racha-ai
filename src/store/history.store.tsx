@@ -92,6 +92,10 @@ const parse = (item: ParseToRaw<HistoryItem>): HistoryItem => ({
   ...item,
   createdAt: new Date(item.createdAt),
   finishedAt: new Date(item.finishedAt),
+  withAdditional:
+    item.withAdditional ??
+    item.products.reduce((acc, x) => acc + x.price * x.quantity, 0) *
+      (item.additional - 1),
   products: Dict.from(
     "id",
     item.products.map((x) => ({
