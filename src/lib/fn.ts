@@ -97,9 +97,5 @@ export const sortId = <A extends { id: string }>(a: A, b: A) =>
 export const fraction = (a: number, b: number): string =>
   new Fraction(a, b).toFraction();
 
-export const toFraction = (a: number): string => {
-  const result = new Fraction(a).toFraction(true);
-  if (!result.includes(" ")) return result;
-  const [int, fract] = result.split(" ");
-  return `${int} + ${fract}`;
-};
+export const toFraction = (a: number): string =>
+  new Fraction(a).toFraction(true).replace(" ", " + ");

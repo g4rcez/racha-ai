@@ -113,7 +113,7 @@ export default function CartId() {
         {history.hasAdditional ? (
           <li className="flex justify-between">
             <span>Gorjeta</span>
-            <b>{i18n.format.money(history.additional)}</b>
+            <b>{i18n.format.money(history.withAdditional)}</b>
           </li>
         ) : null}
         {history.hasCouvert ? (

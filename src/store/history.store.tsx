@@ -3,7 +3,7 @@ import { z } from "zod";
 import { i18n } from "~/i18n";
 import { CartMath } from "~/lib/cart-math";
 import { Dict } from "~/lib/dict";
-import { fromStrNumber, sum } from "~/lib/fn";
+import { sum } from "~/lib/fn";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { link, links, navigate } from "~/router";
@@ -35,13 +35,14 @@ export type HistoryItem = Override<
     couvert: number;
     additional: number;
     totalProducts: number;
+    withAdditional: number;
     users: Dict<string, HistoryUser>;
   }
 >;
 
 type State = { items: HistoryItem[] };
 
-const product = z.object({ ...Product.schema.shape, total: z.number() });
+const product = Product.schema.extend({ total: z.number() });
 
 const commonSchema = z.object({
   id: z.string(),
@@ -61,6 +62,7 @@ const schemas = {
             historyType: z.literal(HistoryType.Restaurant),
             type: z.string(),
             couvert: z.string(),
+            withAdditional: z.number(),
             additional: z.string(),
             hasCouvert: z.boolean(),
             hasAdditional: z.string(),
@@ -139,11 +141,13 @@ const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {
       sum: ownProducts.reduce((acc, el) => sum(acc, el.total), 0),
     };
   });
+  const calculate = CartMath.calculate(cart);
   return {
     total,
     type: cart.type,
-    couvert: fromStrNumber(cart.couvert),
-    additional: fromStrNumber(cart.additional),
+    couvert: calculate.couvert.each,
+    additional: calculate.additional,
+    withAdditional: (calculate.additional - 1) * calculate.products,
     totalProducts: sumProducts,
     products: cart.products,
     createdAt: cart.createdAt,
@@ -175,8 +179,10 @@ export const History = Entity.create(
       const storage = (LocalStorage.get(args.storageKey) as {
         items: HistoryItem[];
       }) || { items: [] };
-      const carts = Dict.from("id", storage.items);
-      carts.set(cart.id, parseFromCart(ownerId, cart));
+      const carts = Dict.from("id", storage.items).set(
+        cart.id,
+        parseFromCart(ownerId, cart),
+      );
       LocalStorage.set(args.storageKey, { items: carts.toArray() });
       return cart;
     },

@@ -41,10 +41,16 @@ export namespace CartMath {
   };
 
   export const calculate = (cart: CartState) => {
-    const additional = calcAdditional(cart);
     const couvert = calcCouvert(cart);
     const products = sumProducts(cart.products);
+    const additional = calcAdditional(cart);
     const total = products * additional + couvert.total;
-    return { additional, couvert, products, total };
+    return {
+      total,
+      couvert,
+      products,
+      additional,
+      totalAdditional: products * (additional - 1),
+    };
   };
 }

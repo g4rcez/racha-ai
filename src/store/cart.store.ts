@@ -128,7 +128,6 @@ const splitAccountValue = {
     );
     const splitQuantity = product.quantity / withConsume.length;
     const total = product.price * splitQuantity;
-    console.log({ total, consumers, withConsume, quantity, splitQuantity });
     const newProduct: CartProduct = {
       ...product,
       consumers: Dict.from(
