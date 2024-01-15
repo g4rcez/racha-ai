@@ -78,7 +78,13 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
   changeDivision: (division: Division) => {
     const state = args.state();
     if (state.product === null) return state;
-    return { product: { ...state.product, division } };
+    const consumers = state.product.consumers.clone();
+    if (division === Division.PerConsume) {
+      consumers.forEach((x) => {
+        consumers.set(x.id, { ...x, amount: 0, quantity: 0 });
+      });
+    }
+    return { product: { ...state.product, consumers }, division };
   },
   onChange: (e: React.ChangeEvent<HTMLInputElement>): Partial<State> => {
     const state = args.state();
@@ -122,9 +128,9 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
     const quantity = state.product.quantity / consumers.length;
     return {
       equalityMode: isEqualityMode(quantity),
+      division: Division.Equals,
       product: {
         ...state.product,
-        division: Division.Equals,
         consumers: Dict.from(
           "id",
           consumers.map((x) => ({
@@ -172,6 +178,8 @@ export const AnnotateProduct = (props: Props) => {
     me,
     justMe: props.justMe,
   });
+
+  console.log(state);
 
   useEffect(() => {
     if (props.product) {
@@ -315,7 +323,7 @@ export const AnnotateProduct = (props: Props) => {
                         manualmente o consumo de cada um
                       </p>
                       <ButtonGroup
-                        active={product.division}
+                        active={state.division}
                         buttons={[
                           {
                             name: Division.Equals,
