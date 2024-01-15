@@ -202,7 +202,9 @@ export const History = Entity.create(
     parseToCart: (item: HistoryItem): CartState => ({
       ...item,
       couvert: i18n.format.money(item.couvert),
-      additional: i18n.format.percent(item.additional / 100),
+      additional: item.hasAdditional
+        ? i18n.format.percent(item.additional - 1)
+        : "0",
       products: Dict.from(
         "id",
         item.products.toArray().map((product) => ({

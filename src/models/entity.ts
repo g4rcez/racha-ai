@@ -2,7 +2,7 @@ import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
 import { Is } from "~/lib/is";
 import { FN } from "~/types";
-import { createGlobalReducer, ReducerActions } from "~/use-typed-reducer";
+import { createGlobalReducer, ReducerActions } from "use-typed-reducer";
 
 export namespace Entity {
   type Metadata = { id: string; createdAt: Date };

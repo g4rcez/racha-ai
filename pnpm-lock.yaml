@@ -66,8 +66,8 @@ dependencies:
     specifier: 1.2.0
     version: 1.2.0(react@18.2.0)
   use-typed-reducer:
-    specifier: 3.3.5
-    version: 3.3.5(react@18.2.0)
+    specifier: 3.3.7
+    version: 3.3.7(react@18.2.0)
   vaul:
     specifier: 0.8.0
     version: 0.8.0(@types/react-dom@18.2.15)(@types/react@18.2.37)(react-dom@18.2.0)(react@18.2.0)
@@ -6410,10 +6410,10 @@ packages:
       react: 18.2.0
     dev: false
 
-  /use-typed-reducer@3.3.5(react@18.2.0):
+  /use-typed-reducer@3.3.7(react@18.2.0):
     resolution:
       {
-        integrity: sha512-o9G4F7uiJ+636Hxyh7iCnKNa9R3l2WKJQPoVj8c7knt7gzV7GlZECrgBsrs8swBTzhDbfNvzTwogjjRfkJW3aQ==,
+        integrity: sha512-mgmagTYfX134nWmr8Bo25mFIeNa/M/YleJG0pxdSt4cKJHQrG2ZqVbxAth25B5QWkRy3I0UPvPQG2cmeBEIgvA==,
       }
     engines: { node: ">=8", npm: ">=5" }
     peerDependencies:

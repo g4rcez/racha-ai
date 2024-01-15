@@ -368,13 +368,16 @@ const clone = <O>(instance: O) =>
 
 export const useClassReducer = <T extends object>(instance: T) => {
   const [proxy, setProxy] = useState(
-    new Proxy(instance, {
-      set: (obj, prop, value) => {
-        (obj as any)[prop] = value;
-        setProxy(clone(obj));
-        return true;
-      },
-    }),
+    new Proxy(
+      instance,
+      Object.assign({}, Reflect, {
+        set: (obj: any, prop: any, value: any) => {
+          (obj as any)[prop] = value;
+          setProxy(clone(obj));
+          return true;
+        },
+      }),
+    ),
   );
   return proxy;
 };

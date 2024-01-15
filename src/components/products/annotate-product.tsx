@@ -11,7 +11,7 @@ import { Product } from "~/models/product";
 import { Cart, CartProduct, CartUser, Division } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
 import { Preferences } from "~/store/preferences.store";
-import { useReducer } from "~/use-typed-reducer";
+import { useReducer } from "use-typed-reducer";
 import { Title } from "../typography";
 
 type Props = {
