@@ -57,16 +57,7 @@ export default function CartId() {
       }),
     ];
     const reset = () => setImgMode(false);
-    navigator
-      .share({
-        files,
-        title: history.title,
-        text: `${
-          history.title
-        } - ${history.createdAt.toLocaleDateString()} ${history.createdAt.toLocaleTimeString()}`,
-      })
-      .catch(reset)
-      .then(reset);
+    navigator.share({ files, title: history.title }).catch(reset).then(reset);
   };
 
   return (
