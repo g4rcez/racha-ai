@@ -5,7 +5,7 @@ import { registerSW } from "virtual:pwa-register";
 import { Layout } from "~/layout/layout";
 import { i18n } from "~/i18n";
 import { routerConfig } from "~/router";
-import { Preferences } from "~/store/preferences.store";
+import { ColorThemes, Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
 import "~/styles/index.css";
 import { setupTheme } from "~/styles/setup";
@@ -21,7 +21,7 @@ const updateSW = registerSW({
 async function start() {
   const html = document.documentElement;
   const head = html.querySelector("head")!;
-  setupTheme(head, DefaultTheme, DefaultTheme.name as any);
+  setupTheme(head, DefaultTheme, DefaultTheme.name as ColorThemes);
   const initialPreferences = Preferences.initialState();
   Preferences.setup(initialPreferences);
   return document.getElementById("root")!;

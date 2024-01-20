@@ -1,4 +1,7 @@
 import { jsonResponse, Link, LoaderProps, useDataLoader } from "brouther";
+import { ShareIcon } from "lucide-react";
+import { useRef, useState } from "react";
+import { Button } from "~/components/button";
 import {
   Table,
   TableBody,
@@ -9,13 +12,14 @@ import {
 } from "~/components/table";
 import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { toFraction } from "~/lib/fn";
+import { sleep, toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { links } from "~/router";
 import { Cart } from "~/store/cart.store";
 import { History, HistoryItem } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 import { ParseToRaw } from "~/types";
+import { toBlob } from "html-to-image";
 
 type L = "/app/cart/:id";
 
@@ -30,15 +34,43 @@ export default function CartId() {
   const [_, dispatch] = Cart.use();
   const data = useDataLoader<typeof loader>();
   const i18n = useTranslations();
+  const ref = useRef<HTMLDivElement>(null);
+  const [imgMode, setImgMode] = useState(false);
+
   const history = data?.cart
     ? History.parse(data.cart as unknown as ParseToRaw<HistoryItem>)
     : null;
+
   if (Is.nil(history)) {
     return <main>Not found</main>;
   }
+
   const total = i18n.format.money(history.total);
+
+  const onShare = async () => {
+    setImgMode(true);
+    sleep(1000);
+    const blob = await toBlob(ref.current!);
+    const files = [
+      new File([blob!], `${history.title}.png`, {
+        type: blob!.type || "image/png",
+      }),
+    ];
+    const reset = () => setImgMode(false);
+    navigator
+      .share({
+        files,
+        title: history.title,
+        text: `${
+          history.title
+        } - ${history.createdAt.toLocaleDateString()} ${history.createdAt.toLocaleTimeString()}`,
+      })
+      .catch(reset)
+      .then(reset);
+  };
+
   return (
-    <main>
+    <main ref={ref} data-image={imgMode} className="data-[image=true]:p-4">
       <section className="flex gap-2 flex-col">
         <Title>{history.title}</Title>
         <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
@@ -48,15 +80,24 @@ export default function CartId() {
           </p>
           <Link
             href={links.cart}
-            className="underline underline-offset-4"
+            data-image={imgMode}
             onClick={() => dispatch.set(History.parseToCart(history))}
+            className="underline underline-offset-4 data-[image=true]:hidden"
           >
             Editar comanda
           </Link>
         </div>
       </section>
+      <Button
+        onClick={onShare}
+        data-image={imgMode}
+        className="w-full my-4 print:hidden data-[image=true]:hidden"
+        icon={<ShareIcon absoluteStrokeWidth size={18} strokeWidth={2} />}
+      >
+        Compartilhar comanda
+      </Button>
       <ul className="mt-6 space-y-4">
-        {history.users.map((user) => {
+        {history.users.arrayMap((user) => {
           return (
             <li className="flex flex-wrap justify-between" key={user.id}>
               <span className="text-lg font-medium">{user.name}</span>

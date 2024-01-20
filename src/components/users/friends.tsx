@@ -66,7 +66,6 @@ export const FriendsCrud = () => {
       return form.reset();
     }
   };
-
   const users = sortUuidList(state.users, "id");
   return (
     <ul className="flex flex-col gap-4">
@@ -98,6 +97,7 @@ export const FriendsCrud = () => {
 };
 
 type ConsumerProps = {
+  me: User;
   friends: Dict<string, CartUser>;
   onDelete: (user: CartUser) => void;
   onAdd: (user: CartUser, alone?: boolean) => void;
@@ -105,8 +105,8 @@ type ConsumerProps = {
 };
 
 export const SelectConsumerFriends = (props: ConsumerProps) => {
+  const me = props.me;
   const [visible, setVisible] = useState(false);
-  const [me] = Preferences.use((s) => s.user);
   const [users, dispatch] = Friends.use((s) => s.users);
   const i18n = useTranslations();
   const friends = users.toSorted((a, b) => b.id.localeCompare(a.id));
@@ -144,8 +144,8 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
           <ul className="my-4 space-y-6">
             <li>
               <Form
-                className="flex flex-nowrap items-end gap-2"
                 onSubmit={createNewUser}
+                className="flex flex-nowrap items-end gap-2"
               >
                 <Input
                   name="name"

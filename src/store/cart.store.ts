@@ -5,6 +5,7 @@ import { FormError } from "~/components/form/form";
 import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { Either } from "~/lib/either";
+import { sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
@@ -204,7 +205,7 @@ export const Cart = Entity.create(
         const state = get.state();
         const users = Dict.from(
           "id",
-          state.users.map((x) => {
+          state.users.arrayMap((x) => {
             if (x.id === id) {
               const user = { ...x, name };
               Friends.action.update(user);
@@ -219,7 +220,7 @@ export const Cart = Entity.create(
         const state = get.state();
         const id = user.id;
         const products = new Dict<string, CartProduct>(
-          state.products.map((product) => [
+          state.products.arrayMap((product) => [
             product.id,
             { ...product, consumers: product.consumers.clone().remove(id) },
           ]),
@@ -248,11 +249,12 @@ export const Cart = Entity.create(
         merge({ users: new Dict(get.state().users).remove(user.id) }),
       onChangeProduct: (product: CartProduct) => {
         const state = get.state();
+        console.log(product);
         return merge({
           products: new Dict(state.products).clone().set(product.id, {
             ...product,
             consumers: new Dict(
-              product.consumers.map((consumer) => [
+              product.consumers.arrayMap((consumer) => [
                 consumer.id,
                 {
                   ...consumer,
@@ -294,7 +296,7 @@ export const Cart = Entity.create(
     newUser,
     newProduct: (consumers: Dict<string, CartUser>): CartProduct => ({
       ...Product.create(),
-      consumers: new Dict(consumers.map((x) => [x.id, newUser(x)])),
+      consumers: new Dict(consumers.arrayMap((x) => [x.id, newUser(x)])),
       division: Division.PerConsume,
     }),
     onSubmit: (ownerId: string, state: CartState) => {
@@ -307,6 +309,13 @@ export const Cart = Entity.create(
       });
       Cart.clearStorage();
       return History.view(state.id);
+    },
+    productWarning: (product: CartProduct): boolean => {
+      const quantitySum = product.consumers
+        .toArray()
+        .reduce((acc, el) => sum(acc, el.quantity), 0);
+      const diff = Math.abs(quantitySum - product.quantity);
+      return diff > 0.2;
     },
     validate: (cartProduct: ParseToRaw<CartProduct>) => {
       const validated = product.safeParse(cartProduct);
@@ -341,7 +350,12 @@ export const Cart = Entity.create(
         );
         return Either.error(messages);
       }
-      return Either.success(validated.data as any as CartProduct);
+      const p = validated.data;
+      return Either.success<CartProduct>({
+        ...p,
+        createdAt: p.createdAt || new Date(),
+        consumers: Dict.from("id", p.consumers),
+      });
     },
   },
 );

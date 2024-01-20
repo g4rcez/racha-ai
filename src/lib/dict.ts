@@ -17,9 +17,15 @@ export class Dict<K, V> extends Map<K, V> {
     return Dict.toArray(this);
   }
 
-  public map<Fn extends (value: V, key: K, index: number) => any>(fn: Fn) {
+  public arrayMap<Fn extends (value: V, key: K, index: number) => any>(fn: Fn) {
     const entries = this.entries();
     return Array.from(entries).map(([k, v], i) => fn(v, k, i));
+  }
+
+  public map<Fn extends (value: V, key: K) => [K, V]>(fn: Fn) {
+    const a: Array<[K, V]> = [];
+    this.forEach((value, key) => a.push(fn(value, key)));
+    return new Dict(a);
   }
 
   public toJSON() {

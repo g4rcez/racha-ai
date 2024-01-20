@@ -1,4 +1,4 @@
-import { Link, Outlet, useRouteError } from "brouther";
+import { Link, Outlet, usePageStats } from "brouther";
 import { MenuIcon } from "lucide-react";
 import { Fragment, useState } from "react";
 import {
@@ -13,7 +13,7 @@ import { links } from "~/router";
 import { ThemeToggle } from "~/store/preferences.store";
 
 export default function AdminLayout() {
-  const [_, p] = useRouteError();
+  const p = usePageStats();
   const title = (p?.data as any)?.name || null;
   const [open, setOpen] = useState(false);
   const toggle = () => setOpen((prev) => !prev);

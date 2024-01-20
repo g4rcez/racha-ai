@@ -17,11 +17,11 @@ import {
 import { SectionTitle, Title } from "~/components/typography";
 import { SelectConsumerFriends } from "~/components/users/friends";
 import { i18n } from "~/i18n";
-import { fixed, sum, toFraction } from "~/lib/fn";
+import { fixed, toFraction } from "~/lib/fn";
 import { Cart } from "~/store/cart.store";
 import { Preferences } from "~/store/preferences.store";
 
-const bonusAdditional = [0.08, 0.1, 0.12, 0.15];
+const bonusAdditional = [0.1, 0.12, 0.15, 0.2];
 
 export default function ComandaPage() {
   const [state, dispatch] = Cart.use();
@@ -43,9 +43,7 @@ export default function ComandaPage() {
         onReset={onReset}
         onSubmit={onSubmit}
         className="flex flex-col gap-6"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") return e.preventDefault();
-        }}
+        onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : undefined)}
       >
         <Input
           required
@@ -60,13 +58,14 @@ export default function ComandaPage() {
             Selecione quem irá dividir a conta com você
           </SectionTitle>
           <SelectConsumerFriends
+            me={me}
             friends={state.users}
             onAdd={dispatch.onAddFriend}
             onDelete={dispatch.onRemoveFriend}
             onChangeUser={dispatch.onChangeUsername}
           />
           <ul className="space-y-4">
-            {state.users.map((user) => {
+            {state.users.arrayMap((user) => {
               const i = user.id === me.id;
               return (
                 <li
@@ -81,9 +80,9 @@ export default function ComandaPage() {
                   </span>
                   {i ? null : (
                     <Button
-                      onClick={() => dispatch.removeUser(user)}
-                      theme="transparent-danger"
                       size="small"
+                      theme="transparent-danger"
+                      onClick={() => dispatch.removeUser(user)}
                     >
                       <Trash2Icon />
                     </Button>
@@ -98,6 +97,7 @@ export default function ComandaPage() {
             Adicione aqui os itens consumidos.
           </SectionTitle>
           <AnnotateProduct
+            me={me}
             users={state.users}
             justMe={state.justMe}
             product={state.currentProduct}
@@ -109,12 +109,8 @@ export default function ComandaPage() {
             onChangeConsumedQuantity={dispatch.onChangeConsumedQuantity}
           />
           <ul className="mt-4 space-y-4">
-            {state.products.map((product) => {
-              const quantitySum = product.consumers
-                .toArray()
-                .reduce((acc, el) => sum(acc, el.quantity), 0);
-              const diff = Math.abs(quantitySum - product.quantity);
-              const showAlert = diff > 0.2;
+            {state.products.arrayMap((product) => {
+              const showAlert = Cart.productWarning(product);
               return (
                 <li
                   className="flex flex-col items-center justify-between"
@@ -163,7 +159,7 @@ export default function ComandaPage() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {product.consumers.map((consumer) =>
+                      {product.consumers.arrayMap((consumer) =>
                         consumer.quantity === 0 ? null : (
                           <TableRow key={`consumer-item-${consumer.id}`}>
                             <TableCell>{consumer.name}</TableCell>
@@ -204,13 +200,12 @@ export default function ComandaPage() {
               <div className="grid min-w-full grid-cols-2 items-center justify-center gap-2">
                 {bonusAdditional.map((bonus) => {
                   const formatted = i18n.format.percent(bonus);
+                  const current = state.additional === formatted;
                   return (
                     <Button
                       key={`bonus-key-${bonus}`}
-                      theme={
-                        state.additional === formatted ? undefined : "muted"
-                      }
                       onClick={() => dispatch.onChangeBonus(bonus)}
+                      theme={current ? undefined : "muted"}
                     >
                       {formatted}
                     </Button>
@@ -252,10 +247,10 @@ export default function ComandaPage() {
           </div>
         </section>
         <Button name="submit" value="submit" type="submit">
-          Fecha a conta aí
+          Fechar a conta
         </Button>
         <Button theme="warn" name="reset" value="reset" type="reset">
-          Resetar
+          Zerar tudo
         </Button>
       </Form>
     </main>

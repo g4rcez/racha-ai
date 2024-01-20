@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useRef } from "react";
+import { useReducer } from "use-typed-reducer";
 import { Button, ButtonGroup } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Form } from "~/components/form/form";
@@ -10,11 +11,10 @@ import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
 import { Cart, CartProduct, CartUser, Division } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
-import { Preferences } from "~/store/preferences.store";
-import { useReducer } from "use-typed-reducer";
 import { Title } from "../typography";
 
 type Props = {
+  me: User;
   justMe: boolean;
   disabled: boolean;
   users: Dict<string, User>;
@@ -41,7 +41,7 @@ const initialState = {
 
 type State = typeof initialState;
 
-type ReducerProps = { justMe: boolean; me: User };
+type Getter = { state: () => State; props: () => Props };
 
 const isEqualityMode = (quantity: number) => quantity < 1;
 
@@ -52,20 +52,44 @@ const updateWithEquality = (
   ...product,
   quantity,
   division: "equals" as Division,
-  consumers: Dict.from(
-    "id",
-    product.consumers.toArray().map((consumer) => ({
+  consumers: product.consumers.map((consumer) => [
+    consumer.id,
+    {
       ...consumer,
       quantity: quantity / product.consumers.size,
       amount: calculateAmount(product!.price, quantity),
-    })),
-  ),
+    },
+  ]),
 });
 
-const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
+const changeQuantity = (args: Getter, q: number): Partial<State> => {
+  const state = args.state();
+  if (Is.nil(state.product)) return state;
+  const props = args.props();
+  const quantity = Is.nan(q) ? 0 : q;
+  return props.justMe
+    ? {
+        product: {
+          ...state.product,
+          quantity,
+          consumers: state.product.consumers.clone().set(props.me.id, {
+            ...state.product.consumers.get(props.me.id)!,
+            quantity,
+          }),
+        },
+      }
+    : {
+        product: state.division
+          ? updateWithEquality(quantity, state.product)
+          : { ...state.product, quantity },
+      };
+};
+
+const reducers = (args: Getter) => ({
   visible: (visible: boolean) => ({ visible }),
   show: () => ({ visible: true }),
-  hide: () => ({ visible: false }),
+  hide: () => ({ visible: false, product: null }),
+  onChangeQuantity: (quantity: number) => changeQuantity(args, quantity),
   product: (product: CartProduct | null) =>
     Is.nil(product)
       ? { product: null }
@@ -78,41 +102,25 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
   changeDivision: (division: Division) => {
     const state = args.state();
     if (state.product === null) return state;
-    const consumers = state.product.consumers.clone();
-    if (division === Division.PerConsume) {
-      consumers.forEach((x) => {
-        consumers.set(x.id, { ...x, amount: 0, quantity: 0 });
-      });
-    }
-    return { product: { ...state.product, consumers }, division };
+    const consumers = state.product.consumers;
+    const isPerConsume = division === Division.PerConsume;
+    return {
+      product: {
+        ...state.product,
+        consumers: isPerConsume
+          ? consumers.map((x) => [x.id, { ...x, amount: 0, quantity: 0 }])
+          : consumers,
+      },
+      division,
+    };
   },
   onChange: (e: React.ChangeEvent<HTMLInputElement>): Partial<State> => {
     const state = args.state();
-    const props = args.props();
     if (state.product === null) return state;
     const name = e.target.name as keyof Product;
     const value =
       e.target.type === "number" ? e.target.valueAsNumber : e.target.value;
-    if (name !== "quantity") {
-      return { product: { ...state.product, [name]: value } };
-    }
-    const quantity = (value as number) || 0;
-    if (!props.justMe) {
-      return state.division
-        ? { product: updateWithEquality(quantity, state.product) }
-        : { product: { ...state.product, quantity } };
-    }
-    const clone = state.product.consumers.clone();
-    const ownUser = clone.get(props.me.id)!;
-    clone.set(props.me.id, {
-      ...ownUser,
-      quantity,
-      amount: calculateAmount(state.product.price ?? 0, quantity),
-    });
-    return {
-      division: Division.PerConsume,
-      product: { ...state.product, quantity: value as number },
-    };
+    return { product: { ...state.product, [name]: value } };
   },
   onChangeMonetary: (e: React.ChangeEvent<HTMLInputElement>) => {
     const state = args.state();
@@ -124,62 +132,31 @@ const reducers = (args: { state: () => State; props: () => ReducerProps }) => ({
   onSplitByEquality: () => {
     const state = args.state();
     if (Is.nil(state.product)) return state;
-    const consumers = state.product.consumers.toArray();
-    const quantity = state.product.quantity / consumers.length;
+    const consumers = state.product.consumers;
+    const quantity = state.product.quantity / consumers.size;
     return {
       equalityMode: isEqualityMode(quantity),
       division: Division.Equals,
       product: {
         ...state.product,
-        consumers: Dict.from(
-          "id",
-          consumers.map((x) => ({
+        consumers: consumers.map((x) => [
+          x.id,
+          {
             ...x,
             quantity,
             amount: calculateAmount(state.product?.price!, quantity),
-          })),
-        ),
-      },
-    };
-  },
-  onClickQuantity: (e: React.MouseEvent<HTMLButtonElement>): Partial<State> => {
-    const state = args.state();
-    if (Is.nil(state.product)) return state;
-    const operation = e.currentTarget.dataset.operation === "+" ? sum : diff;
-    const quantity = clamp(
-      0,
-      operation(Number(state.product.quantity), 1),
-      Number.MAX_SAFE_INTEGER,
-    );
-    const props = args.props();
-    if (!props.justMe)
-      return {
-        product: state.division
-          ? updateWithEquality(quantity, state.product)
-          : { ...state.product, quantity },
-      };
-    return {
-      product: {
-        ...state.product,
-        quantity,
-        consumers: state.product.consumers.clone().set(props.me.id, {
-          ...state.product.consumers.get(props.me.id)!,
-          quantity,
-        }),
+          },
+        ]),
       },
     };
   },
 });
 
 export const AnnotateProduct = (props: Props) => {
+  const me = props.me;
   const form = useRef<HTMLFormElement>(null);
-  const [me] = Preferences.use((state) => state.user);
-  const [state, dispatch] = useReducer(initialState, reducers, {
-    me,
-    justMe: props.justMe,
-  });
-
-  console.log(state);
+  const [state, dispatch] = useReducer(initialState, reducers, props);
+  const product = state.product;
 
   useEffect(() => {
     if (props.product) {
@@ -194,13 +171,21 @@ export const AnnotateProduct = (props: Props) => {
     }
   }, [state.product, props.onChangeProduct]);
 
+  const onEsc = () => {
+    dispatch.hide();
+    if (state.product) {
+      props.onRemoveProduct(state.product);
+      props.setCurrent(null);
+    }
+  };
+
   const onChangeVisible = (b: boolean) => {
     if (!b) props.setCurrent(null);
-    if (state.product?.name === "") {
-      dispatch.hide();
-      return props.onRemoveProduct(state.product);
+    if (state.product?.name !== "") {
+      return dispatch.visible(b);
     }
-    dispatch.visible(b);
+    dispatch.hide();
+    return props.onRemoveProduct(state.product);
   };
 
   const onClickNewProduct = () => {
@@ -209,7 +194,7 @@ export const AnnotateProduct = (props: Props) => {
           [me.id, { ...Cart.newUser(me), quantity: 1 }],
         ])
       : new Dict<string, CartUser>(
-          props.users.map((x) => [x.id, Cart.newUser(x)]),
+          props.users.arrayMap((x) => [x.id, Cart.newUser(x)]),
         );
     dispatch.product(Cart.newProduct(users));
   };
@@ -219,28 +204,32 @@ export const AnnotateProduct = (props: Props) => {
     if (Is.nil(product)) {
       return;
     }
-    const consumers = product.consumers.toArray();
     const result = Cart.validate({
       ...product,
       quantity: Number(product.quantity),
       createdAt: product.createdAt.toISOString(),
-      consumers: consumers.map((item) => ({
+      consumers: product.consumers.toArray().map((item) => ({
         ...item,
         createdAt: new Date(item.createdAt).toISOString(),
       })),
     });
-    if (result.isError()) {
-      dispatch.hide();
-      return void console.error(result.error);
-    }
     if (result.isSuccess()) {
       dispatch.hide();
       dispatch.product(null);
       return props.onChangeProduct(result.success);
     }
+    if (result.isError()) {
+      dispatch.hide();
+      return void console.error(result.error);
+    }
   };
 
-  const product = state.product;
+  const onClickQuantity = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const operation = e.currentTarget.dataset.operation === "+" ? sum : diff;
+    const q = Number(e.currentTarget.dataset.quantity ?? "0");
+    const quantity = clamp(0, operation(q, 1), Number.MAX_SAFE_INTEGER);
+    dispatch.onChangeQuantity(quantity);
+  };
 
   return (
     <Drawer open={state.visible} onChange={onChangeVisible}>
@@ -249,7 +238,7 @@ export const AnnotateProduct = (props: Props) => {
           Novo produto
         </Button>
       </Drawer.Trigger>
-      <Drawer.Content className="overflow-y-auto">
+      <Drawer.Content onEscapeKeyDown={onEsc} className="overflow-y-auto">
         <Fragment>
           {product === null ? null : (
             <Fragment>
@@ -286,7 +275,9 @@ export const AnnotateProduct = (props: Props) => {
                 <Input
                   required
                   name="quantity"
-                  onChange={dispatch.onChange}
+                  onChange={(e) =>
+                    dispatch.onChangeQuantity(e.target.valueAsNumber)
+                  }
                   placeholder="10 cervejas..."
                   title="Quantidade"
                   type="number"
@@ -294,7 +285,8 @@ export const AnnotateProduct = (props: Props) => {
                   left={
                     <Button
                       data-operation="-"
-                      onClick={dispatch.onClickQuantity}
+                      data-quantity={product.quantity}
+                      onClick={onClickQuantity}
                       className="text-body"
                       size="small"
                       theme="transparent"
@@ -305,7 +297,8 @@ export const AnnotateProduct = (props: Props) => {
                   right={
                     <Button
                       data-operation="+"
-                      onClick={dispatch.onClickQuantity}
+                      data-quantity={product.quantity}
+                      onClick={onClickQuantity}
                       className="text-body"
                       size="small"
                       theme="transparent"
@@ -318,7 +311,7 @@ export const AnnotateProduct = (props: Props) => {
                   {props.justMe ? null : (
                     <Fragment>
                       <Title>Vamos rachar?</Title>
-                      <p className="text-sm">
+                      <p className="text-sm mb-2">
                         Escolha entre divisão igual para todos ou inserir
                         manualmente o consumo de cada um
                       </p>
@@ -342,7 +335,7 @@ export const AnnotateProduct = (props: Props) => {
                   )}
                 </section>
                 <ul className="col-span-2 space-y-4">
-                  {props.users.map((user) => {
+                  {props.users.arrayMap((user) => {
                     const consumer = product.consumers.get(user.id) ?? null;
                     if (
                       Is.nil(consumer) ||

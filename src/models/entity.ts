@@ -37,20 +37,25 @@ export namespace Entity {
 
   export const createStorageMiddleware = <State>(
     key: string,
-  ): Middleware<State>[] => [
-    (state: State) => {
-      LocalStorage.set(key, state);
-      return state;
-    },
-    (state: State, method: string, prev: State) => {
-      console.group(key);
-      console.info("Update by", method);
-      console.info("Previous state", prev);
-      console.info(state);
-      console.groupEnd();
-      return state;
-    },
-  ];
+  ): Middleware<State>[] => {
+    const middle: Middleware<State>[] = [
+      (state: State) => {
+        LocalStorage.set(key, state);
+        return state;
+      },
+    ];
+    if (import.meta.env.MODE === "development") {
+      middle.push((state: State, method: string, prev: State) => {
+        console.group(key);
+        console.info("Update by", method);
+        console.info("Previous state", prev);
+        console.info(state);
+        console.groupEnd();
+        return state;
+      });
+    }
+    return middle;
+  };
 
   export const create = <
     const Info extends {

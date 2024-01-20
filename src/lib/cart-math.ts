@@ -19,7 +19,7 @@ export namespace CartMath {
     !cart.hasAdditional ? 1 : fromStrNumber(cart.additional) / 100 + 1;
 
   const sumProducts = (products: CartState["products"]): number =>
-    products.map((x) => x.quantity * x.price).reduce(sum, 0);
+    products.arrayMap((x) => x.quantity * x.price).reduce(sum, 0);
 
   export const perUser = (
     products: CartProduct[],
@@ -28,7 +28,7 @@ export namespace CartMath {
     couvert: Couvert,
   ) => {
     const amount = products.flatMap((p) =>
-      p.consumers.map((c) => (c.id === user.id ? c.amount : 0)),
+      p.consumers.arrayMap((c) => (c.id === user.id ? c.amount : 0)),
     );
     const productsTotal = amount.reduce(sum, 0);
     const bonus = fixed(additional - 1);

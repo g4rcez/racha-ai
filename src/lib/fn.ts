@@ -38,10 +38,10 @@ export const sortUuidList = <T, K extends keyof T>(
   key: K,
   order: "asc" | "desc" = "desc",
 ) => {
-  const sorted = list.toSorted((a, b) =>
-    (b[key] as string).localeCompare(a[key] as string),
+  const pow = order === "asc" ? -1 : 1;
+  return list.toSorted(
+    (a, b) => (b[key] as string).localeCompare(a[key] as string) * pow,
   );
-  return order === "asc" ? sorted.reverse() : sorted;
 };
 
 const isObject = (object: any): object is object =>
@@ -99,3 +99,5 @@ export const fraction = (a: number, b: number): string =>
 
 export const toFraction = (a: number): string =>
   new Fraction(a).toFraction(true).replace(" ", " + ");
+
+export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));

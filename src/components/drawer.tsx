@@ -3,7 +3,6 @@ import { DialogCloseProps } from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 import React, { ComponentProps, PropsWithChildren } from "react";
 import { Button } from "~/components/button";
-import { Mobile } from "~/components/mobile";
 import { Title } from "~/components/typography";
 import { css } from "~/lib/dom";
 
@@ -36,9 +35,8 @@ Drawer.Content = React.forwardRef(
             className={css(
               "origin-bottom lg:origin-right overflow-y-auto",
               "data-[state=closed]:animate-[content-hide_300ms] data-[state=open]:animate-[content-show_300ms]",
-              Mobile.use()
-                ? "fixed bottom-0 z-50 h-screen max-h-[80vh] w-screen bg-body-bg p-6 text-body focus:outline-none"
-                : "container fixed right-0 top-0 z-50 h-screen w-[90vw] max-w-[40rem] rounded-l-md bg-body-bg p-6 text-body focus:outline-none",
+              "fixed bottom-0 z-50 h-screen max-h-[80vh] w-screen bg-body-bg p-6 text-body focus:outline-none",
+              "lg:container lg:fixed lg:right-0 lg:top-0 lg:max-h-screen lg:z-50 lg:h-screen lg:w-[90vw] lg:max-w-[40rem] lg:rounded-l-md lg:bg-body-bg lg:p-6 lg:text-body lg:focus:outline-none",
             )}
           >
             <div className="relative h-full w-full">
@@ -64,7 +62,7 @@ Drawer.Header = React.forwardRef((props: ComponentProps<"div">, ref: any) => (
 ));
 
 Drawer.Title = React.forwardRef((props: ComponentProps<"h1">, ref: any) => (
-  <Title {...(props as any)} ref={ref} />
+  <Title {...props} ref={ref} />
 ));
 
 Drawer.Description = React.forwardRef(
