@@ -152,6 +152,7 @@ const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {
     couvert: calculate.couvert.each,
     additional: calculate.additional,
     withAdditional: (calculate.additional - 1) * calculate.products,
+    currencyCode: cart.currencyCode,
     totalProducts: sumProducts,
     products: cart.products,
     createdAt: cart.createdAt,

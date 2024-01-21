@@ -1,24 +1,33 @@
 import { Link, Outlet, usePageStats } from "brouther";
 import { MenuIcon } from "lucide-react";
 import { Fragment, useState } from "react";
+import { Toaster } from "sonner";
 import {
+  getMenuShortcuts,
   isShortcutLink,
   Shortcut,
-  getMenuShortcuts,
 } from "~/components/admin/shortcuts";
 import { Button } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Logo } from "~/components/logo";
 import { links } from "~/router";
-import { ThemeToggle } from "~/store/preferences.store";
+import { Preferences, ThemeToggle } from "~/store/preferences.store";
 
 export default function AdminLayout() {
   const p = usePageStats();
   const title = (p?.data as any)?.name || null;
   const [open, setOpen] = useState(false);
+  const [theme] = Preferences.use((state) => state.theme);
   const toggle = () => setOpen((prev) => !prev);
   return (
     <Fragment>
+      <Toaster
+        className="toaster group"
+        closeButton
+        duration={3000}
+        theme={theme}
+        visibleToasts={3}
+      />
       <Drawer onChange={setOpen} open={open}>
         <header className="sticky top-0 z-10 mb-6 min-w-full bg-main-bg text-main shadow-lg">
           <nav className="container mx-auto flex max-w-2xl items-center justify-between p-4">

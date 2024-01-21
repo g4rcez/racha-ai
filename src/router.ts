@@ -8,7 +8,12 @@ import { i18n } from "~/i18n";
 
 const getIndexPage = () => import("~/pages/index.page");
 
-const router = createMappedRouter({
+export const {
+  link,
+  links,
+  navigation: navigate,
+  config: routerConfig,
+} = createMappedRouter({
   index: {
     path: "/",
     actions: asyncActions(getIndexPage),
@@ -49,12 +54,4 @@ const router = createMappedRouter({
     element: asyncComponent(() => import("~/pages/app/debug.page")),
     data: { title: "Debug", name: "Debug" },
   },
-});
-
-export const routerConfig = router.config;
-
-export const links = router.links;
-
-export const navigate = router.navigation;
-
-export const link = router.link;
+} as const);

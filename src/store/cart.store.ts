@@ -12,6 +12,7 @@ import { Product } from "~/models/product";
 import { Friends, User } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { ParseToRaw } from "~/types";
+import { CurrencyCode } from "the-mask-input";
 
 export type CartUser = User & {
   amount: number;
@@ -39,6 +40,7 @@ export type Metadata = Partial<{
 
 export type CartState = Entity.New<{
   title: string;
+  type: Division;
   justMe: boolean;
   createdAt: Date;
   couvert: string;
@@ -47,10 +49,10 @@ export type CartState = Entity.New<{
   metadata?: Metadata;
   hasCouvert: boolean;
   hasAdditional: boolean;
+  currencyCode: CurrencyCode | string;
   users: Dict<string, CartUser>;
   currentProduct: CartProduct | null;
   products: Dict<string, CartProduct>;
-  type: Division;
 }>;
 
 const product = Product.schema.extend({
@@ -74,6 +76,7 @@ const defaultSchema = z.object({
   createdAt: Entity.dateSchema,
   finishedAt: Entity.dateSchema,
   users: z.array(Friends.schema),
+  currencyCode: z.string().default(i18n.getCurrency() as string),
 });
 
 const schemas = {
@@ -161,6 +164,8 @@ export const Cart = Entity.create(
     hasCouvert: storage?.hasCouvert ?? false,
     couvert: storage?.couvert ?? i18n.format.money(10),
     currentProduct: null,
+    currencyCode:
+      storage?.currencyCode || (i18n.getCurrency() as unknown as string),
     type: storage?.type ?? Division.PerConsume,
     users: new Dict(
       storage?.users.map((x) => [

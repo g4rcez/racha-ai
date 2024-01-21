@@ -15,7 +15,7 @@ export namespace Numbers {
     return localeString.toUpperCase() as LocaleCurrencyCode;
   };
 
-  const getCurrency = function (locale: string) {
+  export const getCurrency = function (locale: string) {
     const countryCode = getCountryCode(locale);
     return countryCode in localeCurrencyMap
       ? localeCurrencyMap[countryCode]

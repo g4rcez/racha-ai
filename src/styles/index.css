@@ -4,7 +4,8 @@
 
 html,
 body,
-#root {
+#root,
+main {
   @apply bg-body-bg text-body min-h-full min-w-full;
 }
 

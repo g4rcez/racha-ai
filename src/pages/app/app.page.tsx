@@ -44,12 +44,12 @@ export default function AppPage() {
       </header>
       <ul
         style={{ "--items": shortcuts.length } as CSSProperties}
-        className="flex flex-1 snap-x snap-mandatory snap-center flex-row flex-nowrap gap-4 overflow-x-auto"
+        className="flex justify-between items-center flex-1 snap-x snap-mandatory snap-center flex-row flex-nowrap gap-4 overflow-x-auto"
       >
         {getHomeShortcuts().map((shortcut) => (
           <li
             key={`shortcut-${shortcut.href}`}
-            className="min-w-36 flex-1 shrink basis-full text-center"
+            className="flex min-w-36 w-full shrink text-center"
           >
             <Shortcut {...shortcut} />
           </li>

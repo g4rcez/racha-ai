@@ -105,7 +105,7 @@ export const shortcuts: Shortcut[] = [
 ];
 
 const className =
-  "flex flex-col w-full text-center justify-center items-center border border-main-bg/60 p-4 max-w-36 rounded gap-2";
+  "flex flex-col w-full text-center justify-center items-center border border-main-bg/60 p-4 rounded gap-2";
 
 export const Shortcut = (props: Shortcut & { onClick?: () => void }) =>
   !Is.nil((props as ShortcutLink).href) ? (

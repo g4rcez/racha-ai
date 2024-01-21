@@ -15,3 +15,11 @@ export const Mobile = (props: React.PropsWithChildren) =>
 Mobile.use = () => {
   return isMobile();
 };
+
+type Fn = () => any;
+
+export const Platform = <PC extends Fn, Smart extends Fn>(
+  fns: Partial<{ mobile: Smart; pc: PC }> = {},
+) => (isMobile() ? fns.mobile?.() : fns.pc?.());
+
+Mobile.is = isMobile;

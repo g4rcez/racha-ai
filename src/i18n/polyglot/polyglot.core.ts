@@ -11,6 +11,7 @@ import {
   TranslationMap,
 } from "~/i18n/polyglot/types/types";
 import { Is } from "~/lib/is";
+import { Numbers } from "./formatters/numbers";
 
 export const createPolyglotNative = <
   Locale extends Locales,
@@ -211,6 +212,7 @@ export const createPolyglot = <
 
   return {
     alias,
+    getCurrency: () => Numbers.getCurrency(config.language as string),
     createLanguage,
     compare: config.compare,
     format: config.format,

@@ -1,7 +1,10 @@
 import { jsonResponse, Link, LoaderProps, useDataLoader } from "brouther";
+import { toBlob } from "html-to-image";
 import { ShareIcon } from "lucide-react";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "~/components/button";
+import { Mobile } from "~/components/mobile";
 import {
   Table,
   TableBody,
@@ -12,14 +15,13 @@ import {
 } from "~/components/table";
 import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { sleep, toFraction } from "~/lib/fn";
+import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { links } from "~/router";
 import { Cart } from "~/store/cart.store";
 import { History, HistoryItem } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 import { ParseToRaw } from "~/types";
-import { toBlob } from "html-to-image";
 
 type L = "/app/cart/:id";
 
@@ -49,19 +51,30 @@ export default function CartId() {
 
   const onShare = async () => {
     setImgMode(true);
-    sleep(1000);
     const blob = await toBlob(ref.current!);
-    const files = [
-      new File([blob!], `${history.title}.png`, {
-        type: blob!.type || "image/png",
-      }),
-    ];
-    const reset = () => setImgMode(false);
-    navigator.share({ files }).catch(reset).then(reset);
+    const file = new File([blob!], `${history.title}.png`, {
+      lastModified: Date.now(),
+      type: blob!.type || "image/png",
+    });
+    if (!Mobile.is()) {
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": file }),
+      ]);
+      void toast.info("Imagem copiada para o seu CTRL + V");
+      return setImgMode(false);
+    }
+    const files = [file];
+    if (navigator.canShare({ files })) {
+      const reset = (e?: any) => {
+        setImgMode(false);
+        if (e) console.error(e);
+      };
+      navigator.share({ files }).catch(reset).then(reset);
+    }
   };
 
   return (
-    <main ref={ref} data-image={imgMode} className="data-[image=true]:p-4">
+    <main ref={ref} data-image={imgMode} className="data-[image=true]:p-1">
       <section className="flex gap-2 flex-col">
         <Title>{history.title}</Title>
         <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
