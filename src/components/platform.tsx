@@ -9,17 +9,22 @@ const isMobile = () => {
   return Boolean(isAndroid || isIos || isOpera || isWindows);
 };
 
-export const Mobile = (props: React.PropsWithChildren) =>
-  isMobile() ? <Fragment>{props.children}</Fragment> : null;
-
-Mobile.use = () => {
-  return isMobile();
-};
-
 type Fn = () => any;
-
 export const Platform = <PC extends Fn, Smart extends Fn>(
   fns: Partial<{ mobile: Smart; pc: PC }> = {},
 ) => (isMobile() ? fns.mobile?.() : fns.pc?.());
 
-Mobile.is = isMobile;
+const ShouldRender = (props: React.PropsWithChildren<{ when: boolean }>) =>
+  props.when ? <Fragment>{props.children}</Fragment> : null;
+
+Platform.mobile = (props: React.PropsWithChildren) => (
+  <ShouldRender when={isMobile()} children={props.children} />
+);
+
+Platform.desktop = (props: React.PropsWithChildren) => (
+  <ShouldRender when={!isMobile()} children={props.children} />
+);
+
+Platform.use = () => isMobile();
+
+Platform.is = isMobile;

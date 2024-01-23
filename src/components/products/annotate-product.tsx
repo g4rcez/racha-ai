@@ -4,7 +4,7 @@ import { Button, ButtonGroup } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Mobile } from "~/components/mobile";
+import { Platform } from "~/components/platform";
 import { Dict } from "~/lib/dict";
 import { clamp, diff, sum, toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
@@ -256,7 +256,7 @@ export const AnnotateProduct = (props: Props) => {
                   onChange={dispatch.onChange}
                   value={product.name}
                   autoComplete="off"
-                  autoFocus={!Mobile.use()}
+                  autoFocus={!Platform.use()}
                   required
                   name="name"
                   placeholder="Latão"

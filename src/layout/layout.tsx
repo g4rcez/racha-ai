@@ -1,7 +1,7 @@
 import { Outlet, useHref, useRouteError } from "brouther";
 import { lazy, useEffect } from "react";
 
-const Admin = lazy(() => import("~/layout/admin"));
+const Admin = lazy(() => import("~/layout/app/app.layout"));
 
 export const Layout = () => {
   const path = useHref();

@@ -31,7 +31,7 @@ export const {
   friends: {
     path: "/app/friends",
     element: asyncComponent(() => import("~/pages/app/friends.page")),
-    data: { title: i18n.get("friendsPageTitle"), name: "Amigos" },
+    data: { title: i18n.get("friendsPageTitle"), name: "Meus amigos" },
   },
   cart: {
     path: "/app/cart",

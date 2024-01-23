@@ -6,7 +6,7 @@ html,
 body,
 #root,
 main {
-  @apply bg-body-bg text-body min-h-full min-w-full;
+  @apply bg-body-bg text-body;
 }
 
 select.select {
@@ -76,22 +76,22 @@ textarea {
 @keyframes content-show {
   from {
     opacity: 0.5;
-    transform: scaleY(0);
+    transform: translate(50%);
   }
   to {
     opacity: 1;
-    transform: scaleY(1);
+    transform: translate(0);
   }
 }
 
 @keyframes content-hide {
   from {
     opacity: 1;
-    transform: scaleY(1);
+    transform: translate(0);
   }
   to {
     opacity: 0;
-    transform: scaleY(0);
+    transform: translate(50%);
   }
 }
 
@@ -99,22 +99,22 @@ textarea {
   @keyframes content-show {
     from {
       opacity: 0.5;
-      width: 30%;
+      transform: translate(50%);
     }
     to {
       opacity: 1;
-      width: 100%;
+      transform: translate(0);
     }
   }
 
   @keyframes content-hide {
     from {
       opacity: 1;
-      width: 100%;
+      transform: translate(0);
     }
     to {
-      opacity: 0.3;
-      width: 20%;
+      opacity: 0;
+      transform: translate(70%);
     }
   }
 }
