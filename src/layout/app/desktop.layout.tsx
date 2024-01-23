@@ -14,7 +14,7 @@ import { ThemeToggle } from "~/store/preferences.store";
 export const DesktopLayout = () => {
   const p = usePageStats();
   const title = (p?.data as any)?.name || null;
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const toggle = () => setOpen((prev) => !prev);
   return (
     <Fragment>
@@ -59,8 +59,7 @@ export const DesktopLayout = () => {
           </div>
         </nav>
       </header>
-
-      <div className="container mx-auto max-w-2xl px-4 pt-8 pb-16">
+      <div className="container mx-auto max-w-2xl px-4 pb-16">
         <Outlet />
       </div>
     </Fragment>

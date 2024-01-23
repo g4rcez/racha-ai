@@ -5,7 +5,7 @@ import { Drawer } from "~/components/drawer";
 import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Platform } from "~/components/platform";
+import { Platform } from "~/store/platform";
 import { useTranslations } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { getHtmlInput } from "~/lib/dom";
