@@ -5,7 +5,7 @@ import { Drawer } from "~/components/drawer";
 import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Mobile } from "~/components/mobile";
+import { Platform } from "~/components/platform";
 import { useTranslations } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { getHtmlInput } from "~/lib/dom";
@@ -74,7 +74,7 @@ export const FriendsCrud = () => {
           <Input
             name="user"
             optionalText=""
-            autoFocus={!Mobile.use()}
+            autoFocus={!Platform.use()}
             title={i18n.get("addFriendInput")}
             placeholder={i18n.get("userInputPlaceholder")}
           />
@@ -153,7 +153,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                   title="Nome do amigo"
                   placeholder={i18n.get("userInputPlaceholder")}
                 />
-                <Mobile>
+                <Platform.mobile>
                   <Button
                     type="submit"
                     title="Adicionar amigo"
@@ -166,7 +166,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                       />
                     }
                   />
-                </Mobile>
+                </Platform.mobile>
               </Form>
             </li>
             {friends.map((user) => {

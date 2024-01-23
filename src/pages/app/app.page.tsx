@@ -2,13 +2,13 @@ import { Link } from "brouther";
 import { UtensilsIcon } from "lucide-react";
 import { CSSProperties, useEffect, useMemo } from "react";
 import {
-  Shortcut,
   getHomeShortcuts,
+  Shortcut,
   shortcuts,
 } from "~/components/admin/shortcuts";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { SectionTitle, Title } from "~/components/typography";
+import { SectionTitle } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { link, links } from "~/router";
 import { History } from "~/store/history.store";
@@ -28,7 +28,6 @@ export default function AppPage() {
   return (
     <main className="flex flex-col gap-6 pb-8">
       <header className="flex flex-col gap-2">
-        <Title>{i18n.get("welcome", state)}</Title>
         {firstStateName === "" ? (
           <Form className="flex flex-col gap-4">
             <Input

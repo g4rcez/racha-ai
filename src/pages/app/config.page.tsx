@@ -4,7 +4,6 @@ import { Button } from "~/components/button";
 import { ColorPicker } from "~/components/color-picker";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Resizable } from "~/components/resizable";
 import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { hexToHslProperty } from "~/lib/dom";
@@ -42,7 +41,7 @@ const Customize = () => {
   ];
 
   return (
-    <Resizable>
+    <section className="w-full">
       <section className="flex w-full flex-row flex-nowrap items-center justify-between">
         <Title>{i18n.get("welcomeCustomizeTitle")}</Title>
         <Button
@@ -78,7 +77,7 @@ const Customize = () => {
           })}
         </ul>
       )}
-    </Resizable>
+    </section>
   );
 };
 
@@ -87,7 +86,6 @@ const MyName = () => {
   const i18n = useTranslations();
   return (
     <header className="flex flex-col gap-2">
-      <Title>Configurações</Title>
       <Form className="flex flex-col gap-4">
         <Input
           required

@@ -1,8 +1,9 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { defineConfig } from "vite";
-import { VitePWA } from "vite-plugin-pwa";
 import mkcert from "vite-plugin-mkcert";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   server: { https: {} },
@@ -11,11 +12,12 @@ export default defineConfig({
     cssMinify: "lightningcss",
     manifest: true,
     minify: "terser",
-    sourcemap: false,
+    sourcemap: true,
   },
   plugins: [
     mkcert(),
     react(),
+    sentryVitePlugin({ org: "g4rcez", project: "racha-ai" }),
     VitePWA({
       includeAssets: ["**/*"],
       workbox: { globIgnores: ["/blog/**", "/blog", "/changelog"] },

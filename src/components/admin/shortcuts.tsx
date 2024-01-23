@@ -1,9 +1,9 @@
 import { Link } from "brouther";
 import {
-  CogIcon,
   HistoryIcon,
   ReceiptIcon,
   UploadIcon,
+  UserRound,
   UsersIcon,
 } from "lucide-react";
 import React, { Fragment } from "react";
@@ -12,10 +12,11 @@ import { Is } from "~/lib/is";
 import { links } from "~/router";
 
 export type ShortcutLink = {
-  icon: React.FC<any>;
-  text: React.ReactNode;
   href: (typeof links)[keyof typeof links];
+  icon: React.FC<any>;
   tags: string[];
+  text: React.ReactNode;
+  title: string;
 };
 
 export type ShortcutButton = {
@@ -31,9 +32,22 @@ export const isShortcutLink = (a: any): a is ShortcutLink => !Is.nil(a.href);
 
 export const shortcuts: Shortcut[] = [
   {
+    href: links.app,
+    icon: HistoryIcon,
+    tags: ["menu", "action"],
+    title: "Histórico",
+    text: (
+      <Fragment>
+        Meu
+        <br /> histórico
+      </Fragment>
+    ),
+  },
+  {
     href: links.friends,
     icon: UsersIcon,
-    tags: ["home", "menu"],
+    tags: ["home", "menu", "action"],
+    title: "Amigos",
     text: (
       <Fragment>
         Adicionar
@@ -44,7 +58,8 @@ export const shortcuts: Shortcut[] = [
   {
     href: links.cart,
     icon: ReceiptIcon,
-    tags: ["home", "menu"],
+    tags: ["home", "menu", "action"],
+    title: "Comanda",
     text: (
       <Fragment>
         Nova
@@ -54,12 +69,13 @@ export const shortcuts: Shortcut[] = [
   },
   {
     href: links.config,
-    icon: CogIcon,
-    tags: ["home", "menu"],
+    icon: UserRound,
+    tags: ["home", "menu", "action"],
+    title: "Perfil",
     text: (
       <Fragment>
-        Minhas
-        <br /> configurações
+        Meu
+        <br /> perfil
       </Fragment>
     ),
   },
@@ -90,17 +106,6 @@ export const shortcuts: Shortcut[] = [
         }
       }
     },
-  },
-  {
-    href: links.app,
-    icon: HistoryIcon,
-    tags: ["menu"],
-    text: (
-      <Fragment>
-        Meu
-        <br /> histórico
-      </Fragment>
-    ),
   },
 ];
 
@@ -154,3 +159,8 @@ export const getHomeShortcuts = (): ShortcutLink[] =>
 
 export const getMenuShortcuts = () =>
   shortcuts.filter((shortcut) => shortcut.tags.includes("menu"));
+
+export const getActionBarShortcuts = (): ShortcutLink[] =>
+  shortcuts.filter((shortcut): shortcut is ShortcutLink =>
+    shortcut.tags.includes("action"),
+  );

@@ -243,3 +243,6 @@ cypress/screenshots/*
 cypress/videos/*
 pg/
 
+
+# Sentry Config File
+.env.sentry-build-plugin

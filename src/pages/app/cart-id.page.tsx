@@ -4,7 +4,7 @@ import { ShareIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/button";
-import { Mobile } from "~/components/mobile";
+import { Platform } from "~/components/platform";
 import {
   Table,
   TableBody,
@@ -56,7 +56,7 @@ export default function CartId() {
       lastModified: Date.now(),
       type: blob!.type || "image/png",
     });
-    if (!Mobile.is()) {
+    if (!Platform.is()) {
       await navigator.clipboard.write([
         new ClipboardItem({ "image/png": file }),
       ]);
