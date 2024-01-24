@@ -161,6 +161,7 @@ const FriendsScreen = (props: ScreenProps) => (
         <ul>
           {users.map((user) => (
             <EditUser
+              key={user.id}
               user={user}
               onChangeUser={noop.fn}
               onDeleteUser={noop.fn}

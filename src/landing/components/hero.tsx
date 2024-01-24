@@ -2,17 +2,16 @@ import clsx from "clsx";
 import { BeerIcon, CakeIcon, TvIcon, UtensilsCrossedIcon } from "lucide-react";
 import React, { useId } from "react";
 import { AppFrameDemo } from "~/landing/components/app-frame-demo";
-import { LandingButton } from "~/landing/components/landing-button";
 import { Container } from "~/landing/components/container";
+import { LandingButton } from "~/landing/components/landing-button";
 import { PhoneFrame } from "~/landing/components/phone-frame";
 import { colors } from "~/styles/styles";
 
 const places = [
   ["Streaming", TvIcon],
-  ["Bar", BeerIcon],
+  ["Bar", BeerIcon, "hidden"],
   ["Festas", CakeIcon],
   ["Restaurantes", UtensilsCrossedIcon],
-  // ["HuffPost", BeerIcon, "hidden xl:block"],
 ] as const;
 
 function BackgroundIllustration(props: React.ComponentPropsWithoutRef<"div">) {
@@ -133,11 +132,12 @@ export function Hero() {
               role="list"
               className="mx-auto mt-8 flex max-w-xl flex-wrap justify-center gap-x-10 gap-y-8 lg:mx-0 lg:justify-start"
             >
-              {places.map(([name, Logo]) => (
+              {places.map(([name, Logo, className]) => (
                 <li
                   key={name}
                   className={clsx(
                     "flex text-center items-center justify-center gap-2 text-sm flex-col",
+                    className,
                   )}
                 >
                   <Logo

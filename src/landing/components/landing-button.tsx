@@ -56,6 +56,6 @@ export function LandingButton({ className, ...props }: ButtonProps) {
   return Is.undefined(props.href) ? (
     <button className={c} {...(props as any)} />
   ) : (
-    <a className={c} {...(props as any)} />
+    <Link className={c} {...(props as any)} />
   );
 }

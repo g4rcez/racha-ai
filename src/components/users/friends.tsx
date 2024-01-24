@@ -60,6 +60,7 @@ export const FriendsCrud = () => {
   const i18n = useTranslations();
   const [state, dispatch] = Friends.use();
   const [preferences, _dispatch] = Preferences.use();
+  const isDesktop = !Platform.use();
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget;
     const input = getHtmlInput(form, "user");
@@ -80,19 +81,24 @@ export const FriendsCrud = () => {
           <Input
             name="user"
             optionalText=""
-            autoFocus={!Platform.use()}
+            autoFocus={isDesktop}
             title={i18n.get("addFriendInput")}
             placeholder={i18n.get("userInputPlaceholder")}
           />
-          <Button type="submit" aria-label={i18n.get("addFriend")}>
+          <Button
+            className="mb-1"
+            size="small"
+            type="submit"
+            aria-label={i18n.get("addFriend")}
+          >
             <PlusIcon absoluteStrokeWidth strokeWidth={2} size={16} />
           </Button>
         </Form>
       </li>
       {users.map((user) => (
         <EditUser
-          ownerId={preferences.id}
           key={user.id}
+          ownerId={preferences.id}
           onChangeUser={dispatch.update}
           onDeleteUser={dispatch.delete}
           user={user}
@@ -164,6 +170,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                     type="submit"
                     title="Adicionar amigo"
                     aria-label="Adicionar amigo"
+                    className="mb-1"
                     icon={
                       <PlusIcon
                         absoluteStrokeWidth

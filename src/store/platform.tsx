@@ -9,17 +9,21 @@ type Fn = () => any;
 
 const testMobileSize = (n: number) => n <= 640;
 
-const isMobileDevice = (size?: number) => {
-  if (Is.function(navigator.share)) return true;
-  if (isMobileUserAgent(window.navigator.userAgent)) return true;
+const isMobileDevice = (ua: string, size?: number) => {
+  if (isMobileUserAgent(ua)) return true;
   if (Is.number(size)) return testMobileSize(size);
-  return false;
+  return !!Is.function(navigator.share);
 };
 
 const useMobile = () => {
-  const [isMobile, setIsMobile] = useState(isMobileDevice);
+  const [isMobile, setIsMobile] = useState(() =>
+    isMobileDevice(window.navigator.userAgent, window.innerWidth),
+  );
   useEffect(() => {
-    const onResize = () => setIsMobile(isMobileDevice(window.innerWidth));
+    const onResize = () =>
+      setIsMobile(
+        isMobileDevice(window.navigator.userAgent, window.innerWidth),
+      );
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -43,4 +47,5 @@ Platform.desktop = (props: React.PropsWithChildren) => (
 
 Platform.use = useMobile;
 
-Platform.is = () => isMobileDevice(window.innerWidth);
+Platform.is = () =>
+  isMobileDevice(window.navigator.userAgent, window.innerWidth);

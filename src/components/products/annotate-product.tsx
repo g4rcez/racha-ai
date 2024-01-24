@@ -157,6 +157,7 @@ export const AnnotateProduct = (props: Props) => {
   const form = useRef<HTMLFormElement>(null);
   const [state, dispatch] = useReducer(initialState, reducers, props);
   const product = state.product;
+  const isDesktop = !Platform.use();
 
   useEffect(() => {
     if (props.product) {
@@ -256,7 +257,7 @@ export const AnnotateProduct = (props: Props) => {
                   onChange={dispatch.onChange}
                   value={product.name}
                   autoComplete="off"
-                  autoFocus={!Platform.use()}
+                  autoFocus={isDesktop}
                   required
                   name="name"
                   placeholder="Latão"

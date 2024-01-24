@@ -2,10 +2,11 @@ import { Popover } from "@headlessui/react";
 import { Link } from "brouther";
 import { AnimatePresence, motion } from "framer-motion";
 import { Fragment } from "react";
-import { LandingButton } from "~/landing/components/landing-button";
 import { Container } from "~/landing/components/container";
+import { LandingButton } from "~/landing/components/landing-button";
 import { LandingLogo } from "~/landing/components/landing-logo";
 import { NavLinks } from "~/landing/components/nav-links";
+import { links } from "~/router";
 
 function MenuIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -104,20 +105,14 @@ export function Header() {
                             <MobileNavLink href="/#features">
                               Features
                             </MobileNavLink>
-                            <MobileNavLink href="/#reviews">
-                              Reviews
-                            </MobileNavLink>
-                            <MobileNavLink href="/#pricing">
-                              Pricing
-                            </MobileNavLink>
                             <MobileNavLink href="/#faqs">FAQs</MobileNavLink>
                           </div>
                           <div className="mt-8 flex flex-col gap-4">
-                            <LandingButton href="/login" variant="outline">
-                              Log in
+                            <LandingButton href={links.app} variant="outline">
+                              Login
                             </LandingButton>
-                            <LandingButton href="#">
-                              Download the app
+                            <LandingButton href="/app" variant="outline">
+                              Criar minha conta
                             </LandingButton>
                           </div>
                         </Popover.Panel>

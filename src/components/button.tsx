@@ -64,7 +64,7 @@ export const Button: <T extends React.ElementType = "button">(
       as={props.as ?? "button"}
       type={type}
       ref={ref}
-      className={css(buttonVariants({ theme, size, className, rounded }))}
+      className={css(buttonVariants({ theme, size, rounded }), className)}
     >
       {props.children}
       {icon}

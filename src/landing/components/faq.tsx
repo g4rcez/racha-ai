@@ -55,7 +55,7 @@ export function Faq() {
         </div>
         <ul
           role="list"
-          className="mx-auto mt-16 grid max-w-2xl grid-cols-3 gap-8 sm:mt-20 lg:max-w-none lg:grid-cols-3"
+          className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:mt-20 lg:max-w-none lg:grid-cols-3"
         >
           {questions.map((faq) => (
             <li key={faq.question}>

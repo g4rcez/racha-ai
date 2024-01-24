@@ -44,29 +44,28 @@ export const MobileLayout = () => {
           <Outlet />
         </div>
         <footer
-          className={css(
-            commonBarCss,
-            "bottom-0 py-2 shadow gap-4 grid grid-cols-4",
-          )}
+          className={css(commonBarCss, "bottom-0 py-2 pb-6 shadow w-full")}
         >
-          {getActionBarShortcuts().map((x, i) => {
-            const matches = p?.regex.test(x.href);
-            return (
-              <Link
-                href={x.href}
-                key={`links-${x.title}-${i}`}
-                data-active={matches}
-                className="data-[active=true]:text-main-bg data-[active=true]:font-bold flex flex-col gap-2 text-xs items-center justify-center w-full"
-              >
-                <x.icon
-                  absoluteStrokeWidth
-                  strokeWidth={matches ? 2 : 1}
-                  size={20}
-                />
-                <span>{x.title}</span>
-              </Link>
-            );
-          })}
+          <nav className="gap-4 grid grid-cols-4">
+            {getActionBarShortcuts().map((x, i) => {
+              const matches = p?.regex.test(x.href);
+              return (
+                <Link
+                  href={x.href}
+                  key={`links-${x.title}-${i}`}
+                  data-active={matches}
+                  className="data-[active=true]:text-main-bg data-[active=true]:font-bold flex flex-col gap-2 text-xs items-center justify-center w-full"
+                >
+                  <x.icon
+                    absoluteStrokeWidth
+                    strokeWidth={matches ? 2 : 1}
+                    size={20}
+                  />
+                  <span>{x.title}</span>
+                </Link>
+              );
+            })}
+          </nav>
         </footer>
       </div>
       <Drawer onChange={setOpen} open={open}>
