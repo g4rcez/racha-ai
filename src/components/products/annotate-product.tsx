@@ -4,7 +4,7 @@ import { Button, ButtonGroup } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Platform } from "~/components/platform";
+import { Platform } from "~/store/platform";
 import { Dict } from "~/lib/dict";
 import { clamp, diff, sum, toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";

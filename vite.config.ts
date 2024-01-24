@@ -1,5 +1,6 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import react from "@vitejs/plugin-react-swc";
+import { browserslistToTargets } from "lightningcss";
 import path from "path";
 import { defineConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
@@ -18,6 +19,7 @@ export default defineConfig({
     mkcert(),
     react(),
     sentryVitePlugin({ org: "g4rcez", project: "racha-ai" }),
+
     VitePWA({
       includeAssets: ["**/*"],
       workbox: { globIgnores: ["/blog/**", "/blog", "/changelog"] },

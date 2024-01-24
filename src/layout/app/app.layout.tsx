@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { Toaster } from "sonner";
-import { Platform } from "~/components/platform";
+import { Platform } from "~/store/platform";
 import { DesktopLayout } from "~/layout/app/desktop.layout";
 import { MobileLayout } from "~/layout/app/mobile.layout";
 import { Preferences } from "~/store/preferences.store";

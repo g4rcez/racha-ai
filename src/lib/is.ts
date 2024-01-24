@@ -13,6 +13,7 @@ export const Is = {
   undefined: isUndefined,
   string: (a: any): a is string => typeof a === "string",
   function: (a: any): a is Fn => typeof a === "function",
+  number: (a: any): a is number => typeof a === "number" || !Number.isNaN(a),
   nil: (a: any): a is undefined | null => isNull(a) || isUndefined(a),
   object: <T = object>(a: any): a is T => !array(a) && typeof a === "object",
   keyof: <T extends {}>(o: T, k: any): k is keyof T =>

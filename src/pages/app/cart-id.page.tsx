@@ -4,7 +4,7 @@ import { ShareIcon } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/button";
-import { Platform } from "~/components/platform";
+import { Platform } from "~/store/platform";
 import {
   Table,
   TableBody,
