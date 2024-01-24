@@ -45,21 +45,23 @@ export const InputField = <T extends "input" | "select">({
         htmlFor={ID}
         className="inline-flex w-full cursor-text flex-row flex-wrap justify-between gap-1 text-sm transition-colors group-error:text-danger"
       >
-        <InputFeedback
-          hideLeft={hideLeft}
-          reportStatus
-          title={title}
-          placeholder={placeholder}
-        >
-          {optionalText || rightLabel ? (
-            <Fragment>
-              {!required ? (
-                <span className="text-opacity-70">{optionalText}</span>
-              ) : null}
-              {rightLabel ? <Fragment>{rightLabel}</Fragment> : null}
-            </Fragment>
-          ) : null}
-        </InputFeedback>
+        {!hideLeft && !rightLabel ? (
+          <InputFeedback
+            hideLeft={hideLeft}
+            reportStatus
+            title={title}
+            placeholder={placeholder}
+          >
+            {optionalText || rightLabel ? (
+              <Fragment>
+                {!required ? (
+                  <span className="text-opacity-70">{optionalText}</span>
+                ) : null}
+                {rightLabel ? <Fragment>{rightLabel}</Fragment> : null}
+              </Fragment>
+            ) : null}
+          </InputFeedback>
+        ) : null}
         <div className="group flex w-full flex-row flex-nowrap items-center gap-x-2 gap-y-1 rounded-md border border-slate-300 bg-transparent transition-colors group-focus-within:border-main-bg group-hover:border-main-bg group-error:border-danger">
           {left ? (
             <span className="flex flex-nowrap gap-1 whitespace-nowrap pl-2">

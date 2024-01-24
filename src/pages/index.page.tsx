@@ -1,4 +1,5 @@
 import { ActionProps, redirectResponse } from "brouther";
+import { useEffect } from "react";
 import { AppPromiseFeatures } from "~/landing/components/app-promise-features";
 import { Faq } from "~/landing/components/faq";
 import { Hero } from "~/landing/components/hero";
@@ -16,6 +17,9 @@ export const actions = () => ({
 });
 
 export default function IndexPage() {
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+  }, []);
   return (
     <LandingLayout>
       <Hero />

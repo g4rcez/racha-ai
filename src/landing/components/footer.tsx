@@ -62,12 +62,12 @@ export function Footer() {
               <NavLinks />
             </nav>
           </div>
-          <ul className="relative gap-4 gap-y-8 justify-center lg:justify-start flex-wrap flex items-center self-stretch p-4 transition-colors hover:bg-gray-100 sm:self-auto sm:rounded-2xl lg:mx-0 lg:self-auto lg:p-6">
+          <ul className="relative gap-2 gap-y-6 justify-center lg:justify-start flex-wrap flex items-center self-stretch p-4 transition-colors sm:self-auto sm:rounded-2xl lg:mx-0 lg:self-auto lg:p-6">
             {links.map((link) => (
               <li key={`footer-link-${link.href}`}>
                 <a
                   href={link.href}
-                  className="flex flex-row items-center gap-1 hover:underliner"
+                  className="flex flex-row items-center gap-2 hover:underline p-2 hover:bg-gray-100"
                 >
                   <link.Icon />
                   {link.title}

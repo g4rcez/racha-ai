@@ -2,15 +2,15 @@ import { Link } from "brouther";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 
-const links = [
-  ["App", "#features"],
+export const landingNavLinks = [
+  ["Sobre o App", "#features"],
   ["Ajuda", "#faq"],
 ];
 
 export function NavLinks() {
   let [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   let timeoutRef = useRef<number | null>(null);
-  return links.map(([label, href], index) => (
+  return landingNavLinks.map(([label, href], index) => (
     <Link
       key={label}
       href={href}

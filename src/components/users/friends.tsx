@@ -1,4 +1,10 @@
-import { PlusIcon, Trash2Icon } from "lucide-react";
+import {
+  CheckIcon,
+  Edit2Icon,
+  PlusIcon,
+  Trash2Icon,
+  User2Icon,
+} from "lucide-react";
 import React, { FormEvent, useState } from "react";
 import { Button } from "~/components/button";
 import { Drawer } from "~/components/drawer";
@@ -16,51 +22,91 @@ import { Preferences } from "~/store/preferences.store";
 
 type EditUserProps = {
   user: User;
+  index: number;
+  ownerId: string;
   onChangeUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
-  ownerId: string;
 };
 
-export const EditUser = (props: EditUserProps) => {
+export const EditUser = (props: EditUserProps & { index: number }) => {
   const i18n = useTranslations();
   const isOwner = props.user.id === props.ownerId;
+  const [mode, setMode] = useState<ViewMode>("view");
+
   const onReset = () => props.onDeleteUser(props.user);
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = getHtmlInput(e.currentTarget.form!, "user").value;
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const name = getHtmlInput(e.currentTarget, "user").value;
     props.onChangeUser({ ...props.user, name });
+    setMode("view");
   };
 
   return (
-    <li>
-      <Form onReset={onReset} className="flex flex-row items-end gap-2">
-        <Input
-          required
-          name="user"
-          value={props.user.name}
-          onChange={onChange}
-          title={i18n.get("updateFriendInput")}
-          placeholder={i18n.get("userInputPlaceholder")}
-          rightLabel={isOwner ? i18n.get("yourself") : undefined}
-        />
-        <Button
-          className="mb-1"
-          size="small"
-          theme="danger"
-          type="reset"
-          aria-label={i18n.get("addFriend")}
-        >
-          <Trash2Icon absoluteStrokeWidth strokeWidth={2} size={16} />
-        </Button>
-      </Form>
+    <li
+      key={props.user.id}
+      className="flex justify-between gap-x-6 py-5 border-b"
+    >
+      <div className="flex min-w-0 gap-x-4 items-center">
+        <div className="size-12 flex items-center justify-center rounded-full bg-main-bg">
+          <User2Icon color="hsl(var(--main-DEFAULT))" />
+        </div>
+        <div className="flex-auto">
+          <p className="text-sm font-semibold">
+            {props.index}. {props.user.name}
+          </p>
+          {mode === "edit" ? (
+            <Form
+              onSubmit={onSubmit}
+              className="flex flex-row items-end gap-2 mt-2"
+            >
+              <Input
+                required
+                hideLeft
+                name="user"
+                defaultValue={props.user.name}
+                title={i18n.get("updateFriendInput")}
+                placeholder={i18n.get("userInputPlaceholder")}
+                rightLabel={isOwner ? i18n.get("yourself") : undefined}
+              />
+              <Button
+                size="icon"
+                type="submit"
+                className="mb-1"
+                theme="transparent"
+                icon={<CheckIcon color="hsl(var(--success-DEFAULT))" />}
+              />
+            </Form>
+          ) : null}
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-x-6">
+        <span className="flex flex-row flex-nowrap gap-4">
+          <Button
+            size="icon"
+            theme="transparent"
+            onClick={() => setMode("edit")}
+            icon={<Edit2Icon size={18} color="hsl(var(--main-bg))" />}
+          />
+          <Button
+            size="icon"
+            onClick={onReset}
+            theme="transparent"
+            icon={<Trash2Icon size={18} color="hsl(var(--danger-DEFAULT))" />}
+          />
+        </span>
+      </div>
     </li>
   );
 };
+
+type ViewMode = "view" | "edit";
 
 export const FriendsCrud = () => {
   const i18n = useTranslations();
   const [state, dispatch] = Friends.use();
   const [preferences, _dispatch] = Preferences.use();
   const isDesktop = !Platform.use();
+  const users = sortUuidList(state.users, "id");
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget;
     const input = getHtmlInput(form, "user");
@@ -73,9 +119,8 @@ export const FriendsCrud = () => {
       return form.reset();
     }
   };
-  const users = sortUuidList(state.users, "id");
   return (
-    <ul className="flex flex-col gap-4">
+    <ul className="space-y-2">
       <li>
         <Form onSubmit={onSubmit} className="flex flex-row items-end gap-2">
           <Input
@@ -86,18 +131,20 @@ export const FriendsCrud = () => {
             placeholder={i18n.get("userInputPlaceholder")}
           />
           <Button
-            className="mb-1"
             size="small"
             type="submit"
+            className="mb-1"
+            theme="transparent"
             aria-label={i18n.get("addFriend")}
           >
             <PlusIcon absoluteStrokeWidth strokeWidth={2} size={16} />
           </Button>
         </Form>
       </li>
-      {users.map((user) => (
+      {users.map((user, index) => (
         <EditUser
           key={user.id}
+          index={index + 1}
           ownerId={preferences.id}
           onChangeUser={dispatch.update}
           onDeleteUser={dispatch.delete}
@@ -153,7 +200,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
         </Drawer.Trigger>
         <Drawer.Content>
           <Drawer.Title>Lista de amigos</Drawer.Title>
-          <ul className="my-4 space-y-6">
+          <ul role="list" className="my-4 space-y-6">
             <li>
               <Form
                 onSubmit={createNewUser}

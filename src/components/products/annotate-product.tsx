@@ -4,13 +4,13 @@ import { Button, ButtonGroup } from "~/components/button";
 import { Drawer } from "~/components/drawer";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Platform } from "~/store/platform";
 import { Dict } from "~/lib/dict";
 import { clamp, diff, sum, toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
 import { Cart, CartProduct, CartUser, Division } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
+import { Platform } from "~/store/platform";
 import { Title } from "../typography";
 
 type Props = {
@@ -90,15 +90,17 @@ const reducers = (args: Getter) => ({
   show: () => ({ visible: true }),
   hide: () => ({ visible: false, product: null }),
   onChangeQuantity: (quantity: number) => changeQuantity(args, quantity),
-  product: (product: CartProduct | null) =>
-    Is.nil(product)
+  product: (product: CartProduct | null) => {
+    console.log("NEW ONE", product);
+    return Is.nil(product)
       ? { product: null }
       : {
           product,
           equalityMode: product.consumers
             .toArray()
             .some((x) => isEqualityMode(x.quantity)),
-        },
+        };
+  },
   changeDivision: (division: Division) => {
     const state = args.state();
     if (state.product === null) return state;
@@ -158,6 +160,7 @@ export const AnnotateProduct = (props: Props) => {
   const [state, dispatch] = useReducer(initialState, reducers, props);
   const product = state.product;
   const isDesktop = !Platform.use();
+  console.log(state);
 
   useEffect(() => {
     if (props.product) {
@@ -185,6 +188,7 @@ export const AnnotateProduct = (props: Props) => {
     if (state.product?.name !== "") {
       return dispatch.visible(b);
     }
+    if (b) return dispatch.visible(b);
     dispatch.hide();
     return props.onRemoveProduct(state.product);
   };
@@ -239,7 +243,10 @@ export const AnnotateProduct = (props: Props) => {
           Novo produto
         </Button>
       </Drawer.Trigger>
-      <Drawer.Content onEscapeKeyDown={onEsc} className="overflow-y-auto">
+      <Drawer.Content
+        onEscapeKeyDown={isDesktop ? onEsc : undefined}
+        className="overflow-y-auto"
+      >
         <Fragment>
           {product === null ? null : (
             <Fragment>

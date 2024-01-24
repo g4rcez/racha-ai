@@ -137,7 +137,7 @@ type ScreenProps =
     }
   | { animated?: false };
 
-const ScreenContainer = (props: PropsWithChildren) => (
+export const ScreenContainer = (props: PropsWithChildren) => (
   <div className="px-4 py-2 flex flex-col gap-4 pointer-events-none select-none">
     {props.children}
   </div>
