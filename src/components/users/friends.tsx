@@ -5,13 +5,13 @@ import { Drawer } from "~/components/drawer";
 import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Platform } from "~/store/platform";
 import { useTranslations } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { getHtmlInput } from "~/lib/dom";
 import { sanitize, sortUuidList } from "~/lib/fn";
 import { Cart, CartUser } from "~/store/cart.store";
 import { Friends, User } from "~/store/friends.store";
+import { Platform } from "~/store/platform";
 import { Preferences } from "~/store/preferences.store";
 
 type EditUserProps = {
@@ -21,7 +21,7 @@ type EditUserProps = {
   ownerId: string;
 };
 
-const EditUser = (props: EditUserProps) => {
+export const EditUser = (props: EditUserProps) => {
   const i18n = useTranslations();
   const isOwner = props.user.id === props.ownerId;
   const onReset = () => props.onDeleteUser(props.user);
@@ -42,7 +42,13 @@ const EditUser = (props: EditUserProps) => {
           placeholder={i18n.get("userInputPlaceholder")}
           rightLabel={isOwner ? i18n.get("yourself") : undefined}
         />
-        <Button theme="danger" type="reset" aria-label={i18n.get("addFriend")}>
+        <Button
+          className="mb-1"
+          size="small"
+          theme="danger"
+          type="reset"
+          aria-label={i18n.get("addFriend")}
+        >
           <Trash2Icon absoluteStrokeWidth strokeWidth={2} size={16} />
         </Button>
       </Form>

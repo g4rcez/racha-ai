@@ -7,7 +7,7 @@ export const AppScreen = ({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => (
   <div className={clsx("flex flex-col", className)} {...props}>
-    <div className="flex justify-between px-4 pt-1" />
+    <div className="flex justify-between px-4" />
     {children}
   </div>
 );
@@ -16,7 +16,7 @@ AppScreen.Header = forwardRef<
   React.ElementRef<"div">,
   { children: React.ReactNode }
 >(({ children }, ref) => (
-  <div ref={ref} className="mt-6 px-4 text-white">
+  <div ref={ref} className="mt-6 px-4 border-4 text-white">
     {children}
   </div>
 ));
@@ -41,12 +41,13 @@ AppScreen.Subtitle = forwardRef<
 
 AppScreen.Body = forwardRef<
   React.ElementRef<"div">,
-  { className?: string; children: React.ReactNode }
->(({ children, className }, ref) => (
+  { className?: string; children: React.ReactNode; mode: string }
+>(({ children, mode, className }, ref) => (
   <div
     ref={ref}
     className={clsx(
-      "mt-6 flex-1 rounded-t-2xl bg-white overflow-y-hidden will-change-transform isolate phone-emulate-body",
+      mode === "dark" ? "bg-[#20232C]" : "bg-[#F3FAFD]",
+      "mt-6 flex-1 rounded-t-2xl overflow-y-hidden will-change-transform isolate phone-emulate-body",
       className,
     )}
   >
@@ -56,10 +57,10 @@ AppScreen.Body = forwardRef<
 
 const ComandaPage = lazy(() => import("~/pages/app/comanda.page"));
 
-export const AppDemo = () => (
+export const AppDemo = (props: { mode: string }) => (
   <AppScreen>
-    <AppScreen.Body>
-      <div className="p-4 isolate overflow-hidden">
+    <AppScreen.Body mode={props.mode}>
+      <div className="px-4 isolate overflow-hidden">
         <React.Suspense fallback="Loading...">
           <ComandaPage />
         </React.Suspense>

@@ -22,8 +22,6 @@ const getEntries = (o: object, prefix = ""): [any, any][] =>
 
 export const flatTuples = <K, V>(input: object): [K, V][] => getEntries(input);
 
-export const noop = <T>(a: T): T => a;
-
 export const uuid = uuidv7;
 
 export const sanitize = (str: string) => str.trim().normalize("NFKD");
@@ -101,3 +99,9 @@ export const toFraction = (a: number): string =>
   new Fraction(a).toFraction(true).replace(" ", " + ");
 
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+export const noop = {
+  fn: <T>(t: T): T => t,
+  array: [],
+  obj: {},
+};

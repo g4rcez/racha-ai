@@ -2,13 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#root,
-main {
-  @apply bg-body-bg text-body;
-}
-
 select.select {
   -moz-appearance: none;
   -webkit-appearance: none;
@@ -49,10 +42,6 @@ input[type="week"],
 select:focus,
 textarea {
   font-size: 16px;
-}
-
-.phone-emulate-body {
-  -webkit-mask-image: -webkit-radial-gradient(white, black);
 }
 
 @keyframes overlay-show {

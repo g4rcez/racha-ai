@@ -41,7 +41,7 @@ export const parse = <T extends string, Params extends object>(
           const value = params[variable] as string;
           return functions.length !== 0
             ? functions.reduce<string>(
-                (acc, fn) => ((formatters[fn] as Function) ?? noop)(acc),
+                (acc, fn) => ((formatters[fn] as Function) ?? noop.fn)(acc),
                 value,
               )
             : value;

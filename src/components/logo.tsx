@@ -10,3 +10,7 @@ export const Logo = ({ type = "brand" }: Props) => (
     Racha aí
   </h1>
 );
+
+export const AppDescription = () => (
+  <p className="mt-1 text-sm">O app pra rachar a conta com a galera</p>
+);

@@ -37,7 +37,7 @@ export default function ComandaPage() {
   const onReset = () => dispatch.set(Cart.getState());
 
   return (
-    <main className="pb-8">
+    <main>
       <Title className="font-bold">{state.title || "Bar sem nome..."}</Title>
       <Form
         onReset={onReset}
