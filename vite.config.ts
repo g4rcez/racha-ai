@@ -19,7 +19,6 @@ export default defineConfig({
     mkcert(),
     react(),
     sentryVitePlugin({ org: "g4rcez", project: "racha-ai" }),
-
     VitePWA({
       includeAssets: ["**/*"],
       workbox: { globIgnores: ["/blog/**", "/blog", "/changelog"] },

@@ -1,6 +1,7 @@
-import { Link, Outlet, usePageStats } from "brouther";
+"use client";
+import Link from "next/link";
 import { MenuIcon } from "lucide-react";
-import { Fragment, useState } from "react";
+import { Fragment, PropsWithChildren, useState } from "react";
 import {
   getMenuShortcuts,
   isShortcutLink,
@@ -8,14 +9,13 @@ import {
 } from "~/components/admin/shortcuts";
 import { Drawer } from "~/components/drawer";
 import { Logo } from "~/components/logo";
-import { links } from "~/router";
+import { Links } from "~/router";
 import { ThemeToggle } from "~/store/preferences.store";
 
-export const DesktopLayout = () => {
-  const p = usePageStats();
-  const title = (p?.data as any)?.name || null;
+export const DesktopLayout = (props: PropsWithChildren) => {
   const [open, setOpen] = useState(false);
   const toggle = () => setOpen((prev) => !prev);
+  const title = "Racha aí";
   return (
     <Fragment>
       <Drawer onChange={setOpen} open={open}>
@@ -44,7 +44,7 @@ export const DesktopLayout = () => {
       </Drawer>
       <header className="sticky bottom-0 z-10 mb-6 min-w-full bg-main-bg text-main shadow-lg">
         <nav className="container mx-auto flex max-w-2xl items-center justify-between p-4">
-          <Link href={links.app}>
+          <Link href={Links.app}>
             {title ? (
               <span className="text-2xl font-bold">{title}</span>
             ) : (
@@ -60,7 +60,7 @@ export const DesktopLayout = () => {
         </nav>
       </header>
       <div className="container mx-auto max-w-2xl px-4 pb-16">
-        <Outlet />
+        {props.children}
       </div>
     </Fragment>
   );

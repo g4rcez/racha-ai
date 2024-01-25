@@ -1,8 +1,8 @@
-import { lazy } from "react";
 import { AppFrame } from "~/landing/components/app-frame";
 import { ScreenContainer } from "~/landing/components/app-screen/app-features";
+import dynamic from "next/dynamic";
 
-const WelcomeToApp = lazy(() => import("~/pages/app/app.page"));
+const WelcomeToApp = dynamic(() => import("~/app/app/page"));
 
 export function AppFrameDemo() {
   return (

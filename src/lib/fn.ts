@@ -105,3 +105,5 @@ export const noop = {
   array: [],
   obj: {},
 };
+
+export const isServerSide = () => typeof window === "undefined";

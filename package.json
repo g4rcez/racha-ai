@@ -2,14 +2,14 @@
   "name": "frontend-template",
   "private": true,
   "version": "0.0.2",
-  "type": "module",
   "scripts": {
-    "build": "tsc && VITE_TAG_VERSION=$(node -e 'console.log(require(\"./package.json\").version)') vite build",
-    "dev": "NODE_ENV=development vite --port 1337 --host",
+    "build": "NEXT_PUBLIC_TAG_VERSION=$(node -e 'console.log(require(\"./package.json\").version)') next build --no-lint",
+    "dev": "next dev --experimental-https",
     "format": "prettier format ./src --write",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "next lint",
     "prepare": "husky install",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "next start"
   },
   "dependencies": {
     "@floating-ui/react": "0.26.5",
@@ -29,6 +29,7 @@
     "html-to-image": "1.11.11",
     "linq-arrays": "3.1.4",
     "lucide-react": "0.309.0",
+    "next": "14.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-error-boundary": "4.0.12",
@@ -37,6 +38,7 @@
     "tailwind-merge": "2.0.0",
     "the-mask-input": "3.3.12",
     "use-debounce": "10.0.0",
+    "use-sync-external-store": "1.2.0",
     "use-typed-reducer": "3.3.7",
     "vaul": "0.8.9",
     "zod": "3.22.4"

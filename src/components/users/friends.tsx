@@ -1,3 +1,4 @@
+"use client";
 import {
   CheckIcon,
   Edit2Icon,
@@ -17,7 +18,7 @@ import { getHtmlInput } from "~/lib/dom";
 import { sanitize, sortUuidList } from "~/lib/fn";
 import { Cart, CartUser } from "~/store/cart.store";
 import { Friends, User } from "~/store/friends.store";
-import { Platform } from "~/store/platform";
+import { Platform, PlatformMobile } from "~/store/platform";
 import { Preferences } from "~/store/preferences.store";
 
 type EditUserProps = {
@@ -34,6 +35,7 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
   const [mode, setMode] = useState<ViewMode>("view");
 
   const onReset = () => props.onDeleteUser(props.user);
+
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     const name = getHtmlInput(e.currentTarget, "user").value;
     props.onChangeUser({ ...props.user, name });
@@ -212,7 +214,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                   title="Nome do amigo"
                   placeholder={i18n.get("userInputPlaceholder")}
                 />
-                <Platform.mobile>
+                <PlatformMobile>
                   <Button
                     type="submit"
                     title="Adicionar amigo"
@@ -226,7 +228,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                       />
                     }
                   />
-                </Platform.mobile>
+                </PlatformMobile>
               </Form>
             </li>
             {friends.map((user) => {

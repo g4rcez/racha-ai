@@ -1,5 +1,6 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { ChangeEvent } from "react";
+import { CurrencyCode } from "the-mask-input";
 import { z } from "zod";
 import { FormError } from "~/components/form/form";
 import { i18n } from "~/i18n";
@@ -12,7 +13,6 @@ import { Product } from "~/models/product";
 import { Friends, User } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { ParseToRaw } from "~/types";
-import { CurrencyCode } from "the-mask-input";
 
 export type CartUser = User & {
   amount: number;
@@ -254,7 +254,6 @@ export const Cart = Entity.create(
         merge({ users: new Dict(get.state().users).remove(user.id) }),
       onChangeProduct: (product: CartProduct) => {
         const state = get.state();
-        console.log(product);
         return merge({
           products: new Dict(state.products).clone().set(product.id, {
             ...product,

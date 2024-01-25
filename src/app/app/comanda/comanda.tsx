@@ -1,3 +1,4 @@
+"use client";
 import { Trash2Icon } from "lucide-react";
 import React, { Fragment } from "react";
 import { Alert } from "~/components/alert";

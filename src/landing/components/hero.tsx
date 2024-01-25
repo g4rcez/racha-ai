@@ -5,6 +5,7 @@ import { AppFrameDemo } from "~/landing/components/app-frame-demo";
 import { Container } from "~/landing/components/container";
 import { LandingButton } from "~/landing/components/landing-button";
 import { PhoneFrame } from "~/landing/components/phone-frame";
+import { Links } from "~/router";
 import { colors } from "~/styles/styles";
 
 const places = [
@@ -110,7 +111,7 @@ export function Hero() {
               na hora de comemorar.
             </p>
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-4">
-              <LandingButton href="/app" variant="outline">
+              <LandingButton href={Links.app} variant="outline">
                 <PlayIcon className="h-6 w-6 flex-none" />
                 <span className="ml-2.5">Começar a usar</span>
               </LandingButton>

@@ -1,4 +1,5 @@
-import { jsonResponse, Link, LoaderProps, useDataLoader } from "brouther";
+"use client";
+import Link from "next/link";
 import { toBlob } from "html-to-image";
 import { ShareIcon } from "lucide-react";
 import { useRef, useState } from "react";
@@ -17,24 +18,15 @@ import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
-import { links } from "~/router";
 import { Cart } from "~/store/cart.store";
 import { History, HistoryItem } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 import { ParseToRaw } from "~/types";
 
-type L = "/app/cart/:id";
-
-export const loader = (context: LoaderProps<L>) => {
-  const id = context.paths.id;
-  const cart = History.get(id);
-  return jsonResponse({ cart });
-};
-
 export default function CartId() {
   const [_me] = Preferences.use((state) => state.user);
   const [_, dispatch] = Cart.use();
-  const data = useDataLoader<typeof loader>();
+  const data = {} as any;
   const i18n = useTranslations();
   const ref = useRef<HTMLDivElement>(null);
   const [imgMode, setImgMode] = useState(false);
@@ -83,7 +75,7 @@ export default function CartId() {
             Total: <b className="text-main-bg">{total}</b>
           </p>
           <Link
-            href={links.cart}
+            href="/cart"
             data-image={imgMode}
             onClick={() => dispatch.set(History.parseToCart(history))}
             className="underline underline-offset-4 data-[image=true]:hidden"

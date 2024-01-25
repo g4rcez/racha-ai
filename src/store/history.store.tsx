@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
 import { i18n } from "~/i18n";
@@ -6,7 +7,7 @@ import { Dict } from "~/lib/dict";
 import { sum } from "~/lib/fn";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
-import { link, links, navigate } from "~/router";
+import { Links } from "~/router";
 import { CartState, CartUser } from "~/store/cart.store";
 import { Friends } from "~/store/friends.store";
 import { Override, ParseToRaw } from "~/types";
@@ -179,7 +180,7 @@ export const History = Entity.create(
   (args) => ({
     parse,
     init: args.getState,
-    view: (id: string) => navigate.push(link(links.cartHistory, { id })),
+    view: (id: string) => redirect(Links.cartId(id)),
     save: (ownerId: string, cart: CartState) => {
       const storage = (LocalStorage.get(args.storageKey) as {
         items: HistoryItem[];

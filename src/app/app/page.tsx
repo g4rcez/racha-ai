@@ -1,5 +1,6 @@
-import { Link } from "brouther";
+"use client";
 import { UtensilsIcon } from "lucide-react";
+import Link from "next/link";
 import { CSSProperties, useEffect, useMemo } from "react";
 import {
   getHomeShortcuts,
@@ -10,7 +11,7 @@ import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { SectionTitle } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { link, links } from "~/router";
+import { Links } from "~/router";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 
@@ -64,7 +65,7 @@ export default function AppPage() {
               <li key={item.id}>
                 <Link
                   className="group flex min-w-full flex-col gap-2 rounded border border-main-bg/20 p-4 transition-all link:border-main-bg/60"
-                  href={link(links.cartHistory, { id: item.id })}
+                  href={Links.cartId(item.id)}
                 >
                   <header className="flex items-end justify-between">
                     <div className="flex gap-2 items-center">

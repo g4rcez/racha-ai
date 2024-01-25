@@ -1,4 +1,4 @@
-import { Link } from "brouther";
+import Link from "next/link";
 import {
   HistoryIcon,
   ReceiptIcon,
@@ -9,10 +9,9 @@ import {
 import React, { Fragment } from "react";
 import { LocalStorage } from "storage-manager-js";
 import { Is } from "~/lib/is";
-import { links } from "~/router";
 
 export type ShortcutLink = {
-  href: (typeof links)[keyof typeof links];
+  href: string;
   icon: React.FC<any>;
   tags: string[];
   text: React.ReactNode;
@@ -32,7 +31,7 @@ export const isShortcutLink = (a: any): a is ShortcutLink => !Is.nil(a.href);
 
 export const shortcuts: Shortcut[] = [
   {
-    href: links.app,
+    href: "/app",
     icon: HistoryIcon,
     tags: ["menu", "action"],
     title: "Histórico",
@@ -44,7 +43,7 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
-    href: links.friends,
+    href: "/app/friends",
     icon: UsersIcon,
     tags: ["home", "menu", "action"],
     title: "Amigos",
@@ -56,7 +55,7 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
-    href: links.cart,
+    href: "/app/cart",
     icon: ReceiptIcon,
     tags: ["home", "menu", "action"],
     title: "Comanda",
@@ -68,7 +67,7 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
-    href: links.config,
+    href: "/app/config",
     icon: UserRound,
     tags: ["home", "menu", "action"],
     title: "Perfil",

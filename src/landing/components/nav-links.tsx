@@ -1,4 +1,4 @@
-import { Link } from "brouther";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 

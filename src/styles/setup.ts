@@ -1,4 +1,3 @@
-import { createElement } from "~/lib/dom";
 import { flatTuples, reduceObject } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { ColorThemes } from "~/store/preferences.store";
@@ -46,23 +45,18 @@ export const createCssTheme = (map: ThemeConfig) => {
   return `:root { ${styleCss} }`;
 };
 
-export const setupTheme = (
-  head: HTMLElement,
-  themeConfig: ThemeConfig,
-  id: ColorThemes,
-) => {
+export const setupTheme = (themeConfig: ThemeConfig, id: ColorThemes) => {
   const theme = createCssTheme(themeConfig);
-  const style = createElement("style", {
-    type: "text/css",
-    innerHTML: theme,
-    id: "theme",
-  });
+  const style = document.getElementById("theme");
+  if (style === null) return;
+  style.id = "theme";
+  style.innerHTML = theme;
   style.setAttribute("data-configuration", id);
-  head.appendChild(style);
 };
 
 export const changeTheme = (themeConfig: ThemeConfig, id: ColorThemes) => {
-  const style = document.getElementById("theme")! as HTMLStyleElement;
+  const style = document.getElementById("theme");
+  if (style === null) return;
   style.setAttribute("data-configuration", id);
   style.innerHTML = createCssTheme(themeConfig);
 };

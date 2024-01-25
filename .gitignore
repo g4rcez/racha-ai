@@ -249,3 +249,5 @@ pg/
 .env*
 !.env.example
 .vercel
+
+certificates

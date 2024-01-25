@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-
-import frame from "~/landing/images/phone-frame.svg";
+import { PhoneImage } from "~/components/landing/phone";
 
 function PlaceholderFrame(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -30,12 +29,7 @@ export function PhoneFrame({
         {children}
       </div>
       <PlaceholderFrame className="pointer-events-none absolute inset-0 h-full w-full fill-gray-100" />
-      <img
-        src={frame}
-        alt=""
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        loading="lazy"
-      />
+      <PhoneImage />
     </div>
   );
 }
