@@ -55,10 +55,16 @@ export const setupTheme = (themeConfig: ThemeConfig, id: ColorThemes) => {
 };
 
 export const changeTheme = (themeConfig: ThemeConfig, id: ColorThemes) => {
-  const style = document.getElementById("theme");
-  if (style === null) return;
+  const style =
+    document.getElementById("theme") ||
+    Object.assign(document.createElement("style"), {
+      id: "theme",
+      type: "text/css",
+    });
   style.setAttribute("data-configuration", id);
   style.innerHTML = createCssTheme(themeConfig);
+  if (document.head.contains(style)) return;
+  document.head.appendChild(style);
 };
 
 export type CssVariables = [token: string, value: string][];

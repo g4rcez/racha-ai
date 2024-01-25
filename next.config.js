@@ -5,12 +5,14 @@ const withSerwist = require("@serwist/next").default({
   reloadOnOnline: true,
 });
 
-module.exports = withSerwist({
+const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   experimental: { swcTraceProfiling: true },
   compiler: {
-    removeComments: true,
     reactRemoveProperties: { properties: ["^data-test$", "^data-testid$"] },
   },
-});
+};
+
+module.exports =
+  process.env.NODE_ENV === "development" ? nextConfig : withSerwist(nextConfig);

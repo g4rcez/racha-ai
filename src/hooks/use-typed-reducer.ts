@@ -356,7 +356,7 @@ export const createGlobalReducer = <
       const state = useSyncExternalStoreWithSelector(
         addListener,
         getSnapshot,
-        () => initialState,
+        getSnapshot,
         selector || defaultSelector,
         comparator,
       );

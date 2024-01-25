@@ -6,7 +6,8 @@ export const PhoneImage = () => (
   <Image
     width="366"
     height="729"
-    loading="lazy"
+    quality={20}
+    priority={true}
     alt="Imagem de um telefone"
     src="/img/landing/phone-frame.svg"
     className="pointer-events-none absolute inset-0 h-full w-full"

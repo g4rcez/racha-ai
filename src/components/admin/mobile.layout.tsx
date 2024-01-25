@@ -1,6 +1,7 @@
 "use client";
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Fragment, PropsWithChildren, useState } from "react";
 import {
   getActionBarShortcuts,
@@ -17,6 +18,7 @@ import { ThemeToggle } from "~/store/preferences.store";
 const commonBarCss = "fixed z-10 w-screen bg-body-bg text-body bg-body-nav";
 
 export const MobileLayout = (props: PropsWithChildren) => {
+  const path = usePathname();
   const [open, setOpen] = useState(false);
   const toggle = () => setOpen((prev) => !prev);
   const title = "Racha aí";
@@ -48,7 +50,7 @@ export const MobileLayout = (props: PropsWithChildren) => {
         >
           <nav className="gap-4 grid grid-cols-4">
             {getActionBarShortcuts().map((x, i) => {
-              const matches = false;
+              const matches = x.href === path;
               return (
                 <Link
                   href={x.href}

@@ -96,7 +96,9 @@ export const Header = () => (
                       >
                         <div className="space-y-4">
                           {landingNavLinks.map(([name, href]) => (
-                            <MobileNavLink href={href}>{name}</MobileNavLink>
+                            <MobileNavLink key={`${href}-nav-link`} href={href}>
+                              {name}
+                            </MobileNavLink>
                           ))}
                         </div>
                         <div className="mt-8 flex flex-col gap-4">

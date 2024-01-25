@@ -1,7 +1,7 @@
 "use client";
 import { UtensilsIcon } from "lucide-react";
 import Link from "next/link";
-import { CSSProperties, useEffect, useMemo } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 import {
   getHomeShortcuts,
   Shortcut,
@@ -16,13 +16,14 @@ import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 
 export default function AppPage() {
-  const [state, dispatch] = Preferences.use();
-  const [history, historyDispatch] = History.use();
   const i18n = useTranslations();
+  const [name, dispatch] = Preferences.use((s) => s.user.name);
+  const [history, historyDispatch] = History.use();
   const items = history.items.toSorted((a, b) => b.id.localeCompare(a.id));
-  const firstStateName = useMemo(() => state.user.name, []);
+  const [firstStateName, setFirstNameState] = useState("");
 
   useEffect(() => {
+    setFirstNameState(name);
     historyDispatch.refresh(History.init());
   }, []);
 
@@ -34,7 +35,7 @@ export default function AppPage() {
             <Input
               required
               name="name"
-              value={state.name}
+              value={name}
               title={i18n.get("welcomeInputTitle")}
               placeholder={i18n.get("welcomeInputPlaceholder")}
               onChange={(e) => dispatch.onChangeName(e.target.value)}

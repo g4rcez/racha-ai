@@ -1,7 +1,7 @@
 "use client";
 import { LocalStorage } from "storage-manager-js";
-import { createGlobalReducer, ReducerActions } from "use-typed-reducer";
 import { z } from "zod";
+import { createGlobalReducer, ReducerActions } from "~/hooks/use-typed-reducer";
 import { Env } from "~/lib/Env";
 import { isServerSide } from "~/lib/fn";
 import { Is } from "~/lib/is";
@@ -109,12 +109,11 @@ export namespace Entity {
     );
     const use = <Selector extends (s: State) => any>(selector?: Selector) =>
       useStore(selector);
-    const setup = () => {
-      const storageData = isServerSide() ? null : LocalStorage.get(storageKey);
-      return storageData
-        ? setStore(getState(storageData))
-        : setStore(getState());
-    };
+
+    const setup = () =>
+      setStore(
+        getState(isServerSide() ? undefined : LocalStorage.get(storageKey)),
+      );
 
     const act: Actions extends FN ? ReturnType<Actions> : Actions = Is.function(
       actions,

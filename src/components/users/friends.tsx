@@ -48,7 +48,7 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
       className="flex justify-between gap-x-6 py-5 border-b"
     >
       <div className="flex min-w-0 gap-x-4 items-center">
-        <div className="size-12 flex items-center justify-center rounded-full bg-main-bg">
+        <div className="size-12 flex items-center justify-center rounded-full bg-main-bg/40">
           <User2Icon color="hsl(var(--main-DEFAULT))" />
         </div>
         <div className="flex-auto">

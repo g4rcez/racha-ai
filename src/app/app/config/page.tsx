@@ -52,7 +52,7 @@ const Customize = () => {
         />
       </section>
       {hide ? null : (
-        <ul className="grid grid-cols-2 gap-4 whitespace-pre-wrap">
+        <ul className="grid grid-cols-2 gap-4 mt-4 whitespace-pre-wrap">
           {state.devMode ? (
             <li>
               <ColorPicker

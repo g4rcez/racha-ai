@@ -1,8 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { PropsWithChildren } from "react";
 import DefaultTheme from "~/styles/default.json";
 import { createCssTheme } from "~/styles/setup";
 import "~/styles/index.css";
+
+const inter = Inter({ subsets: ["latin"] });
 
 const APP_NAME = "Racha aí";
 const APP_DEFAULT_TITLE = "Racha aí";
@@ -21,16 +24,13 @@ export const generateViewport = (): Viewport => ({
 export const generateMetadata = (): Metadata => ({
   metadataBase: new URL("https://racha.ai"),
   applicationName: APP_NAME,
-  title: {
-    default: APP_DEFAULT_TITLE,
-    template: APP_TITLE_TEMPLATE,
-  },
+  title: { default: APP_DEFAULT_TITLE, template: APP_TITLE_TEMPLATE },
   description: APP_DESCRIPTION,
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
     title: APP_DEFAULT_TITLE,
+    statusBarStyle: "default",
   },
   formatDetection: { telephone: false },
   openGraph: {
@@ -44,26 +44,21 @@ export const generateMetadata = (): Metadata => ({
   },
   twitter: {
     card: "summary",
-    title: {
-      default: APP_DEFAULT_TITLE,
-      template: APP_TITLE_TEMPLATE,
-    },
+    title: { default: APP_DEFAULT_TITLE, template: APP_TITLE_TEMPLATE },
     description: APP_DESCRIPTION,
   },
 });
 
 export default function RootLayout(props: PropsWithChildren<{}>) {
-  const styles = createCssTheme(DefaultTheme);
   return (
-    <html lang="pt-br">
-      <head>
-        <meta name="viewport" />
-        <style id="theme" type="text/css">
-          {styles}
+    <html lang="pt-BR" className="text-body bg-body-bg">
+      <head key="head">
+        <style key="theme" id="base-theme" type="text/css">
+          {createCssTheme(DefaultTheme)}
         </style>
       </head>
-      <body>
-        <div id="root">{props.children}</div>
+      <body style={inter.style} className={inter.className}>
+        {props.children}
       </body>
     </html>
   );
