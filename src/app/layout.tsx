@@ -57,9 +57,8 @@ export default function RootLayout(props: PropsWithChildren<{}>) {
   return (
     <html lang="pt-br">
       <head>
-        <title>Racha aí</title>
         <meta name="viewport" />
-        <style global id="theme" type="text/css">
+        <style id="theme" type="text/css">
           {styles}
         </style>
       </head>
