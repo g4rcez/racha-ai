@@ -55,7 +55,7 @@ AppScreen.Body = forwardRef<
   </div>
 ));
 
-const ComandaPage = lazy(() => import("~/pages/app/comanda.page"));
+const ComandaPage = lazy(() => import("~/app/app/cart/page"));
 
 export const AppDemo = (props: { mode: string }) => (
   <AppScreen>

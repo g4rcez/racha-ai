@@ -1,8 +1,11 @@
+"use client";
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
+import { createGlobalReducer, ReducerActions } from "use-typed-reducer";
+import { Env } from "~/lib/Env";
+import { isServerSide } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { FN } from "~/types";
-import { createGlobalReducer, ReducerActions } from "use-typed-reducer";
 
 export namespace Entity {
   type Metadata = { id: string; createdAt: Date };
@@ -44,7 +47,7 @@ export namespace Entity {
         return state;
       },
     ];
-    if (import.meta.env.MODE === "development") {
+    if (Env.isLocal && !isServerSide()) {
       middle.push((state: State, method: string, prev: State) => {
         console.group(key);
         console.info("Update by", method);
@@ -86,11 +89,15 @@ export namespace Entity {
     const storageKey = `@app/${info.name}@${info.version as string}`;
 
     const getInitialState = (): State => {
+      if (isServerSide()) return getState();
       const storageData = LocalStorage.get(storageKey);
       return schema<State>(storageData, getState) as State;
     };
 
-    const setStore = (state: State) => LocalStorage.set(storageKey, state);
+    const setStore = (state: State) => {
+      if (isServerSide()) return;
+      LocalStorage.set(storageKey, state);
+    };
 
     const middleware = createStorageMiddleware<State>(storageKey);
 
@@ -102,12 +109,11 @@ export namespace Entity {
     );
     const use = <Selector extends (s: State) => any>(selector?: Selector) =>
       useStore(selector);
-    const setup = () => {
-      const storageData = LocalStorage.get(storageKey);
-      return storageData
-        ? setStore(getState(storageData))
-        : setStore(getState());
-    };
+
+    const setup = () =>
+      setStore(
+        getState(isServerSide() ? undefined : LocalStorage.get(storageKey)),
+      );
 
     const act: Actions extends FN ? ReturnType<Actions> : Actions = Is.function(
       actions,

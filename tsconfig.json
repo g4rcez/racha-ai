@@ -10,12 +10,12 @@
     "declaration": true,
     "declarationDir": "./dist",
     "declarationMap": true,
-    "downlevelIteration": true,
+    "downlevelIteration": false,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "isolatedModules": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
@@ -33,16 +33,23 @@
     "strictPropertyInitialization": true,
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ESNext", "DOM"],
+    "lib": ["ESNext", "DOM", "WebWorker"],
     "paths": {
       "~/*": ["./src/*"]
     },
-    "types": ["vite-plugin-pwa/client"]
+    "types": ["@serwist/next/typings"],
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["src"],
+  "include": ["src", ".next/types/**/*.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"
     }
-  ]
+  ],
+  "exclude": ["node_modules"]
 }

@@ -1,6 +1,6 @@
-import { Link } from "brouther";
+import Link from "next/link";
 import clsx from "clsx";
-import { links } from "~/router";
+import { Links } from "~/router";
 
 export function ButtonAction({
   color = "black",
@@ -9,8 +9,7 @@ export function ButtonAction({
 }) {
   return (
     <Link
-      href={links.app}
-      aria-label="Download on the App Store"
+      href={Links.app}
       className={clsx(
         "rounded transition-colors py-2 px-4",
         color === "black"

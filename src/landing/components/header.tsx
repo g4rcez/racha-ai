@@ -1,12 +1,12 @@
 import { Popover } from "@headlessui/react";
-import { Link } from "brouther";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import React, { Fragment } from "react";
 import { Container } from "~/landing/components/container";
 import { LandingButton } from "~/landing/components/landing-button";
 import { LandingLogo } from "~/landing/components/landing-logo";
 import { landingNavLinks, NavLinks } from "~/landing/components/nav-links";
-import { links } from "~/router";
+import { Links } from "~/router";
 
 const MenuIcon = (props: React.ComponentPropsWithoutRef<"svg">) => (
   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
@@ -96,11 +96,13 @@ export const Header = () => (
                       >
                         <div className="space-y-4">
                           {landingNavLinks.map(([name, href]) => (
-                            <MobileNavLink href={href}>{name}</MobileNavLink>
+                            <MobileNavLink key={`${href}-nav-link`} href={href}>
+                              {name}
+                            </MobileNavLink>
                           ))}
                         </div>
                         <div className="mt-8 flex flex-col gap-4">
-                          <LandingButton href={links.app} variant="outline">
+                          <LandingButton href={Links.app} variant="outline">
                             Login
                           </LandingButton>
                         </div>
@@ -112,7 +114,7 @@ export const Header = () => (
             )}
           </Popover>
           <LandingButton
-            href={links.app}
+            href={Links.app}
             variant="outline"
             className="hidden lg:block"
           >

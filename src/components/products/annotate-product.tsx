@@ -90,17 +90,15 @@ const reducers = (args: Getter) => ({
   show: () => ({ visible: true }),
   hide: () => ({ visible: false, product: null }),
   onChangeQuantity: (quantity: number) => changeQuantity(args, quantity),
-  product: (product: CartProduct | null) => {
-    console.log("NEW ONE", product);
-    return Is.nil(product)
+  product: (product: CartProduct | null) =>
+    Is.nil(product)
       ? { product: null }
       : {
           product,
           equalityMode: product.consumers
             .toArray()
             .some((x) => isEqualityMode(x.quantity)),
-        };
-  },
+        },
   changeDivision: (division: Division) => {
     const state = args.state();
     if (state.product === null) return state;
@@ -160,7 +158,6 @@ export const AnnotateProduct = (props: Props) => {
   const [state, dispatch] = useReducer(initialState, reducers, props);
   const product = state.product;
   const isDesktop = !Platform.use();
-  console.log(state);
 
   useEffect(() => {
     if (props.product) {

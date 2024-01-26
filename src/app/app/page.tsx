@@ -1,6 +1,7 @@
-import { Link } from "brouther";
+"use client";
 import { UtensilsIcon } from "lucide-react";
-import { CSSProperties, useEffect, useMemo } from "react";
+import Link from "next/link";
+import { CSSProperties, useEffect, useState } from "react";
 import {
   getHomeShortcuts,
   Shortcut,
@@ -10,18 +11,19 @@ import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { SectionTitle } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { link, links } from "~/router";
+import { Links } from "~/router";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 
 export default function AppPage() {
-  const [state, dispatch] = Preferences.use();
-  const [history, historyDispatch] = History.use();
   const i18n = useTranslations();
+  const [name, dispatch] = Preferences.use((s) => s.user.name);
+  const [history, historyDispatch] = History.use();
   const items = history.items.toSorted((a, b) => b.id.localeCompare(a.id));
-  const firstStateName = useMemo(() => state.user.name, []);
+  const [firstStateName, setFirstNameState] = useState("");
 
   useEffect(() => {
+    setFirstNameState(name);
     historyDispatch.refresh(History.init());
   }, []);
 
@@ -33,7 +35,7 @@ export default function AppPage() {
             <Input
               required
               name="name"
-              value={state.name}
+              value={name}
               title={i18n.get("welcomeInputTitle")}
               placeholder={i18n.get("welcomeInputPlaceholder")}
               onChange={(e) => dispatch.onChangeName(e.target.value)}
@@ -64,7 +66,7 @@ export default function AppPage() {
               <li key={item.id}>
                 <Link
                   className="group flex min-w-full flex-col gap-2 rounded border border-main-bg/20 p-4 transition-all link:border-main-bg/60"
-                  href={link(links.cartHistory, { id: item.id })}
+                  href={Links.cartId(item.id)}
                 >
                   <header className="flex items-end justify-between">
                     <div className="flex gap-2 items-center">

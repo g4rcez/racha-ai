@@ -1,5 +1,6 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { ChangeEvent } from "react";
+import { CurrencyCode } from "the-mask-input";
 import { z } from "zod";
 import { FormError } from "~/components/form/form";
 import { i18n } from "~/i18n";
@@ -9,10 +10,10 @@ import { sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
+import { Links } from "~/router";
 import { Friends, User } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { ParseToRaw } from "~/types";
-import { CurrencyCode } from "the-mask-input";
 
 export type CartUser = User & {
   amount: number;
@@ -49,8 +50,8 @@ export type CartState = Entity.New<{
   metadata?: Metadata;
   hasCouvert: boolean;
   hasAdditional: boolean;
-  currencyCode: CurrencyCode | string;
   users: Dict<string, CartUser>;
+  currencyCode: CurrencyCode | string;
   currentProduct: CartProduct | null;
   products: Dict<string, CartProduct>;
 }>;
@@ -184,7 +185,7 @@ export const Cart = Entity.create(
           ...product,
           createdAt: new Date(product.createdAt),
           consumers: new Dict(
-            product.consumers.map((user) => [
+            Friends.order(product.consumers).map((user) => [
               user.id,
               { ...user, createdAt: new Date(user.createdAt) },
             ]),
@@ -213,7 +214,7 @@ export const Cart = Entity.create(
           state.users.arrayMap((x) => {
             if (x.id === id) {
               const user = { ...x, name };
-              Friends.action.update(user);
+              Friends.action.upsert(user);
               return user;
             }
             return x;
@@ -237,8 +238,8 @@ export const Cart = Entity.create(
           return merge({ users, products, currentProduct: p });
         }
         return merge({
-          users: new Dict(get.state().users).remove(user.id),
           products,
+          users: new Dict(get.state().users).remove(user.id),
         });
       },
       onAddFriend: (user: CartUser, justMe: boolean = false) => {
@@ -247,14 +248,19 @@ export const Cart = Entity.create(
         const state = get.state();
         const dict = new Dict(state.users);
         const products = state.products.clone();
-        products.forEach((product) => product.consumers.set(user.id, user));
-        return merge({ users: dict.set(user.id, user), justMe, products });
+        products.forEach((product) =>
+          product.consumers.clone().set(user.id, user),
+        );
+        return merge({
+          justMe,
+          products,
+          users: dict.clone().set(user.id, user),
+        });
       },
       onRemoveFriend: (user: CartUser) =>
         merge({ users: new Dict(get.state().users).remove(user.id) }),
       onChangeProduct: (product: CartProduct) => {
         const state = get.state();
-        console.log(product);
         return merge({
           products: new Dict(state.products).clone().set(product.id, {
             ...product,
@@ -304,7 +310,11 @@ export const Cart = Entity.create(
       consumers: new Dict(consumers.arrayMap((x) => [x.id, newUser(x)])),
       division: Division.PerConsume,
     }),
-    onSubmit: (ownerId: string, state: CartState) => {
+    onSubmit: (
+      ownerId: string,
+      state: CartState,
+      push: (id: string) => void,
+    ) => {
       const now = new Date();
       History.save(ownerId, {
         ...state,
@@ -313,7 +323,7 @@ export const Cart = Entity.create(
         currentProduct: null,
       });
       Cart.clearStorage();
-      return History.view(state.id);
+      push(Links.cartId(state.id));
     },
     productWarning: (product: CartProduct): boolean => {
       const quantitySum = product.consumers

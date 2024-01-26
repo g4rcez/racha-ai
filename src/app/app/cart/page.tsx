@@ -1,4 +1,6 @@
+"use client";
 import { Trash2Icon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { Fragment } from "react";
 import { Alert } from "~/components/alert";
 import { Button } from "~/components/button";
@@ -26,12 +28,14 @@ const bonusAdditional = [0.1, 0.12, 0.15, 0.2];
 export default function ComandaPage() {
   const [state, dispatch] = Cart.use();
   const [me] = Preferences.use((x) => x.user);
+  const router = useRouter();
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const submitter = (
       (e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement
     )?.value;
-    if (submitter === "submit") Cart.onSubmit(me.id, state);
+    if (submitter === "submit")
+      Cart.onSubmit(me.id, state, (path) => router.push(path as any));
   };
 
   const onReset = () => dispatch.set(Cart.getState());

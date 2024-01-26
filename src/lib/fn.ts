@@ -105,3 +105,7 @@ export const noop = {
   array: [],
   obj: {},
 };
+
+export const isServerSide = () => typeof window === "undefined";
+
+export const normalize = (str: string) => str.normalize("NFKD").trim();

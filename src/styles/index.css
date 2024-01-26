@@ -107,3 +107,6 @@ textarea {
     }
   }
 }
+
+.shareable[data-image="true"] {
+}

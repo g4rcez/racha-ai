@@ -15,6 +15,7 @@ export type InputFieldProps<T extends "input" | "select"> = PolymorphicProps<
     rightLabel: Label;
     id: string;
     name: string;
+    placeholder: string;
   }>,
   T
 >;

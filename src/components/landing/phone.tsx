@@ -1,6 +1,18 @@
 import clsx from "clsx";
+import Image from "next/image";
 import React from "react";
-import frame from "~/components/phone-frame.svg";
+
+export const PhoneImage = () => (
+  <Image
+    width="366"
+    height="729"
+    quality={20}
+    priority={true}
+    alt="Imagem de um telefone"
+    src="/img/landing/phone-frame.svg"
+    className="pointer-events-none absolute inset-0 h-full w-full"
+  />
+);
 
 function PlaceholderFrame(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -37,11 +49,7 @@ export function PhoneFrame({
         {children}
       </div>
       <PlaceholderFrame className="pointer-events-none absolute inset-0 h-full w-full fill-gray-100" />
-      <img
-        alt=""
-        src={frame}
-        className="pointer-events-none absolute inset-0 h-full w-full"
-      />
+      <PhoneImage />
     </div>
   );
 }

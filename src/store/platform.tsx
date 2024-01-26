@@ -1,5 +1,7 @@
+"use client";
 import React, { Fragment, useEffect, useState } from "react";
-import { Is } from "~/lib/is";
+import { CanIUse } from "~/lib/can";
+import { isServerSide } from "~/lib/fn";
 
 const regex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/g;
 
@@ -7,23 +9,26 @@ const isMobileUserAgent = (userAgent: string) => regex.test(userAgent);
 
 type Fn = () => any;
 
-const testMobileSize = (n: number) => n <= 640;
+declare global {
+  interface Navigator {
+    userAgentData?: { mobile?: false };
+  }
+}
 
-const isMobileDevice = (ua: string, size?: number) => {
+const isMobileDevice = (ua: string) => {
+  if (window.navigator.userAgentData?.mobile) return true;
+  if ("maxTouchPoints" in window.navigator) return true;
   if (isMobileUserAgent(ua)) return true;
-  if (Is.number(size)) return testMobileSize(size);
-  return !!Is.function(navigator.share);
+  return CanIUse.webShareAPI();
 };
 
 const useMobile = () => {
   const [isMobile, setIsMobile] = useState(() =>
-    isMobileDevice(window.navigator.userAgent, window.innerWidth),
+    isServerSide() ? false : isMobileDevice(window.navigator.userAgent),
   );
   useEffect(() => {
     const onResize = () =>
-      setIsMobile(
-        isMobileDevice(window.navigator.userAgent, window.innerWidth),
-      );
+      setIsMobile(isMobileDevice(window.navigator.userAgent));
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -37,15 +42,14 @@ export const Platform = <PC extends Fn, Smart extends Fn>(
 const ShouldRender = (props: React.PropsWithChildren<{ when: boolean }>) =>
   props.when ? <Fragment>{props.children}</Fragment> : null;
 
-Platform.mobile = (props: React.PropsWithChildren) => (
+export const PlatformMobile = (props: React.PropsWithChildren) => (
   <ShouldRender when={useMobile()} children={props.children} />
 );
 
-Platform.desktop = (props: React.PropsWithChildren) => (
+export const PlatformDesktop = (props: React.PropsWithChildren) => (
   <ShouldRender when={!useMobile()} children={props.children} />
 );
 
 Platform.use = useMobile;
 
-Platform.is = () =>
-  isMobileDevice(window.navigator.userAgent, window.innerWidth);
+Platform.isMobile = () => isMobileDevice(window.navigator.userAgent);

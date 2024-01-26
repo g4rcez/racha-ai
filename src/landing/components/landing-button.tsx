@@ -1,4 +1,4 @@
-import { Link } from "brouther";
+import Link from "next/link";
 import clsx from "clsx";
 import React from "react";
 import { Is } from "~/lib/is";

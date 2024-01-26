@@ -63,7 +63,6 @@ const setMode = (colorTheme: ColorThemes) => {
 const setup = (state?: DeepPartial<State>) => {
   const colorTheme = state?.theme ?? Preferences.getPreferMode();
   Preferences.setMode(colorTheme);
-  // i18n.setLanguage("en-US")
   if (state?.colors) {
     overwriteConfig(document.documentElement, createCssVariables(state.colors));
   }
@@ -130,14 +129,13 @@ export const Preferences = Entity.create(
 );
 
 export const ThemeToggle = () => {
-  const i18n = useTranslations();
   const [state, dispatch] = Preferences.use();
+  const i18n = useTranslations();
   const isLight = state.theme === "light";
-
   return (
     <button
-      aria-label={i18n.get("darkModeToggleButton", state)}
       onClick={dispatch.toggle}
+      aria-label={i18n.get("darkModeToggleButton", state)}
     >
       {isLight ? <MoonIcon /> : <SunIcon />}
     </button>

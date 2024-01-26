@@ -159,8 +159,9 @@ const FriendsScreen = (props: ScreenProps) => (
       <ScreenContainer>
         <p>Os amigos que já racharam contas com você.</p>
         <ul>
-          {users.map((user) => (
+          {users.map((user, index) => (
             <EditUser
+              index={index + 1}
               key={user.id}
               user={user}
               onChangeUser={noop.fn}
@@ -174,7 +175,7 @@ const FriendsScreen = (props: ScreenProps) => (
   </AppFrame>
 );
 
-const ComandaPage = lazy(() => import("~/pages/app/comanda.page"));
+const ComandaPage = lazy(() => import("~/app/app/cart/page"));
 
 function ComandaAppScreen(props: ScreenProps) {
   return (
@@ -190,7 +191,7 @@ function ComandaAppScreen(props: ScreenProps) {
   );
 }
 
-const ConfigurationAppScreen = lazy(() => import("~/pages/app/config.page"));
+const ConfigurationAppScreen = lazy(() => import("~/app/app/config/page"));
 
 const ConfigurationScreen = (props: ScreenProps) => (
   <AppFrame logo={<LandingLogo title="Configurações" />} className="w-full">

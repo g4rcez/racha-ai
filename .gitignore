@@ -249,3 +249,7 @@ pg/
 .env*
 !.env.example
 .vercel
+
+certificates
+# Sentry Config File
+.sentryclirc

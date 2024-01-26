@@ -9,6 +9,7 @@ export const createPolyglotStore = <
   config: Config,
 ) => {
   const changeLanguage = (lang: string) => {
+    if (typeof window === "undefined") return;
     document.documentElement.lang = lang;
   };
   changeLanguage(config.language);

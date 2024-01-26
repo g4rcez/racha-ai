@@ -1,8 +1,8 @@
 import { Fragment, useEffect } from "react";
 import { Toaster } from "sonner";
-import { DesktopLayout } from "~/layout/app/desktop.layout";
-import { MobileLayout } from "~/layout/app/mobile.layout";
-import { Platform } from "~/store/platform";
+import { DesktopLayout } from "~/components/admin/desktop.layout";
+import { MobileLayout } from "~/components/admin/mobile.layout";
+import { PlatformDesktop, PlatformMobile } from "~/store/platform";
 import { Preferences } from "~/store/preferences.store";
 
 export default function AdminLayout() {
@@ -24,12 +24,12 @@ export default function AdminLayout() {
         theme={theme}
         visibleToasts={3}
       />
-      <Platform.desktop>
+      <PlatformDesktop>
         <DesktopLayout />
-      </Platform.desktop>
-      <Platform.mobile>
+      </PlatformDesktop>
+      <PlatformMobile>
         <MobileLayout />
-      </Platform.mobile>
+      </PlatformMobile>
     </Fragment>
   );
 }
