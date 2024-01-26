@@ -15,10 +15,10 @@ import { Input } from "~/components/form/input";
 import { useTranslations } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { getHtmlInput } from "~/lib/dom";
-import { sanitize, sortUuidList } from "~/lib/fn";
+import { sanitize } from "~/lib/fn";
 import { Cart, CartUser } from "~/store/cart.store";
 import { Friends, User } from "~/store/friends.store";
-import { Platform, PlatformMobile } from "~/store/platform";
+import { Platform } from "~/store/platform";
 import { Preferences } from "~/store/preferences.store";
 
 type EditUserProps = {
@@ -45,10 +45,10 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
   return (
     <li
       key={props.user.id}
-      className="flex justify-between gap-x-6 py-5 border-b"
+      className="flex justify-between gap-x-6 py-5 border-b border-muted last:border-b-0"
     >
       <div className="flex min-w-0 gap-x-4 items-center">
-        <div className="size-12 flex items-center justify-center rounded-full bg-main-bg/40">
+        <div className="size-12 flex items-center justify-center rounded-full bg-main-bg/70">
           <User2Icon color="hsl(var(--main-DEFAULT))" />
         </div>
         <div className="flex-auto">
@@ -63,6 +63,7 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
               <Input
                 required
                 hideLeft
+                autoFocus
                 name="user"
                 defaultValue={props.user.name}
                 title={i18n.get("updateFriendInput")}
@@ -107,16 +108,15 @@ export const FriendsCrud = () => {
   const [state, dispatch] = Friends.use();
   const [preferences, _dispatch] = Preferences.use();
   const isDesktop = !Platform.use();
-  const users = sortUuidList(state.users, "id");
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget;
     const input = getHtmlInput(form, "user");
     const name = sanitize(input.value);
     if (name === "") return;
-    const hasUserName = Friends.hasUser(name, state.users);
+    const hasUserName = Friends.hasUser(name, Array.from(state.users.values()));
     if (!hasUserName) {
-      dispatch.new(Friends.new(name));
+      dispatch.upsert(Friends.new(name));
       input.focus();
       return form.reset();
     }
@@ -139,16 +139,21 @@ export const FriendsCrud = () => {
             theme="transparent"
             aria-label={i18n.get("addFriend")}
           >
-            <PlusIcon absoluteStrokeWidth strokeWidth={2} size={16} />
+            <PlusIcon
+              color="hsl(var(--main-bg))"
+              absoluteStrokeWidth
+              strokeWidth={2}
+              size={16}
+            />
           </Button>
         </Form>
       </li>
-      {users.map((user, index) => (
+      {state.users.arrayMap((user, _, index) => (
         <EditUser
           key={user.id}
           index={index + 1}
           ownerId={preferences.id}
-          onChangeUser={dispatch.update}
+          onChangeUser={dispatch.upsert}
           onDeleteUser={dispatch.delete}
           user={user}
         />
@@ -161,24 +166,25 @@ type ConsumerProps = {
   me: User;
   friends: Dict<string, CartUser>;
   onDelete: (user: CartUser) => void;
-  onAdd: (user: CartUser, alone?: boolean) => void;
   onChangeUser?: (id: string, name: string) => void;
+  onAdd: (user: CartUser, alone?: boolean) => void;
 };
 
 export const SelectConsumerFriends = (props: ConsumerProps) => {
   const me = props.me;
   const [visible, setVisible] = useState(false);
-  const [users, dispatch] = Friends.use((s) => s.users);
+  const [state, dispatch] = Friends.use();
   const i18n = useTranslations();
-  const friends = users.toSorted((a, b) => b.id.localeCompare(a.id));
+  const isDesktop = !Platform.use();
+  const users = state.users.toArray();
 
   const createNewUser = (e: FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget;
     const input = form.elements.namedItem("name") as HTMLInputElement;
     const name = input.value;
     const user = Cart.newUser(Friends.new(name));
-    dispatch.new(user);
-    form.reset();
+    dispatch.upsert(user);
+    input.value = "";
     input.focus();
     props.onAdd(user);
   };
@@ -210,33 +216,30 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
               >
                 <Input
                   name="name"
+                  autoFocus={isDesktop}
                   autoComplete="name"
                   title="Nome do amigo"
                   placeholder={i18n.get("userInputPlaceholder")}
                 />
-                <PlatformMobile>
-                  <Button
-                    type="submit"
-                    title="Adicionar amigo"
-                    aria-label="Adicionar amigo"
-                    className="mb-1"
-                    icon={
-                      <PlusIcon
-                        absoluteStrokeWidth
-                        strokeWidth={2}
-                        aria-hidden="true"
-                      />
-                    }
-                  />
-                </PlatformMobile>
+                <Button
+                  size="small"
+                  type="submit"
+                  className="mb-1"
+                  theme="transparent"
+                  title="Adicionar amigo"
+                  aria-label="Adicionar amigo"
+                  icon={
+                    <PlusIcon
+                      strokeWidth={2}
+                      aria-hidden="true"
+                      absoluteStrokeWidth
+                      color="hsl(var(--main-bg))"
+                    />
+                  }
+                />
               </Form>
             </li>
-            {friends.map((user) => {
-              const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                const name = e.target.value;
-                props.onChangeUser?.(user.id, name);
-              };
-              const exists = props.friends.has(user.id);
+            {users.map((user) => {
               return (
                 <li
                   className="flex w-full items-center justify-between"
@@ -248,22 +251,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                     onChange={onCheckFriend(user)}
                     checked={props.friends.has(user.id)}
                   >
-                    {exists ? (
-                      <Input
-                        title=""
-                        hideLeft
-                        name="name"
-                        optionalText=""
-                        value={user.name}
-                        rightLabel={null}
-                        container="w-full"
-                        onChange={onChange}
-                        autoComplete="name"
-                        placeholder={i18n.get("userInputPlaceholder")}
-                      />
-                    ) : (
-                      <span>{user.name}</span>
-                    )}
+                    <span>{user.name}</span>
                   </Checkbox>
                 </li>
               );

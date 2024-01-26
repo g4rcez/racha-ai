@@ -59,7 +59,7 @@ export const DesktopLayout = (props: PropsWithChildren) => {
           </div>
         </nav>
       </header>
-      <div className="container mx-auto max-w-2xl px-4 pb-16">
+      <div className="container mx-auto max-w-2xl px-4 pb-16 text-body bg-body-bg">
         {props.children}
       </div>
     </Fragment>

@@ -24,7 +24,7 @@ export const MobileLayout = (props: PropsWithChildren) => {
   const title = "Racha aí";
   return (
     <Fragment>
-      <div className="container flex flex-col mx-auto max-w-2xl pb-16">
+      <div className="container flex flex-col w-full pb-24 text-body bg-body-bg">
         <header className={css(commonBarCss, "top-0 shadow py-4")}>
           <nav className="flex flex-row px-4 flex-nowrap gap-4 justify-between">
             <Link href={Links.app}>
@@ -53,7 +53,7 @@ export const MobileLayout = (props: PropsWithChildren) => {
               const matches = x.href === path;
               return (
                 <Link
-                  href={x.href}
+                  href={x.href as any}
                   key={`links-${x.title}-${i}`}
                   data-active={matches}
                   className="data-[active=true]:text-main-bg data-[active=true]:font-bold flex flex-col gap-2 text-xs items-center justify-center w-full"

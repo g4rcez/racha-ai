@@ -8,10 +8,10 @@ export default function AdminLayout(props: PropsWithChildren) {
   return (
     <ClientSide>
       <AppConfig />
-      <div className="hidden lg:block">
+      <div className="hidden sm:block text-body bg-body-bg">
         <DesktopLayout children={props.children} />
       </div>
-      <div className="block lg:hidden">
+      <div className="block sm:hidden text-body bg-body-bg">
         <MobileLayout children={props.children} />
       </div>
     </ClientSide>

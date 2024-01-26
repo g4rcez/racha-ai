@@ -57,7 +57,10 @@ export default function RootLayout(props: PropsWithChildren<{}>) {
           {createCssTheme(DefaultTheme)}
         </style>
       </head>
-      <body style={inter.style} className={inter.className}>
+      <body
+        style={inter.style}
+        className={`${inter.className} text-body bg-body-bg`}
+      >
         {props.children}
       </body>
     </html>

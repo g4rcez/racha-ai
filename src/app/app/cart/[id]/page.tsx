@@ -1,11 +1,11 @@
 "use client";
-import Link from "next/link";
 import { toBlob } from "html-to-image";
 import { ShareIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/button";
-import { Platform } from "~/store/platform";
 import {
   Table,
   TableBody,
@@ -16,25 +16,19 @@ import {
 } from "~/components/table";
 import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
+import { CanIUse } from "~/lib/can";
 import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Cart } from "~/store/cart.store";
-import { History, HistoryItem } from "~/store/history.store";
-import { Preferences } from "~/store/preferences.store";
-import { ParseToRaw } from "~/types";
+import { History } from "~/store/history.store";
 
 export default function CartId() {
-  const [_me] = Preferences.use((state) => state.user);
-  const [_, dispatch] = Cart.use();
-  const data = {} as any;
+  const paths = useParams();
   const i18n = useTranslations();
+  const [_, dispatch] = Cart.use();
   const ref = useRef<HTMLDivElement>(null);
-  const [imgMode, setImgMode] = useState(false);
 
-  const history = data?.cart
-    ? History.parse(data.cart as unknown as ParseToRaw<HistoryItem>)
-    : null;
-
+  const history = History.get(paths.id as string);
   if (Is.nil(history)) {
     return <main>Not found</main>;
   }
@@ -42,31 +36,35 @@ export default function CartId() {
   const total = i18n.format.money(history.total);
 
   const onShare = async () => {
-    setImgMode(true);
-    const blob = await toBlob(ref.current!);
+    const div = ref.current;
+    if (div === null) return;
+    div.setAttribute("data-image", "true");
+    const blob = await toBlob(div, { quality: 100, height: div.clientHeight });
+    div.removeAttribute("data-image");
     const file = new File([blob!], `${history.title}.png`, {
       lastModified: Date.now(),
       type: blob!.type || "image/png",
     });
-    if (!Platform.is()) {
-      await navigator.clipboard.write([
-        new ClipboardItem({ "image/png": file }),
-      ]);
-      void toast.info("Imagem copiada para o seu CTRL + V");
-      return setImgMode(false);
+    if (CanIUse.webShareAPI()) {
+      const files = [file];
+      if (navigator.canShare({ files })) {
+        const reset = (e?: any) => (e ? console.error(e) : undefined);
+        return void navigator.share({ files }).catch(reset).then(reset);
+      }
     }
-    const files = [file];
-    if (navigator.canShare({ files })) {
-      const reset = (e?: any) => {
-        setImgMode(false);
-        if (e) console.error(e);
-      };
-      navigator.share({ files }).catch(reset).then(reset);
+    if (CanIUse.clipboard()) {
+      const items = [new ClipboardItem({ "image/png": file })];
+      await navigator.clipboard.write(items);
+      return void toast.info("Imagem copiada para o seu CTRL + V");
     }
   };
 
   return (
-    <main ref={ref} data-image={imgMode} className="data-[image=true]:p-1">
+    <main
+      ref={ref}
+      // data-image="true"
+      className="group shareable data-[image=true]:p-2 text-body bg-body-bg"
+    >
       <section className="flex gap-2 flex-col">
         <Title>{history.title}</Title>
         <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
@@ -75,10 +73,9 @@ export default function CartId() {
             Total: <b className="text-main-bg">{total}</b>
           </p>
           <Link
-            href="/cart"
-            data-image={imgMode}
+            href="/app/cart"
             onClick={() => dispatch.set(History.parseToCart(history))}
-            className="underline underline-offset-4 data-[image=true]:hidden"
+            className="underline underline-offset-4 group-data-[image=true]:hidden"
           >
             Editar comanda
           </Link>
@@ -86,63 +83,60 @@ export default function CartId() {
       </section>
       <Button
         onClick={onShare}
-        data-image={imgMode}
-        className="w-full my-4 print:hidden data-[image=true]:hidden"
+        className="w-full my-4 print:hidden group-data-[image=true]:hidden"
         icon={<ShareIcon absoluteStrokeWidth size={18} strokeWidth={2} />}
       >
         Compartilhar comanda
       </Button>
       <ul className="mt-6 space-y-4">
-        {history.users.arrayMap((user) => {
-          return (
-            <li className="flex flex-wrap justify-between" key={user.id}>
-              <span className="text-lg font-medium">{user.name}</span>
-              <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
-              {user.products.length === 0 ? null : (
-                <Table>
-                  <TableHead>
+        {history.users.arrayMap((user) => (
+          <li className="flex flex-wrap justify-between" key={user.id}>
+            <span className="text-lg font-medium">{user.name}</span>
+            <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
+            {user.products.length === 0 ? null : (
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableHeader>Produto</TableHeader>
+                    <TableHeader>Total</TableHeader>
+                    <TableHeader>Quantidade</TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {user.products.map((product) =>
+                    product.quantity === 0 ? null : (
+                      <TableRow key={`${user.id}-${product.id}`}>
+                        <TableCell>{product.name}</TableCell>
+                        <TableCell>
+                          {i18n.format.money(product.total)}
+                        </TableCell>
+                        <TableCell>{toFraction(product.quantity)}</TableCell>
+                      </TableRow>
+                    ),
+                  )}
+                  {history.hasAdditional ? (
                     <TableRow>
-                      <TableHeader>Produto</TableHeader>
-                      <TableHeader>Total</TableHeader>
-                      <TableHeader>Quantidade</TableHeader>
+                      <TableCell>Gorjeta</TableCell>
+                      <TableCell>
+                        {i18n.format.money(user.result.total)}
+                      </TableCell>
+                      <TableCell>1</TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {user.products.map((product) =>
-                      product.quantity === 0 ? null : (
-                        <TableRow key={`${user.id}-${product.id}`}>
-                          <TableCell>{product.name}</TableCell>
-                          <TableCell>
-                            {i18n.format.money(product.total)}
-                          </TableCell>
-                          <TableCell>{toFraction(product.quantity)}</TableCell>
-                        </TableRow>
-                      ),
-                    )}
-                    {history.hasAdditional ? (
-                      <TableRow>
-                        <TableCell>Gorjeta</TableCell>
-                        <TableCell>
-                          {i18n.format.money(user.result.total)}
-                        </TableCell>
-                        <TableCell>1</TableCell>
-                      </TableRow>
-                    ) : null}
-                    {history.hasCouvert ? (
-                      <TableRow>
-                        <TableCell>Couvert</TableCell>
-                        <TableCell>
-                          {i18n.format.money(history.couvert)}
-                        </TableCell>
-                        <TableCell>1</TableCell>
-                      </TableRow>
-                    ) : null}
-                  </TableBody>
-                </Table>
-              )}
-            </li>
-          );
-        })}
+                  ) : null}
+                  {history.hasCouvert ? (
+                    <TableRow>
+                      <TableCell>Couvert</TableCell>
+                      <TableCell>
+                        {i18n.format.money(history.couvert)}
+                      </TableCell>
+                      <TableCell>1</TableCell>
+                    </TableRow>
+                  ) : null}
+                </TableBody>
+              </Table>
+            )}
+          </li>
+        ))}
         <li className="flex justify-between pt-2">
           <span>Consumo</span>
           <b>{i18n.format.money(history.totalProducts)}</b>

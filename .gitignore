@@ -251,3 +251,5 @@ pg/
 .vercel
 
 certificates
+# Sentry Config File
+.sentryclirc

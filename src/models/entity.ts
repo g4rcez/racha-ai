@@ -1,7 +1,7 @@
 "use client";
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
-import { createGlobalReducer, ReducerActions } from "~/hooks/use-typed-reducer";
+import { createGlobalReducer, ReducerActions } from "use-typed-reducer";
 import { Env } from "~/lib/Env";
 import { isServerSide } from "~/lib/fn";
 import { Is } from "~/lib/is";
@@ -47,7 +47,7 @@ export namespace Entity {
         return state;
       },
     ];
-    if (Env.isLocal && isServerSide()) {
+    if (Env.isLocal && !isServerSide()) {
       middle.push((state: State, method: string, prev: State) => {
         console.group(key);
         console.info("Update by", method);
