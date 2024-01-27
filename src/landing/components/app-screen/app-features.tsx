@@ -1,9 +1,10 @@
 import { motion, type MotionProps, type Variant } from "framer-motion";
-import React, { lazy, PropsWithChildren, useId } from "react";
+import React, { PropsWithChildren, useId } from "react";
 import { EditUser } from "~/components/users/friends";
 import { AppFrame } from "~/landing/components/app-frame";
 import { LandingLogo } from "~/landing/components/landing-logo";
 import { noop } from "~/lib/fn";
+import lazy from "next/dynamic";
 
 function DeviceUserIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -175,7 +176,7 @@ const FriendsScreen = (props: ScreenProps) => (
   </AppFrame>
 );
 
-const ComandaPage = lazy(() => import("~/app/app/cart/page"));
+const ComandaPage = lazy(() => import("~/pages/app/cart"));
 
 function ComandaAppScreen(props: ScreenProps) {
   return (
@@ -191,7 +192,7 @@ function ComandaAppScreen(props: ScreenProps) {
   );
 }
 
-const ConfigurationAppScreen = lazy(() => import("~/app/app/config/page"));
+const ConfigurationAppScreen = lazy(() => import("~/pages/app/profile"));
 
 const ConfigurationScreen = (props: ScreenProps) => (
   <AppFrame logo={<LandingLogo title="Configurações" />} className="w-full">

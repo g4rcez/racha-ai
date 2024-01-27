@@ -1,26 +1,23 @@
 const { withSentryConfig } = require("@sentry/nextjs");
+const { randomUUID } = require("node:crypto");
 
-const withSerwist = require("@serwist/next").default({
-  swSrc: "./src/app/sw.ts",
-  swDest: "public/sw.js",
-  register: true,
-  reloadOnOnline: true,
-});
-
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  experimental: { swcTraceProfiling: true },
   compiler: {
     reactRemoveProperties: { properties: ["^data-test$", "^data-testid$"] },
   },
 };
 
-const envConfig =
-  process.env.NODE_ENV === "development" ? nextConfig : withSerwist(nextConfig);
-
 module.exports = withSentryConfig(
-  envConfig,
+  require("next-pwa")({
+    scope: "/",
+    dest: "public",
+    reloadOnOnline: true,
+    dynamicStartUrl: false,
+    cacheOnFrontEndNav: true,
+  })(nextConfig),
   { silent: true, org: "g4rcez", project: "racha-ai" },
   {
     widenClientFileUpload: true,

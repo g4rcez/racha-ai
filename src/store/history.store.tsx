@@ -3,7 +3,8 @@ import { z } from "zod";
 import { i18n } from "~/i18n";
 import { CartMath } from "~/lib/cart-math";
 import { Dict } from "~/lib/dict";
-import { sum } from "~/lib/fn";
+import { sortId, sum } from "~/lib/fn";
+import { Categories } from "~/models/categories";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { CartState, CartUser } from "~/store/cart.store";
@@ -110,7 +111,9 @@ const parse = (item: ParseToRaw<HistoryItem>): HistoryItem => ({
 });
 
 const parseAll = (s?: ParseToRaw<State>): State => ({
-  items: ((s?.items as unknown as ParseToRaw<HistoryItem>[]) ?? []).map(parse),
+  items: ((s?.items as unknown as ParseToRaw<HistoryItem>[]) ?? [])
+    .map(parse)
+    .toSorted(sortId),
 });
 
 const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {
@@ -148,6 +151,8 @@ const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {
   return {
     total,
     type: cart.type,
+    category: cart.category || Categories.default.name,
+    metadata: cart.metadata || {},
     couvert: calculate.couvert.each,
     additional: calculate.additional,
     withAdditional: (calculate.additional - 1) * calculate.products,

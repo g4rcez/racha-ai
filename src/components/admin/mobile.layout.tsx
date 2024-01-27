@@ -6,6 +6,7 @@ import { Fragment, PropsWithChildren, useState } from "react";
 import {
   getActionBarShortcuts,
   getMenuShortcuts,
+  isMenuAction,
   isShortcutLink,
   Shortcut,
 } from "~/components/admin/shortcuts";
@@ -48,8 +49,23 @@ export const MobileLayout = (props: PropsWithChildren) => {
         <footer
           className={css(commonBarCss, "bottom-0 py-2 pb-6 shadow w-full")}
         >
-          <nav className="gap-4 grid grid-cols-4">
+          <nav className="gap-4 grid grid-cols-5">
             {getActionBarShortcuts().map((x, i) => {
+              if (isMenuAction(x)) {
+                return (
+                  <button
+                    key={`action-button-${i}`}
+                    onClick={() => x.action({ open: () => setOpen(true) })}
+                    className={css(
+                      "flex flex-col gap-2 text-xs items-center justify-center w-full",
+                      x.className,
+                    )}
+                  >
+                    <x.icon absoluteStrokeWidth strokeWidth={2} size={20} />
+                    <span>{x.text}</span>
+                  </button>
+                );
+              }
               const matches = x.href === path;
               return (
                 <Link

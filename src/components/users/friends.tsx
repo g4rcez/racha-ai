@@ -15,11 +15,9 @@ import { Input } from "~/components/form/input";
 import { useTranslations } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { getHtmlInput } from "~/lib/dom";
-import { sanitize } from "~/lib/fn";
 import { Cart, CartUser } from "~/store/cart.store";
 import { Friends, User } from "~/store/friends.store";
 import { Platform } from "~/store/platform";
-import { Preferences } from "~/store/preferences.store";
 
 type EditUserProps = {
   user: User;
@@ -28,6 +26,8 @@ type EditUserProps = {
   onChangeUser: (user: User) => void;
   onDeleteUser: (user: User) => void;
 };
+
+type ViewMode = "view" | "edit";
 
 export const EditUser = (props: EditUserProps & { index: number }) => {
   const i18n = useTranslations();
@@ -45,7 +45,7 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
   return (
     <li
       key={props.user.id}
-      className="flex justify-between gap-x-6 py-5 border-b border-muted last:border-b-0"
+      className="flex justify-between gap-x-6 py-5 first:border-t border-b border-muted last:border-b-0"
     >
       <div className="flex min-w-0 gap-x-4 items-center">
         <div className="size-12 flex items-center justify-center rounded-full bg-main-bg/70">
@@ -98,67 +98,6 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
         </span>
       </div>
     </li>
-  );
-};
-
-type ViewMode = "view" | "edit";
-
-export const FriendsCrud = () => {
-  const i18n = useTranslations();
-  const [state, dispatch] = Friends.use();
-  const [preferences, _dispatch] = Preferences.use();
-  const isDesktop = !Platform.use();
-
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    const form = e.currentTarget;
-    const input = getHtmlInput(form, "user");
-    const name = sanitize(input.value);
-    if (name === "") return;
-    const hasUserName = Friends.hasUser(name, Array.from(state.users.values()));
-    if (!hasUserName) {
-      dispatch.upsert(Friends.new(name));
-      input.focus();
-      return form.reset();
-    }
-  };
-  return (
-    <ul className="space-y-2">
-      <li>
-        <Form onSubmit={onSubmit} className="flex flex-row items-end gap-2">
-          <Input
-            name="user"
-            optionalText=""
-            autoFocus={isDesktop}
-            title={i18n.get("addFriendInput")}
-            placeholder={i18n.get("userInputPlaceholder")}
-          />
-          <Button
-            size="small"
-            type="submit"
-            className="mb-1"
-            theme="transparent"
-            aria-label={i18n.get("addFriend")}
-          >
-            <PlusIcon
-              color="hsl(var(--main-bg))"
-              absoluteStrokeWidth
-              strokeWidth={2}
-              size={16}
-            />
-          </Button>
-        </Form>
-      </li>
-      {state.users.arrayMap((user, _, index) => (
-        <EditUser
-          key={user.id}
-          index={index + 1}
-          ownerId={preferences.id}
-          onChangeUser={dispatch.upsert}
-          onDeleteUser={dispatch.delete}
-          user={user}
-        />
-      ))}
-    </ul>
   );
 };
 
@@ -239,23 +178,21 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
                 />
               </Form>
             </li>
-            {users.map((user) => {
-              return (
-                <li
-                  className="flex w-full items-center justify-between"
-                  key={`${user.id}-comanda-list`}
+            {users.map((user) => (
+              <li
+                key={`${user.id}-comanda-list`}
+                className="flex w-full items-center justify-between"
+              >
+                <Checkbox
+                  data-id={user.id}
+                  container="w-full"
+                  onChange={onCheckFriend(user)}
+                  checked={props.friends.has(user.id)}
                 >
-                  <Checkbox
-                    data-id={user.id}
-                    container="w-full"
-                    onChange={onCheckFriend(user)}
-                    checked={props.friends.has(user.id)}
-                  >
-                    <span>{user.name}</span>
-                  </Checkbox>
-                </li>
-              );
-            })}
+                  <span>{user.name}</span>
+                </Checkbox>
+              </li>
+            ))}
           </ul>
           <Drawer.Trigger asChild>
             <Button className="w-full">Salvar</Button>

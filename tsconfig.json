@@ -35,21 +35,20 @@
     "useDefineForClassFields": true,
     "lib": ["ESNext", "DOM", "WebWorker"],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
     },
-    "types": ["@serwist/next/typings"],
     "incremental": true,
     "plugins": [
       {
-        "name": "next"
-      }
-    ]
+        "name": "next",
+      },
+    ],
   },
   "include": ["src", ".next/types/**/*.ts"],
   "references": [
     {
-      "path": "./tsconfig.node.json"
-    }
+      "path": "./tsconfig.node.json",
+    },
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
 }

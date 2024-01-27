@@ -1,4 +1,5 @@
-import { Fragment, useEffect } from "react";
+"use client";
+import { Fragment } from "react";
 import { Toaster } from "sonner";
 import { DesktopLayout } from "~/components/admin/desktop.layout";
 import { MobileLayout } from "~/components/admin/mobile.layout";
@@ -7,14 +8,6 @@ import { Preferences } from "~/store/preferences.store";
 
 export default function AdminLayout() {
   const [theme] = Preferences.use((state) => state.theme);
-  useEffect(() => {
-    document.documentElement.classList.add("bg-body-bg");
-    document.documentElement.classList.add("text-body");
-    return () => {
-      document.documentElement.classList.remove("bg-body-bg");
-      document.documentElement.classList.remove("text-body");
-    };
-  }, []);
   return (
     <Fragment>
       <Toaster

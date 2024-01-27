@@ -253,3 +253,6 @@ pg/
 certificates
 # Sentry Config File
 .sentryclirc
+
+# vitest
+tests/node_modules

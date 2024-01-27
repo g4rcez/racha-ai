@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import React, { forwardRef, lazy } from "react";
+import React, { forwardRef } from "react";
+import lazy from "next/dynamic";
 
 export const AppScreen = ({
   children,
@@ -55,7 +56,7 @@ AppScreen.Body = forwardRef<
   </div>
 ));
 
-const ComandaPage = lazy(() => import("~/app/app/cart/page"));
+const ComandaPage = lazy(() => import("~/pages/app/cart"));
 
 export const AppDemo = (props: { mode: string }) => (
   <AppScreen>

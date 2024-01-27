@@ -1,37 +1,55 @@
-import Link from "next/link";
 import {
   HistoryIcon,
+  MenuIcon,
   ReceiptIcon,
   UploadIcon,
   UserRound,
   UsersIcon,
 } from "lucide-react";
+import Link from "next/link";
 import React, { Fragment } from "react";
 import { LocalStorage } from "storage-manager-js";
 import { Is } from "~/lib/is";
+import { Links } from "~/router";
 
 export type ShortcutLink = {
+  type: "link";
   href: string;
-  icon: React.FC<any>;
-  tags: string[];
-  text: React.ReactNode;
   title: string;
+  tags: string[];
+  icon: React.FC<any>;
+  text: React.ReactNode;
+};
+
+export type ShortcutAction = {
+  type: "action";
+  tags: string[];
+  className: string;
+  icon: React.FC<any>;
+  text: React.ReactNode;
+  action: (args: { open: () => void }) => Promise<any> | any;
 };
 
 export type ShortcutButton = {
-  action: () => Promise<any> | any;
+  type: "button";
+  tags: string[];
   icon: React.FC<any>;
   text: React.ReactNode;
-  tags: string[];
+  action: () => Promise<any> | any;
 };
 
-type Shortcut = ShortcutLink | ShortcutButton;
+type Shortcut = ShortcutLink | ShortcutButton | ShortcutAction;
 
-export const isShortcutLink = (a: any): a is ShortcutLink => !Is.nil(a.href);
+export const isShortcutLink = (a: Shortcut): a is ShortcutLink =>
+  a.type === "link";
+
+export const isMenuAction = (a: Shortcut): a is ShortcutAction =>
+  a.type === "action";
 
 export const shortcuts: Shortcut[] = [
   {
-    href: "/app",
+    type: "link",
+    href: Links.app,
     icon: HistoryIcon,
     tags: ["menu", "action"],
     title: "Histórico",
@@ -43,7 +61,8 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
-    href: "/app/friends",
+    type: "link",
+    href: Links.friends,
     icon: UsersIcon,
     tags: ["home", "menu", "action"],
     title: "Amigos",
@@ -55,7 +74,18 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
-    href: "/app/cart",
+    type: "action",
+    action: (args) => {
+      args.open();
+    },
+    icon: MenuIcon,
+    tags: ["action"],
+    text: <Fragment>Menu</Fragment>,
+    className: "rounded bg-main-bg py-2 text-white",
+  },
+  {
+    type: "link",
+    href: Links.cart,
     icon: ReceiptIcon,
     tags: ["home", "menu", "action"],
     title: "Comanda",
@@ -67,7 +97,8 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
-    href: "/app/config",
+    type: "link",
+    href: Links.profile,
     icon: UserRound,
     tags: ["home", "menu", "action"],
     title: "Perfil",
@@ -79,6 +110,7 @@ export const shortcuts: Shortcut[] = [
     ),
   },
   {
+    type: "button",
     icon: UploadIcon,
     tags: ["menu"],
     text: (
@@ -159,7 +191,7 @@ export const getHomeShortcuts = (): ShortcutLink[] =>
 export const getMenuShortcuts = () =>
   shortcuts.filter((shortcut) => shortcut.tags.includes("menu"));
 
-export const getActionBarShortcuts = (): ShortcutLink[] =>
+export const getActionBarShortcuts = (): Array<ShortcutLink | ShortcutAction> =>
   shortcuts.filter((shortcut): shortcut is ShortcutLink =>
     shortcut.tags.includes("action"),
   );

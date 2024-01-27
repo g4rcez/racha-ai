@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body {
+  @apply w-screen h-full overflow-x-hidden;
+}
+
 select.select {
   -moz-appearance: none;
   -webkit-appearance: none;
@@ -106,7 +111,4 @@ textarea {
       transform: translate(70%);
     }
   }
-}
-
-.shareable[data-image="true"] {
 }

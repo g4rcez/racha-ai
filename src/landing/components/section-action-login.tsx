@@ -1,4 +1,4 @@
-import { ButtonAction } from "~/landing/components/button-action";
+import { ButtonAction } from "~/landing/components/landing-button";
 import { Container } from "~/landing/components/container";
 import { CircleBackground } from "~/landing/components/illustrations/circle-background";
 import { colors } from "~/styles/styles";

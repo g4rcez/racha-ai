@@ -2,7 +2,7 @@ import { ErrorInfo, PropsWithChildren } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { LocalStorage } from "storage-manager-js";
 
-const key = "@app/errors";
+const key = "@pages/errors";
 
 export const AppBoundary = (props: PropsWithChildren) => {
   const onError = (error: Error, info: ErrorInfo) => {

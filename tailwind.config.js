@@ -21,7 +21,7 @@ const createColor = (name, prefix = "") => ({
   },
 });
 
-const createColorGroup = (prefix, levels) => ({
+const createColorGroup = (prefix, levels = []) => ({
   [prefix]: levels.reduce(
     (acc, level) => ({ ...acc, ...createColor(level, prefix) }),
     {},
@@ -104,7 +104,7 @@ export default {
     containerQueries,
     form({ strategy: "class" }),
     plugin(function ({ addVariant }) {
-      addVariant("link", ["&:hover", "&:focus"]);
+      addVariant("link", ["&:hover", "&:active"]);
       addVariant(
         "group-error",
         ":merge(.group):invalid:has(.input:not(:focus):invalid[data-initialized=true]) &",
