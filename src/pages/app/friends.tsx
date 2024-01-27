@@ -1,6 +1,7 @@
 "use client";
 import { PlusIcon } from "lucide-react";
 import React from "react";
+import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
 import { Form } from "~/components/form/form";
@@ -12,8 +13,9 @@ import { sanitize } from "~/lib/fn";
 import { Friends } from "~/store/friends.store";
 import { Platform } from "~/store/platform";
 import { Preferences } from "~/store/preferences.store";
+import { NextPageWithLayout } from "~/types";
 
-export default function FriendsPage() {
+const FriendsPage: NextPageWithLayout = () => {
   const i18n = useTranslations();
   const [state, dispatch] = Friends.use();
   const [preferences, _dispatch] = Preferences.use();
@@ -78,4 +80,8 @@ export default function FriendsPage() {
       </Card>
     </main>
   );
-}
+};
+
+FriendsPage.getLayout = AdminLayout;
+
+export default FriendsPage;

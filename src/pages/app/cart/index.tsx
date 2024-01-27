@@ -2,6 +2,7 @@
 import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { Fragment } from "react";
+import AdminLayout from "~/components/admin/layout";
 import { Alert } from "~/components/alert";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
@@ -23,10 +24,11 @@ import { i18n } from "~/i18n";
 import { fixed, toFraction } from "~/lib/fn";
 import { Cart } from "~/store/cart.store";
 import { Preferences } from "~/store/preferences.store";
+import { NextPageWithLayout } from "~/types";
 
 const bonusAdditional = [0.1, 0.12, 0.15, 0.2];
 
-export default function ComandaPage() {
+const ComandaPage: NextPageWithLayout = () => {
   const [state, dispatch] = Cart.use();
   const [me] = Preferences.use((x) => x.user);
   const router = useRouter();
@@ -262,4 +264,8 @@ export default function ComandaPage() {
       </Form>
     </main>
   );
-}
+};
+
+ComandaPage.getLayout = AdminLayout;
+
+export default ComandaPage;

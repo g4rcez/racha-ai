@@ -1,11 +1,13 @@
-import type React from "react";
+import type { NextPage } from "next";
+import type { AppProps } from "next/app";
+import { ReactElement, ReactNode } from "react";
 import { Dict } from "~/lib/dict";
 
 export type FN = (...a: any[]) => any;
 
 export type Override<Source, New> = Omit<Source, keyof New> & New;
 
-export type Label = string | React.ReactNode | React.ReactElement;
+export type Label = string | ReactNode | ReactElement;
 
 export type LooseString<T extends string> = T | Omit<string, T>;
 
@@ -30,3 +32,11 @@ export type ParseToRaw<T> = {
 };
 
 export type Nullable<T> = T | null;
+
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+export type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};

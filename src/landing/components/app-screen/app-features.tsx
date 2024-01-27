@@ -176,7 +176,7 @@ const FriendsScreen = (props: ScreenProps) => (
   </AppFrame>
 );
 
-const ComandaPage = lazy(() => import("~/app/app/cart/page"));
+const ComandaPage = lazy(() => import("~/pages/app/cart"));
 
 function ComandaAppScreen(props: ScreenProps) {
   return (
@@ -192,7 +192,7 @@ function ComandaAppScreen(props: ScreenProps) {
   );
 }
 
-const ConfigurationAppScreen = lazy(() => import("~/app/app/config/page"));
+const ConfigurationAppScreen = lazy(() => import("~/pages/app/config"));
 
 const ConfigurationScreen = (props: ScreenProps) => (
   <AppFrame logo={<LandingLogo title="Configurações" />} className="w-full">

@@ -2,6 +2,7 @@
 import { BanknoteIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { HistoryItem } from "~/components/admin/history/history-item";
+import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
 import { Form } from "~/components/form/form";
@@ -9,6 +10,7 @@ import { Input } from "~/components/form/input";
 import { useTranslations } from "~/i18n";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
+import { NextPageWithLayout } from "~/types";
 
 const WelcomePage = (props: { onFillName: () => void }) => {
   const i18n = useTranslations();
@@ -32,7 +34,7 @@ const WelcomePage = (props: { onFillName: () => void }) => {
   );
 };
 
-export default function AppPage() {
+const AppPage: NextPageWithLayout = () => {
   const i18n = useTranslations();
   const [name, dispatch] = Preferences.use((s) => s.user.name);
   const [history, historyDispatch] = History.use();
@@ -92,4 +94,8 @@ export default function AppPage() {
       )}
     </main>
   );
-}
+};
+
+AppPage.getLayout = AdminLayout;
+
+export default AppPage;

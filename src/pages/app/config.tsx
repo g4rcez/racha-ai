@@ -1,6 +1,7 @@
 "use client";
 import { EyeIcon, EyeOff } from "lucide-react";
 import React, { useState } from "react";
+import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { ColorPicker } from "~/components/color-picker";
 import { Form } from "~/components/form/form";
@@ -10,6 +11,7 @@ import { useTranslations } from "~/i18n";
 import { hexToHslProperty } from "~/lib/dom";
 import { Preferences } from "~/store/preferences.store";
 import DefaultTheme from "~/styles/default.json";
+import { NextPageWithLayout } from "~/types";
 
 const Customize = () => {
   const [state, dispatch] = Preferences.use();
@@ -101,11 +103,15 @@ const MyName = () => {
   );
 };
 
-export default function ConfigPage() {
+const ConfigPage: NextPageWithLayout = () => {
   return (
     <main className="w-full flex flex-col gap-6">
       <MyName />
       <Customize />
     </main>
   );
-}
+};
+
+ConfigPage.getLayout = AdminLayout;
+
+export default ConfigPage;

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
 import {
@@ -22,9 +23,9 @@ import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Cart } from "~/store/cart.store";
 import { History, HistoryItem } from "~/store/history.store";
-import { Nullable } from "~/types";
+import { NextPageWithLayout, Nullable } from "~/types";
 
-export default function CartId() {
+const CartId: NextPageWithLayout = () => {
   const paths = useParams();
   const i18n = useTranslations();
   const [_, dispatch] = Cart.use();
@@ -168,4 +169,8 @@ export default function CartId() {
       </Card>
     </main>
   );
-}
+};
+
+CartId.getLayout = AdminLayout;
+
+export default CartId;

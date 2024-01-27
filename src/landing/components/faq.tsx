@@ -5,7 +5,7 @@ const questions = [
   {
     question: "O que é o racha aí?",
     answer:
-      "O racha aí é o app para divisão de contas, sem a necessidade de cadastrar contas bancárias, cartões de crédito ou deixar dinheiro no app. Sem nenhuma amarra.",
+      "O racha aí é o pages para divisão de contas, sem a necessidade de cadastrar contas bancárias, cartões de crédito ou deixar dinheiro no pages. Sem nenhuma amarra.",
   },
   {
     question: "Porque usar o racha aí?",
@@ -18,12 +18,12 @@ const questions = [
       "Por enquanto o racha aí é apenas um site, sendo necessário usar através de um navegador. Seja do seu smartphone ou computador. Ainda não há sincronia entre os dispositivos, estamos trabalhando nisso.",
   },
   {
-    question: "Todos os meus amigos precisam ter conta para usar o app?",
+    question: "Todos os meus amigos precisam ter conta para usar o pages?",
     answer:
       "Não, apenas uma pessoa pode ter a conta e controlar os gastos do grupo, sendo a responsável por anotar os gastos e informar os valores.",
   },
   {
-    question: "Posso usar o app sem nenhum grupo ou amigos cadastrados?",
+    question: "Posso usar o pages sem nenhum grupo ou amigos cadastrados?",
     answer:
       "Sim, o racha aí foi feito para auxiliar no gerenciamento de custos, seja sozinho ou com a galera.",
   },

@@ -1,5 +1,5 @@
 "use client";
-import { Fragment, PropsWithChildren, useCallback, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { AppConfig } from "~/components/admin/app-config";
 import { DesktopLayout } from "~/components/admin/desktop.layout";
 import { MobileLayout } from "~/components/admin/mobile.layout";
@@ -13,7 +13,7 @@ const classes = {
   desktop: `data-[platform=mobile]:hidden data-[platform=desktop]:block ${defaults}`,
 };
 
-export default function AdminLayout(props: PropsWithChildren) {
+export default function AdminLayout(page: React.ReactElement) {
   const [platform, setPlatform] = useState<Nullable<Platforms>>(null);
 
   const onLoad = useCallback(() => {
@@ -44,19 +44,19 @@ export default function AdminLayout(props: PropsWithChildren) {
       {platform === null ? (
         <Fragment>
           <div data-platform="desktop" className={classes.desktop}>
-            <DesktopLayout children={props.children} />
+            <DesktopLayout children={page} />
           </div>
           <div data-platform="mobile" className={classes.mobile}>
-            <MobileLayout children={props.children} />
+            <MobileLayout children={page} />
           </div>
         </Fragment>
       ) : platform === Platforms.Mobile ? (
         <div data-platform="mobile" className={classes.mobile}>
-          <MobileLayout children={props.children} />
+          <MobileLayout children={page} />
         </div>
       ) : (
         <div data-platform="desktop" className={classes.desktop}>
-          <DesktopLayout children={props.children} />
+          <DesktopLayout children={page} />
         </div>
       )}
     </ClientSide>
