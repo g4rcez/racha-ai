@@ -1,4 +1,5 @@
 "use client";
+import { BanknoteIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { HistoryItem } from "~/components/admin/history/history-item";
 import { Button } from "~/components/button";
@@ -62,11 +63,11 @@ export default function AppPage() {
           </Form>
         ) : null}
       </header>
-      <ul className="grid grid-cols-2 gap-8">
+      <ul className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {Array.from({ length: 4 }).map(() => (
           <li className="w-full flex flex-nowrap border rounded-md border-card-border shadow-sm">
-            <div className="h-full rounded-l-md p-4 lg:p-6 bg-main-bg text-white">
-              Icon
+            <div className="h-full rounded-l-md p-6 bg-main-bg text-white">
+              <BanknoteIcon />
             </div>
             <div className="flex-1 bg-card-bg flex items-center rounded-r-md flex-shrink justify-center w-full text-black">
               R$ 99,99

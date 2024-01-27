@@ -3,7 +3,7 @@ import { toBlob } from "html-to-image";
 import { ShareIcon } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useRef } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
@@ -21,17 +21,23 @@ import { CanIUse } from "~/lib/can";
 import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Cart } from "~/store/cart.store";
-import { History } from "~/store/history.store";
+import { History, HistoryItem } from "~/store/history.store";
+import { Nullable } from "~/types";
 
 export default function CartId() {
   const paths = useParams();
   const i18n = useTranslations();
   const [_, dispatch] = Cart.use();
   const ref = useRef<HTMLDivElement>(null);
+  const [history, setHistory] = useState<Nullable<HistoryItem>>(null);
 
-  const history = History.get(paths.id as string);
+  useEffect(() => {
+    const x = History.get(paths.id as string);
+    if (x) setHistory(x);
+  }, []);
+
   if (Is.nil(history)) {
-    return <main>Not found</main>;
+    return <Fragment />;
   }
 
   const total = i18n.format.money(history.total);
