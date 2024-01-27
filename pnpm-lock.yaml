@@ -133,9 +133,6 @@ devDependencies:
   husky:
     specifier: 9.0.5
     version: 9.0.5
-  nanoid:
-    specifier: 5.0.4
-    version: 5.0.4
   postcss:
     specifier: 8.4.33
     version: 8.4.33
@@ -6744,15 +6741,6 @@ packages:
       }
     engines: { node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1 }
     hasBin: true
-
-  /nanoid@5.0.4:
-    resolution:
-      {
-        integrity: sha512-vAjmBf13gsmhXSgBrtIclinISzFFy22WwCYoyilZlsrRXNIHSwgFQ1bEdjRwMT3aoadeIF6HMuDRlOxzfXV8ig==,
-      }
-    engines: { node: ^18 || >=20 }
-    hasBin: true
-    dev: true
 
   /neo-async@2.6.2:
     resolution:

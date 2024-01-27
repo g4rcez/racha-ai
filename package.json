@@ -66,5 +66,8 @@
     "vite": "5.0.0",
     "vitest": "1.2.2",
     "workbox-window": "7.0.0"
+  },
+  "volta": {
+    "node": "20.11.0"
   }
 }
