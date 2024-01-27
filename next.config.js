@@ -1,4 +1,5 @@
-module.exports = require("@sentry/nextjs").withSentryConfig(
+const { withSentryConfig } = require("@sentry/nextjs");
+module.exports = withSentryConfig(
   {
     reactStrictMode: true,
     poweredByHeader: false,
