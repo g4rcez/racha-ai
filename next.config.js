@@ -1,13 +1,15 @@
+const withPWA = require("next-pwa")({ dest: "public" });
 const { withSentryConfig } = require("@sentry/nextjs");
+
 module.exports = withSentryConfig(
-  {
+  withPWA({
     reactStrictMode: true,
     poweredByHeader: false,
     experimental: { swcTraceProfiling: true },
     compiler: {
       reactRemoveProperties: { properties: ["^data-test$", "^data-testid$"] },
     },
-  },
+  }),
   { silent: true, org: "g4rcez", project: "racha-ai" },
   {
     widenClientFileUpload: true,
