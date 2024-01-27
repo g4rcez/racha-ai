@@ -1,3 +1,4 @@
+import { ClientSide } from "~/components/client-side";
 import { DesktopAppFeatures } from "~/landing/components/app-screen/desktop-app";
 import { MobileAppFeatures } from "~/landing/components/app-screen/mobile-app";
 import { Container } from "~/landing/components/container";
@@ -19,11 +20,13 @@ export const ScreenFeatures = () => (
         </p>
       </div>
     </Container>
-    <div className="mt-16 md:hidden">
-      <MobileAppFeatures />
-    </div>
-    <Container className="hidden md:mt-20 md:block">
-      <DesktopAppFeatures />
-    </Container>
+    <ClientSide>
+      <div className="mt-16 md:hidden">
+        <MobileAppFeatures />
+      </div>
+      <Container className="hidden md:mt-20 md:block">
+        <DesktopAppFeatures />
+      </Container>
+    </ClientSide>
   </section>
 );

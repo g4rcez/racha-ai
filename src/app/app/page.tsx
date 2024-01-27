@@ -64,8 +64,11 @@ export default function AppPage() {
         ) : null}
       </header>
       <ul className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {Array.from({ length: 4 }).map(() => (
-          <li className="w-full flex flex-nowrap border rounded-md border-card-border shadow-sm">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <li
+            key={`item-${i}`}
+            className="w-full flex flex-nowrap border rounded-md border-card-border shadow-sm"
+          >
             <div className="h-full rounded-l-md p-6 bg-main-bg text-white">
               <BanknoteIcon />
             </div>

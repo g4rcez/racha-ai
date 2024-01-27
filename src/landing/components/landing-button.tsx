@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
+import { ClientSide } from "~/components/client-side";
 import { Is } from "~/lib/is";
 import { Links } from "~/router";
 import { Preferences } from "~/store/preferences.store";
@@ -83,8 +84,10 @@ export const ButtonAction = ({
 export const LoginButton = ({ className }: { className?: string }) => {
   const [state] = Preferences.use();
   return (
-    <LandingButton className={className} href={Links.app} variant="outline">
-      {state.user.name === "" ? "Login" : "Entrar"}
-    </LandingButton>
+    <ClientSide>
+      <LandingButton className={className} href={Links.app} variant="outline">
+        {state.user.name === "" ? "Login" : "Entrar"}
+      </LandingButton>
+    </ClientSide>
   );
 };
