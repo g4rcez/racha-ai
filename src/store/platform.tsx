@@ -17,9 +17,11 @@ declare global {
 
 const isMobileDevice = (ua: string) => {
   if (window.navigator.userAgentData?.mobile) return true;
-  if ("maxTouchPoints" in window.navigator) return true;
   if (isMobileUserAgent(ua)) return true;
-  return CanIUse.webShareAPI();
+  if (CanIUse.webShareAPI()) return true;
+  return (
+    "maxTouchPoints" in window.navigator && window.navigator.maxTouchPoints > 0
+  );
 };
 
 const useMobile = () => {
@@ -53,3 +55,10 @@ export const PlatformDesktop = (props: React.PropsWithChildren) => (
 Platform.use = useMobile;
 
 Platform.isMobile = () => isMobileDevice(window.navigator.userAgent);
+
+export enum Platforms {
+  Mobile = "mobile",
+  PC = "pc",
+}
+
+export const DesktopSize = 1024;

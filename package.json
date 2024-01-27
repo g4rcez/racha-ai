@@ -26,6 +26,7 @@
     "@serwist/sw": "8.4.3",
     "class-variance-authority": "0.7.0",
     "clsx": "2.1.0",
+    "date-fns": "3.3.1",
     "fraction.js": "4.3.7",
     "framer-motion": "11.0.3",
     "html-to-image": "1.11.11",

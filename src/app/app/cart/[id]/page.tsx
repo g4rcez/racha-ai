@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/button";
+import { Card } from "~/components/card";
 import {
   Table,
   TableBody,
@@ -62,10 +63,9 @@ export default function CartId() {
   return (
     <main
       ref={ref}
-      // data-image="true"
-      className="group shareable data-[image=true]:p-2 text-body bg-body-bg"
+      className="group space-y-6 shareable data-[image=true]:p-2 text-body bg-body-bg"
     >
-      <section className="flex gap-2 flex-col">
+      <Card className="flex gap-2 flex-col">
         <Title>{history.title}</Title>
         <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
         <div className="flex justify-between items-center">
@@ -80,84 +80,86 @@ export default function CartId() {
             Editar comanda
           </Link>
         </div>
-      </section>
-      <Button
-        onClick={onShare}
-        className="w-full my-4 print:hidden group-data-[image=true]:hidden"
-        icon={<ShareIcon absoluteStrokeWidth size={18} strokeWidth={2} />}
-      >
-        Compartilhar comanda
-      </Button>
-      <ul className="mt-6 space-y-4">
-        {history.users.arrayMap((user) => (
-          <li className="flex flex-wrap justify-between" key={user.id}>
-            <span className="text-lg font-medium">{user.name}</span>
-            <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
-            {user.products.length === 0 ? null : (
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableHeader>Produto</TableHeader>
-                    <TableHeader>Total</TableHeader>
-                    <TableHeader>Quantidade</TableHeader>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {user.products.map((product) =>
-                    product.quantity === 0 ? null : (
-                      <TableRow key={`${user.id}-${product.id}`}>
-                        <TableCell>{product.name}</TableCell>
+        <Button
+          onClick={onShare}
+          className="w-full my-4 print:hidden group-data-[image=true]:hidden"
+          icon={<ShareIcon absoluteStrokeWidth size={18} strokeWidth={2} />}
+        >
+          Compartilhar comanda
+        </Button>
+      </Card>
+      <Card>
+        <ul className="mt-6 space-y-4">
+          {history.users.arrayMap((user) => (
+            <li className="flex flex-wrap justify-between" key={user.id}>
+              <span className="text-lg font-medium">{user.name}</span>
+              <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
+              {user.products.length === 0 ? null : (
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableHeader>Produto</TableHeader>
+                      <TableHeader>Total</TableHeader>
+                      <TableHeader>Quantidade</TableHeader>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {user.products.map((product) =>
+                      product.quantity === 0 ? null : (
+                        <TableRow key={`${user.id}-${product.id}`}>
+                          <TableCell>{product.name}</TableCell>
+                          <TableCell>
+                            {i18n.format.money(product.total)}
+                          </TableCell>
+                          <TableCell>{toFraction(product.quantity)}</TableCell>
+                        </TableRow>
+                      ),
+                    )}
+                    {history.hasAdditional ? (
+                      <TableRow>
+                        <TableCell>Gorjeta</TableCell>
                         <TableCell>
-                          {i18n.format.money(product.total)}
+                          {i18n.format.money(user.result.total)}
                         </TableCell>
-                        <TableCell>{toFraction(product.quantity)}</TableCell>
+                        <TableCell>1</TableCell>
                       </TableRow>
-                    ),
-                  )}
-                  {history.hasAdditional ? (
-                    <TableRow>
-                      <TableCell>Gorjeta</TableCell>
-                      <TableCell>
-                        {i18n.format.money(user.result.total)}
-                      </TableCell>
-                      <TableCell>1</TableCell>
-                    </TableRow>
-                  ) : null}
-                  {history.hasCouvert ? (
-                    <TableRow>
-                      <TableCell>Couvert</TableCell>
-                      <TableCell>
-                        {i18n.format.money(history.couvert)}
-                      </TableCell>
-                      <TableCell>1</TableCell>
-                    </TableRow>
-                  ) : null}
-                </TableBody>
-              </Table>
-            )}
+                    ) : null}
+                    {history.hasCouvert ? (
+                      <TableRow>
+                        <TableCell>Couvert</TableCell>
+                        <TableCell>
+                          {i18n.format.money(history.couvert)}
+                        </TableCell>
+                        <TableCell>1</TableCell>
+                      </TableRow>
+                    ) : null}
+                  </TableBody>
+                </Table>
+              )}
+            </li>
+          ))}
+          <li className="flex justify-between pt-2">
+            <span>Consumo</span>
+            <b>{i18n.format.money(history.totalProducts)}</b>
           </li>
-        ))}
-        <li className="flex justify-between pt-2">
-          <span>Consumo</span>
-          <b>{i18n.format.money(history.totalProducts)}</b>
-        </li>
-        {history.hasAdditional ? (
+          {history.hasAdditional ? (
+            <li className="flex justify-between">
+              <span>Gorjeta</span>
+              <b>{i18n.format.money(history.withAdditional)}</b>
+            </li>
+          ) : null}
+          {history.hasCouvert ? (
+            <li className="flex justify-between">
+              <span>Couvert/pessoa</span>
+              <b>{i18n.format.money(history.couvert)}</b>
+            </li>
+          ) : null}
           <li className="flex justify-between">
-            <span>Gorjeta</span>
-            <b>{i18n.format.money(history.withAdditional)}</b>
+            <span>Total</span>
+            <b>{total}</b>
           </li>
-        ) : null}
-        {history.hasCouvert ? (
-          <li className="flex justify-between">
-            <span>Couvert/pessoa</span>
-            <b>{i18n.format.money(history.couvert)}</b>
-          </li>
-        ) : null}
-        <li className="flex justify-between">
-          <span>Total</span>
-          <b>{total}</b>
-        </li>
-      </ul>
+        </ul>
+      </Card>
     </main>
   );
 }

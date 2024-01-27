@@ -1,31 +1,50 @@
 "use client";
-import { UtensilsIcon } from "lucide-react";
-import Link from "next/link";
-import { CSSProperties, useEffect, useState } from "react";
-import {
-  getHomeShortcuts,
-  Shortcut,
-  shortcuts,
-} from "~/components/admin/shortcuts";
+import { useEffect, useState } from "react";
+import { HistoryItem } from "~/components/admin/history/history-item";
+import { Button } from "~/components/button";
+import { Card } from "~/components/card";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { SectionTitle } from "~/components/typography";
 import { useTranslations } from "~/i18n";
-import { Links } from "~/router";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
+
+const WelcomePage = (props: { onFillName: () => void }) => {
+  const i18n = useTranslations();
+  const [name, dispatch] = Preferences.use((s) => s.user.name);
+  return (
+    <main className="flex flex-col gap-6 pb-8 h-full items-center justify-center">
+      <header className="flex flex-col gap-2">
+        <Form onSubmit={props.onFillName} className="flex flex-col gap-4">
+          <Input
+            required
+            name="name"
+            value={name}
+            title={i18n.get("welcomeInputTitle")}
+            placeholder={i18n.get("welcomeInputPlaceholder")}
+            onChange={(e) => dispatch.onChangeName(e.target.value)}
+          />
+          <Button type="submit">Salvar</Button>
+        </Form>
+      </header>
+    </main>
+  );
+};
 
 export default function AppPage() {
   const i18n = useTranslations();
   const [name, dispatch] = Preferences.use((s) => s.user.name);
   const [history, historyDispatch] = History.use();
-  const items = history.items.toSorted((a, b) => b.id.localeCompare(a.id));
+  const items = history.items;
   const [firstStateName, setFirstNameState] = useState("");
 
   useEffect(() => {
     setFirstNameState(name);
     historyDispatch.refresh(History.init());
   }, []);
+
+  if (firstStateName === "")
+    return <WelcomePage onFillName={() => setFirstNameState(name)} />;
 
   return (
     <main className="flex flex-col gap-6 pb-8">
@@ -43,56 +62,29 @@ export default function AppPage() {
           </Form>
         ) : null}
       </header>
-      <ul
-        style={{ "--items": shortcuts.length } as CSSProperties}
-        className="flex justify-between items-center flex-1 snap-x snap-mandatory snap-center flex-row flex-nowrap gap-4 overflow-x-auto"
-      >
-        {getHomeShortcuts().map((shortcut) => (
-          <li
-            key={`shortcut-${shortcut.href}`}
-            className="flex min-w-36 w-full shrink text-center"
-          >
-            <Shortcut {...shortcut} />
+      <ul className="grid grid-cols-2 gap-8">
+        {Array.from({ length: 4 }).map(() => (
+          <li className="w-full flex flex-nowrap border rounded-md border-card-border shadow-sm">
+            <div className="h-full rounded-l-md p-4 lg:p-6 bg-main-bg text-white">
+              Icon
+            </div>
+            <div className="flex-1 bg-card-bg flex items-center rounded-r-md flex-shrink justify-center w-full text-black">
+              R$ 99,99
+            </div>
           </li>
         ))}
       </ul>
       {items.length === 0 ? null : (
-        <section>
-          <SectionTitle title={i18n.get("historyTitle")}>
-            {i18n.get("historicDescription")}
-          </SectionTitle>
+        <Card
+          title={i18n.get("historyTitle")}
+          description={i18n.get("historicDescription")}
+        >
           <ul className="mt-4 space-y-6">
             {items.map((item) => (
-              <li key={item.id}>
-                <Link
-                  className="group flex min-w-full flex-col gap-2 rounded border border-main-bg/20 p-4 transition-all link:border-main-bg/60"
-                  href={Links.cartId(item.id)}
-                >
-                  <header className="flex items-end justify-between">
-                    <div className="flex gap-2 items-center">
-                      <UtensilsIcon
-                        size={18}
-                        className="group-hover:text-main-bg group-active:text-main-bg"
-                      />
-                      <h3 className="text-xl transition-colors group-hover:text-main-bg group-active:text-main-bg">
-                        {item.title}
-                      </h3>
-                    </div>
-                    <p className="text-sm">
-                      {i18n.format.date(item.createdAt)}
-                    </p>
-                  </header>
-                  <p>Total: {i18n.format.money(item.total)}</p>
-                  {item.justMe ? (
-                    <p>Sozinho</p>
-                  ) : (
-                    <p>Dividido por: {item.users.size.toString()} pessoas</p>
-                  )}
-                </Link>
-              </li>
+              <HistoryItem key={item.id} item={item} />
             ))}
           </ul>
-        </section>
+        </Card>
       )}
     </main>
   );

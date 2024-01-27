@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import React, { forwardRef, lazy } from "react";
+import React, { forwardRef } from "react";
+import lazy from "next/dynamic";
 
 export const AppScreen = ({
   children,

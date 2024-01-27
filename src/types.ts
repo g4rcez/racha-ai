@@ -28,3 +28,5 @@ export type ParseToRaw<T> = {
       ? string
       : T[K];
 };
+
+export type Nullable<T> = T | null;

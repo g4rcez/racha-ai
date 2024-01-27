@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import React, { Fragment } from "react";
 import { Alert } from "~/components/alert";
 import { Button } from "~/components/button";
+import { Card } from "~/components/card";
 import { Checkbox } from "~/components/form/checkbox";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/table";
-import { SectionTitle, Title } from "~/components/typography";
+import { Title } from "~/components/typography";
 import { SelectConsumerFriends } from "~/components/users/friends";
 import { i18n } from "~/i18n";
 import { fixed, toFraction } from "~/lib/fn";
@@ -42,25 +43,30 @@ export default function ComandaPage() {
 
   return (
     <main>
-      <Title className="font-bold">{state.title || "Bar sem nome..."}</Title>
+      <Title className={`mb-2 ${state.title === "" ? "opacity-60" : ""}`}>
+        {state.title || "Bar..."}
+      </Title>
       <Form
         onReset={onReset}
         onSubmit={onSubmit}
         className="flex flex-col gap-6"
         onKeyDown={(e) => (e.key === "Enter" ? e.preventDefault() : undefined)}
       >
-        <Input
-          required
-          name="title"
-          title="Nome do bar"
-          value={state.title}
-          placeholder="Meu bar..."
-          onChange={dispatch.onChange}
-        />
-        <section className="flex flex-col gap-2">
-          <SectionTitle titleClassName="text-2xl" title="Quem tá na mesa?">
-            Selecione quem irá dividir a conta com você
-          </SectionTitle>
+        <Card title="Onde foi o role?">
+          <Input
+            required
+            name="title"
+            title="Nome"
+            value={state.title}
+            placeholder="Meu bar..."
+            onChange={dispatch.onChange}
+          />
+        </Card>
+        <Card
+          description="Selecione quem irá dividir a conta com você"
+          title="Quem tá na mesa?"
+          className="flex flex-col gap-2"
+        >
           <SelectConsumerFriends
             me={me}
             friends={state.users}
@@ -95,11 +101,12 @@ export default function ComandaPage() {
               );
             })}
           </ul>
-        </section>
-        <section className="flex flex-col gap-2">
-          <SectionTitle titleClassName="text-2xl" title="Consumo">
-            Adicione aqui os itens consumidos.
-          </SectionTitle>
+        </Card>
+        <Card
+          title="Consumo"
+          className="flex flex-col gap-2"
+          description="Adicione aqui os itens consumidos"
+        >
           <AnnotateProduct
             me={me}
             users={state.users}
@@ -182,54 +189,50 @@ export default function ComandaPage() {
               );
             })}
           </ul>
-        </section>
-        <SectionTitle
-          headerClassName="min-w-full"
-          titleClassName="text-2xl"
+        </Card>
+        <Card
           title="Extras"
+          className="flex flex-col gap-4"
+          description="Vai pagar os 10% pro doutor? Teve música e vai ajudar o artista?"
         >
-          Gorjeta? Couvert? Salvar a localização do bar? Essa sessão vai te
-          ajudar nisso
-        </SectionTitle>
-        <section className="flex flex-wrap gap-4">
-          <Checkbox
-            checked={state.hasAdditional}
-            onChange={dispatch.onChange}
-            name="hasAdditional"
-          >
-            Vai pagar a gorjeta?
-          </Checkbox>
-          {state.hasAdditional ? (
-            <Fragment>
-              <div className="grid min-w-full grid-cols-2 items-center justify-center gap-2">
-                {bonusAdditional.map((bonus) => {
-                  const formatted = i18n.format.percent(bonus);
-                  const current = state.additional === formatted;
-                  return (
-                    <Button
-                      key={`bonus-key-${bonus}`}
-                      onClick={() => dispatch.onChangeBonus(bonus)}
-                      theme={current ? undefined : "muted"}
-                    >
-                      {formatted}
-                    </Button>
-                  );
-                })}
-              </div>
-              <Input
-                mask="percent"
-                name="additional"
-                placeholder="10%"
-                className="min-w-full"
-                value={state.additional}
-                onChange={dispatch.onChange}
-                title="Outro valor de gorjeta"
-              />
-            </Fragment>
-          ) : null}
-        </section>
-        <section>
-          <div className="flex flex-wrap gap-2">
+          <section className="flex flex-wrap gap-4">
+            <Checkbox
+              checked={state.hasAdditional}
+              onChange={dispatch.onChange}
+              name="hasAdditional"
+            >
+              Vai pagar a gorjeta?
+            </Checkbox>
+            {state.hasAdditional ? (
+              <Fragment>
+                <div className="grid min-w-full grid-cols-2 items-center justify-center gap-2">
+                  {bonusAdditional.map((bonus) => {
+                    const formatted = i18n.format.percent(bonus);
+                    const current = state.additional === formatted;
+                    return (
+                      <Button
+                        key={`bonus-key-${bonus}`}
+                        onClick={() => dispatch.onChangeBonus(bonus)}
+                        theme={current ? undefined : "muted"}
+                      >
+                        {formatted}
+                      </Button>
+                    );
+                  })}
+                </div>
+                <Input
+                  mask="percent"
+                  name="additional"
+                  placeholder="10%"
+                  className="min-w-full"
+                  value={state.additional}
+                  onChange={dispatch.onChange}
+                  title="Outro valor de gorjeta"
+                />
+              </Fragment>
+            ) : null}
+          </section>
+          <section className="flex flex-wrap gap-2">
             <Checkbox
               checked={state.hasCouvert}
               onChange={dispatch.onChange}
@@ -248,13 +251,13 @@ export default function ComandaPage() {
                 title="Qual o valor do couvert?"
               />
             ) : null}
-          </div>
-        </section>
+          </section>
+        </Card>
         <Button name="submit" value="submit" type="submit">
           Fechar a conta
         </Button>
-        <Button theme="warn" name="reset" value="reset" type="reset">
-          Zerar tudo
+        <Button theme="transparent" name="reset" value="reset" type="reset">
+          <span className="text-danger">Apagar a conta</span>
         </Button>
       </Form>
     </main>

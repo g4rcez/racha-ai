@@ -8,6 +8,7 @@ import { Dict } from "~/lib/dict";
 import { Either } from "~/lib/either";
 import { sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
+import { Categories } from "~/models/categories";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
 import { Links } from "~/router";
@@ -45,6 +46,7 @@ export type CartState = Entity.New<{
   justMe: boolean;
   createdAt: Date;
   couvert: string;
+  category: string;
   finishedAt: Date;
   additional: string;
   metadata?: Metadata;
@@ -64,39 +66,41 @@ const product = Product.schema.extend({
 });
 
 const defaultSchema = z.object({
-  type: z.string(),
-  title: z.string(),
-  couvert: z.string(),
-  justMe: z.boolean(),
   id: z.string().uuid(),
-  additional: z.string(),
   currentProduct: product,
-  hasCouvert: z.boolean(),
-  hasAdditional: z.boolean(),
-  products: z.array(product),
   createdAt: Entity.dateSchema,
   finishedAt: Entity.dateSchema,
-  users: z.array(Friends.schema),
+  type: z.string().default(""),
+  title: z.string().default(""),
+  couvert: z.string().default(""),
+  category: z.string().default(""),
+  justMe: z.boolean().default(false),
+  additional: z.string().default(""),
+  products: z.array(product).default([]),
+  hasCouvert: z.boolean().default(false),
+  hasAdditional: z.boolean().default(true),
+  users: z.array(Friends.schema).default([]),
   currencyCode: z.string().default(i18n.getCurrency() as string),
 });
 
-const schemas = {
-  v1: Entity.validator(defaultSchema),
-  v2: Entity.validator(
-    defaultSchema.extend({
-      justMe: z.boolean(),
-      metadata: z
-        .object({ location: z.any(), description: z.string() })
-        .partial()
-        .default({}),
-      users: z.array(
+const versioningSchema = Entity.validator(
+  defaultSchema.extend({
+    justMe: z.boolean().default(false),
+    metadata: z
+      .object({ location: z.any(), description: z.string() })
+      .partial()
+      .default({}),
+    users: z
+      .array(
         Friends.schema.extend({
           paidAt: Entity.dateSchema.nullable().default(null),
         }),
-      ),
-    }),
-  ),
-};
+      )
+      .default([]),
+  }),
+);
+
+const schemas = { v1: versioningSchema, v2: versioningSchema };
 
 const newUser = (user: User | CartUser): CartUser => ({
   ...user,
@@ -159,6 +163,7 @@ export const Cart = Entity.create(
     justMe: storage?.justMe ?? false,
     title: storage?.title ?? "",
     hasAdditional: storage?.hasAdditional ?? true,
+    category: storage?.category || Categories.default.name,
     createdAt: storage?.createdAt ? new Date(storage.createdAt) : new Date(),
     finishedAt: storage?.finishedAt ? new Date(storage.finishedAt) : new Date(),
     additional: storage?.additional ?? i18n.format.percent(0.1),

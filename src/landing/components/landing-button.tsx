@@ -1,7 +1,9 @@
-import Link from "next/link";
 import clsx from "clsx";
+import Link from "next/link";
 import React from "react";
 import { Is } from "~/lib/is";
+import { Links } from "~/router";
+import { Preferences } from "~/store/preferences.store";
 
 const baseStyles = {
   solid:
@@ -59,3 +61,30 @@ export function LandingButton({ className, ...props }: ButtonProps) {
     <Link className={c} {...(props as any)} />
   );
 }
+
+export const ButtonAction = ({
+  color = "black",
+}: {
+  color?: "black" | "white";
+}) => (
+  <Link
+    href={Links.app}
+    className={clsx(
+      "rounded transition-colors py-2 px-4",
+      color === "black"
+        ? "bg-gray-800 text-white hover:bg-gray-900"
+        : "bg-white text-gray-900 hover:bg-gray-50",
+    )}
+  >
+    Criar minha conta
+  </Link>
+);
+
+export const LoginButton = ({ className }: { className?: string }) => {
+  const [state] = Preferences.use();
+  return (
+    <LandingButton className={className} href={Links.app} variant="outline">
+      {state.user.name === "" ? "Login" : "Entrar"}
+    </LandingButton>
+  );
+};

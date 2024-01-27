@@ -5,11 +5,11 @@ import { css } from "~/lib/dom";
 import { Label } from "~/types";
 
 const buttonVariants = cva(
-  "inline-flex gap-1.5 text-button border-2 border-transparent items-center hover:bg-opacity-80 justify-center align-middle cursor-pointer whitespace-nowrap font-medium transition-colors ease-in disabled:cursor-not-allowed disabled:bg-opacity-50 disabled:text-opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shadow-sm",
+  "inline-flex gap-1.5 text-button border-2 border-transparent items-center hover:bg-opacity-80 justify-center align-middle cursor-pointer whitespace-nowrap font-medium transition-colors ease-in disabled:cursor-not-allowed disabled:bg-opacity-50 disabled:text-opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
   {
     variants: {
       size: {
-        default: "h-10 lg:h-12 px-3 py-2",
+        default: "h-10 px-4 py-2",
         big: "h-12 px-6 py-4",
         small: "h-8 p-2",
         medium: "h-11 p-2",

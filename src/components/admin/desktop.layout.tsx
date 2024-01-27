@@ -1,6 +1,6 @@
 "use client";
-import Link from "next/link";
 import { MenuIcon } from "lucide-react";
+import Link from "next/link";
 import { Fragment, PropsWithChildren, useState } from "react";
 import {
   getMenuShortcuts,
@@ -42,8 +42,8 @@ export const DesktopLayout = (props: PropsWithChildren) => {
           </ul>
         </Drawer.Content>
       </Drawer>
-      <header className="sticky bottom-0 z-10 mb-6 min-w-full bg-main-bg text-main shadow-lg">
-        <nav className="container mx-auto flex max-w-2xl items-center justify-between p-4">
+      <header className="sticky top-0 left-0 h-20 z-10 min-w-full bg-main-bg text-main flex items-center shadow-lg">
+        <nav className="container mx-auto flex px-4 max-w-2xl items-center justify-between">
           <Link href={Links.app}>
             {title ? (
               <span className="text-2xl font-bold">{title}</span>
@@ -59,7 +59,7 @@ export const DesktopLayout = (props: PropsWithChildren) => {
           </div>
         </nav>
       </header>
-      <div className="container mx-auto max-w-2xl px-4 pb-16 text-body bg-body-bg">
+      <div className="container mt-10 mx-auto max-w-2xl px-4 pb-16 text-body bg-body-bg">
         {props.children}
       </div>
     </Fragment>

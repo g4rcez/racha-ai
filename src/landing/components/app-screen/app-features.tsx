@@ -1,9 +1,10 @@
 import { motion, type MotionProps, type Variant } from "framer-motion";
-import React, { lazy, PropsWithChildren, useId } from "react";
+import React, { PropsWithChildren, useId } from "react";
 import { EditUser } from "~/components/users/friends";
 import { AppFrame } from "~/landing/components/app-frame";
 import { LandingLogo } from "~/landing/components/landing-logo";
 import { noop } from "~/lib/fn";
+import lazy from "next/dynamic";
 
 function DeviceUserIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (

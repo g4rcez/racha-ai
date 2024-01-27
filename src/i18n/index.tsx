@@ -29,8 +29,7 @@ const native = createPolyglotNative("pt-BR", () => ({
   yourself: "Você mesmo",
   hasUpdate: "Temos uma atualização, deseja atualizar?",
   historyTitle: "Meu histórico",
-  historicDescription:
-    "Aqui você pode conferir tudo o que você já rachou com a galera.",
+  historicDescription: "Veja todas as contas já separadas com seus amigos",
   closeModal: (props: { title: string }) => `Fechar sessão de ${props.title}`,
   welcome: (props: { name: string }) => (
     <Fragment>
