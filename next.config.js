@@ -1,18 +1,23 @@
-const withPWA = require("next-pwa")({
-  dest: "public",
-  cacheOnFrontEndNav: true,
-});
 const { withSentryConfig } = require("@sentry/nextjs");
+const { randomUUID } = require("node:crypto");
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  poweredByHeader: false,
+  compiler: {
+    reactRemoveProperties: { properties: ["^data-test$", "^data-testid$"] },
+  },
+};
 
 module.exports = withSentryConfig(
-  withPWA({
-    reactStrictMode: true,
-    poweredByHeader: false,
-    experimental: { swcTraceProfiling: true },
-    compiler: {
-      reactRemoveProperties: { properties: ["^data-test$", "^data-testid$"] },
-    },
-  }),
+  require("next-pwa")({
+    scope: "/",
+    dest: "public",
+    reloadOnOnline: true,
+    dynamicStartUrl: false,
+    cacheOnFrontEndNav: true,
+  })(nextConfig),
   { silent: true, org: "g4rcez", project: "racha-ai" },
   {
     widenClientFileUpload: true,

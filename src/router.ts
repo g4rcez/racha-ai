@@ -1,4 +1,7 @@
 export const Links = {
   app: "/app",
-  cartId: (id: string) => `/app/cart/${id}` as const,
+  cart: "/app/cart",
+  profile: "/app/profile",
+  cartId: <ID extends string>(id: ID): `/app/cart/${ID}` => `/app/cart/${id}`,
+  friends: "/app/friends",
 } as const;

@@ -21,6 +21,7 @@ import { useTranslations } from "~/i18n";
 import { CanIUse } from "~/lib/can";
 import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
+import { Links } from "~/router";
 import { Cart } from "~/store/cart.store";
 import { History, HistoryItem } from "~/store/history.store";
 import { NextPageWithLayout, Nullable } from "~/types";
@@ -80,7 +81,7 @@ const CartId: NextPageWithLayout = () => {
             Total: <b className="text-main-bg">{total}</b>
           </p>
           <Link
-            href="/app/cart"
+            href={Links.cart}
             onClick={() => dispatch.set(History.parseToCart(history))}
             className="underline underline-offset-4 group-data-[image=true]:hidden"
           >

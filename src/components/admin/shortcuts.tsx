@@ -10,6 +10,7 @@ import Link from "next/link";
 import React, { Fragment } from "react";
 import { LocalStorage } from "storage-manager-js";
 import { Is } from "~/lib/is";
+import { Links } from "~/router";
 
 export type ShortcutLink = {
   type: "link";
@@ -48,7 +49,7 @@ export const isMenuAction = (a: Shortcut): a is ShortcutAction =>
 export const shortcuts: Shortcut[] = [
   {
     type: "link",
-    href: "/app",
+    href: Links.app,
     icon: HistoryIcon,
     tags: ["menu", "action"],
     title: "Histórico",
@@ -61,7 +62,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     type: "link",
-    href: "/app/friends",
+    href: Links.friends,
     icon: UsersIcon,
     tags: ["home", "menu", "action"],
     title: "Amigos",
@@ -84,7 +85,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     type: "link",
-    href: "/app/cart",
+    href: Links.cart,
     icon: ReceiptIcon,
     tags: ["home", "menu", "action"],
     title: "Comanda",
@@ -97,7 +98,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     type: "link",
-    href: "/app/config",
+    href: Links.profile,
     icon: UserRound,
     tags: ["home", "menu", "action"],
     title: "Perfil",

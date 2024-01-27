@@ -192,7 +192,7 @@ function ComandaAppScreen(props: ScreenProps) {
   );
 }
 
-const ConfigurationAppScreen = lazy(() => import("~/pages/app/config"));
+const ConfigurationAppScreen = lazy(() => import("~/pages/app/profile"));
 
 const ConfigurationScreen = (props: ScreenProps) => (
   <AppFrame logo={<LandingLogo title="Configurações" />} className="w-full">

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { i18n } from "~/i18n";
 import { CartMath } from "~/lib/cart-math";
 import { Dict } from "~/lib/dict";
-import { sum } from "~/lib/fn";
+import { sortId, sum } from "~/lib/fn";
 import { Categories } from "~/models/categories";
 import { Entity } from "~/models/entity";
 import { Product } from "~/models/product";
@@ -113,7 +113,7 @@ const parse = (item: ParseToRaw<HistoryItem>): HistoryItem => ({
 const parseAll = (s?: ParseToRaw<State>): State => ({
   items: ((s?.items as unknown as ParseToRaw<HistoryItem>[]) ?? [])
     .map(parse)
-    .sort((a, b) => b.id.localeCompare(a.id)),
+    .toSorted(sortId),
 });
 
 const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {

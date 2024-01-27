@@ -1,12 +1,14 @@
 import Head from "next/head";
-import { Fragment } from "react";
+import { Fragment, ReactElement } from "react";
 import DefaultTheme from "~/styles/default.json";
 import { createCssTheme } from "~/styles/setup";
 import "~/styles/index.css";
 import { AppPropsWithLayout } from "~/types";
 
+const staticLayout = (page: ReactElement) => page;
+
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
-  const getLayout = Component.getLayout ?? ((page) => page);
+  const getLayout = Component.getLayout ?? staticLayout;
   return (
     <Fragment>
       <Head>
@@ -19,6 +21,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no, user-scalable=no, viewport-fit=cover"
         />
+        <link rel="manifest" href="/manifest.json" />
         <meta name="mobile-web-app-capable" content="yes" />
         <style key="theme" id="base-theme" type="text/css">
           {createCssTheme(DefaultTheme)}
