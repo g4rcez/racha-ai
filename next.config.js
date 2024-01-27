@@ -1,4 +1,7 @@
-const withPWA = require("next-pwa")({ dest: "public" });
+const withPWA = require("next-pwa")({
+  dest: "public",
+  cacheOnFrontEndNav: true,
+});
 const { withSentryConfig } = require("@sentry/nextjs");
 
 module.exports = withSentryConfig(

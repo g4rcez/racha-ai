@@ -48,7 +48,7 @@ export const isMenuAction = (a: Shortcut): a is ShortcutAction =>
 export const shortcuts: Shortcut[] = [
   {
     type: "link",
-    href: "/pages",
+    href: "/app",
     icon: HistoryIcon,
     tags: ["menu", "action"],
     title: "Histórico",
@@ -61,7 +61,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     type: "link",
-    href: "/pages/friends",
+    href: "/app/friends",
     icon: UsersIcon,
     tags: ["home", "menu", "action"],
     title: "Amigos",
@@ -84,7 +84,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     type: "link",
-    href: "/pages/cart",
+    href: "/app/cart",
     icon: ReceiptIcon,
     tags: ["home", "menu", "action"],
     title: "Comanda",
@@ -97,7 +97,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     type: "link",
-    href: "/pages/config",
+    href: "/app/config",
     icon: UserRound,
     tags: ["home", "menu", "action"],
     title: "Perfil",
@@ -129,7 +129,7 @@ export const shortcuts: Shortcut[] = [
             files: [file],
             title: "Racha aí",
             url: window.location.origin,
-            text: "Exportando seus dados do pages",
+            text: "Exportando seus dados do app",
           });
         } catch (e) {
           console.error(e);
