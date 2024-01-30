@@ -1,5 +1,6 @@
 import { User2Icon } from "lucide-react";
 import Link from "next/link";
+import { Fragment } from "react";
 import { HistoryItemProps } from "~/components/admin/history/history-item";
 import { Category } from "~/components/category";
 import { i18n } from "~/i18n";
@@ -27,16 +28,18 @@ export default function DefaultHistoryItem({ item }: HistoryItemProps) {
           </div>
         </header>
         <div className="flex flex-row gap-2 mt-2 items-center justify-between">
-          {item.justMe ? (
-            <div className="flex items-center gap-3">
-              <User2Icon /> Apenas você
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <User2Icon />
-              Você e mais {item.users.size - 1} amigos
-            </div>
-          )}
+          <div className="flex items-center text-sm gap-1">
+            {item.justMe ? (
+              <Fragment>
+                <User2Icon size={16} /> Apenas você
+              </Fragment>
+            ) : (
+              <Fragment>
+                <User2Icon size={16} />
+                Você e mais {item.users.size - 1} amigos
+              </Fragment>
+            )}
+          </div>
           <div className="text-right">
             Total:{" "}
             <span className="text-danger-mask">

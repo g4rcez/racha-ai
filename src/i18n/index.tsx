@@ -13,7 +13,7 @@ const native = createPolyglotNative("pt-BR", () => ({
   colorOrange: "Laranja",
   colorGreen: "Verde",
   colorIndigo: "Anil",
-  myCustomColor: "Minha cor",
+  myCustomColor: "Escolher uma cor",
   userInput: "Nome",
   userInputPlaceholder: "João das Neves",
   addFriendInput: "Nome",

@@ -10,7 +10,7 @@ export const Category = ({
   return (
     <span>
       <span className="sr-only">{category.name}</span>
-      <Component absoluteStrokeWidth strokeWidth={2} size={32} {...props} />
+      <Component absoluteStrokeWidth strokeWidth={2} size={28} {...props} />
     </span>
   );
 };

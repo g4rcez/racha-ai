@@ -16,7 +16,7 @@ import {
   CssVariables,
   overwriteConfig,
 } from "~/styles/setup";
-import { DeepPartial } from "~/types";
+import { DeepPartial, ParseToRaw } from "~/types";
 
 type DefaultTheme = typeof D;
 
@@ -26,6 +26,7 @@ type State = {
   colors: Record<string, any>;
   devMode: boolean;
   id: string;
+  installed: boolean;
   name: string;
   theme: ColorThemes;
   user: User;
@@ -39,6 +40,7 @@ const schemas = {
       id: z.string().uuid(),
       user: Friends.schema,
       colors: z.record(z.any()),
+      installed: z.boolean().default(false),
       theme: z.literal("light").or(z.literal("dark")),
     }),
   ),
@@ -70,16 +72,17 @@ const setup = (state?: DeepPartial<State>) => {
 
 export const Preferences = Entity.create(
   { name: "preferences", schemas, version: "v1" },
-  (storage?: Partial<State>) => {
+  (storage?: ParseToRaw<State>): State => {
     const id = uuidv7();
     return {
       id: storage?.id ?? id,
-      colors: storage?.colors ?? {},
-      devMode: storage?.devMode ?? true,
-      theme: storage?.theme ?? "light",
       name: storage?.name ?? "",
+      colors: storage?.colors ?? {},
+      theme: storage?.theme ?? "light",
+      devMode: storage?.devMode ?? true,
+      installed: storage?.installed || false,
       user: storage?.user ?? ({ id, createdAt: new Date(), name: "" } as User),
-    } as State;
+    };
   },
   (get) => {
     const merge = (s: Partial<State>) => ({ ...get.state(), ...s });

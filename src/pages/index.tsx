@@ -1,4 +1,3 @@
-"use client";
 import { useEffect } from "react";
 import { AppPromiseFeatures } from "~/landing/components/app-promise-features";
 import { Faq } from "~/landing/components/faq";

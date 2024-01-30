@@ -1,4 +1,3 @@
-"use client";
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { Fragment, PropsWithChildren, useState } from "react";
@@ -59,7 +58,7 @@ export const DesktopLayout = (props: PropsWithChildren) => {
           </div>
         </nav>
       </header>
-      <div className="container mt-10 mx-auto max-w-2xl px-4 pb-16 text-body bg-body-bg">
+      <div className="container pt-10 mx-auto max-w-2xl px-4 pb-16 text-body bg-body-bg">
         {props.children}
       </div>
     </Fragment>

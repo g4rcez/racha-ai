@@ -1,5 +1,4 @@
 const { withSentryConfig } = require("@sentry/nextjs");
-const { randomUUID } = require("node:crypto");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -12,11 +11,12 @@ const nextConfig = {
 
 module.exports = withSentryConfig(
   require("next-pwa")({
-    scope: "/",
+    scope: "/app",
     dest: "public",
     reloadOnOnline: true,
     dynamicStartUrl: false,
     cacheOnFrontEndNav: true,
+    disable: process.env.NODE_ENV !== "production",
   })(nextConfig),
   { silent: true, org: "g4rcez", project: "racha-ai" },
   {

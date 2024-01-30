@@ -1,4 +1,3 @@
-"use client";
 import React, { Fragment, useEffect, useState } from "react";
 import { CanIUse } from "~/lib/can";
 import { isServerSide } from "~/lib/fn";
@@ -17,6 +16,7 @@ declare global {
 
 const isMobileDevice = (ua: string) => {
   if (window.navigator.userAgentData?.mobile) return true;
+  if (window.navigator.userAgentData?.mobile === false) return false;
   if (isMobileUserAgent(ua)) return true;
   if (CanIUse.webShareAPI()) return true;
   return (

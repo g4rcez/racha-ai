@@ -60,21 +60,19 @@ export function Table({
   );
 }
 
-export function TableHead({
+export const TableHead = ({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"thead">) {
-  return (
-    <thead
-      className={clsx(className, "text-zinc-500 dark:text-zinc-400")}
-      {...props}
-    />
-  );
-}
+}: React.ComponentPropsWithoutRef<"thead">) => (
+  <thead
+    className={clsx(className, "text-zinc-500 dark:text-zinc-400")}
+    {...props}
+  />
+);
 
-export function TableBody(props: React.ComponentPropsWithoutRef<"tbody">) {
-  return <tbody {...props} />;
-}
+export const TableBody = (props: React.ComponentPropsWithoutRef<"tbody">) => (
+  <tbody {...props} />
+);
 
 const TableRowContext = createContext<{
   href?: string;
@@ -86,7 +84,7 @@ const TableRowContext = createContext<{
   title: undefined,
 });
 
-export function TableRow({
+export const TableRow = ({
   href,
   target,
   title,
@@ -97,9 +95,8 @@ export function TableRow({
   href?: string;
   target?: string;
   title?: string;
-} & React.ComponentPropsWithoutRef<"tr">) {
+} & React.ComponentPropsWithoutRef<"tr">) => {
   const { striped } = useContext(TableContext);
-
   return (
     <TableRowContext.Provider
       value={
@@ -123,7 +120,7 @@ export function TableRow({
       </tr>
     </TableRowContext.Provider>
   );
-}
+};
 
 export function TableHeader({
   className,

@@ -1,4 +1,3 @@
-"use client";
 import { PlusIcon } from "lucide-react";
 import React from "react";
 import AdminLayout from "~/components/admin/layout";

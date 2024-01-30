@@ -1,4 +1,3 @@
-"use client";
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
 import { createGlobalReducer, ReducerActions } from "use-typed-reducer";

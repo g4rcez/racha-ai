@@ -1,5 +1,4 @@
-"use client";
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { AppConfig } from "~/components/admin/app-config";
 import { DesktopLayout } from "~/components/admin/desktop.layout";
 import { MobileLayout } from "~/components/admin/mobile.layout";
@@ -15,6 +14,14 @@ const classes = {
 
 export default function AdminLayout(page: React.ReactElement) {
   const [platform, setPlatform] = useState<Nullable<Platforms>>(null);
+  const prompt = useRef<any | null>(null);
+
+  useEffect(() => {
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      prompt.current = event;
+    });
+  }, []);
 
   const onLoad = useCallback(() => {
     const platformDiscovery = (e?: MediaQueryListEvent | UIEvent) => {

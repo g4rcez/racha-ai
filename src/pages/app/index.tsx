@@ -1,16 +1,41 @@
-"use client";
 import { BanknoteIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { HistoryItem } from "~/components/admin/history/history-item";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { useTranslations } from "~/i18n";
+import { PatternMatch } from "~/components/pattern-match";
+import { i18n, useTranslations } from "~/i18n";
+import { noop } from "~/lib/fn";
+import { Statistics } from "~/models/statistics";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 import { NextPageWithLayout } from "~/types";
+
+const StatisticCard = ({
+  value,
+  label,
+  format = "money",
+}: {
+  value: number;
+  label: string;
+  format?: keyof typeof i18n.format | null;
+}) => {
+  const formatter = format === null ? noop.fn : (i18n.format[format] as any);
+  return (
+    <li className="w-full flex flex-nowrap bg-card-bg gap-4 border rounded-md border-card-border shadow-sm">
+      <div className="h-full rounded-l-md p-6 bg-main-bg text-white">
+        <BanknoteIcon />
+      </div>
+      <div className="flex-1 flex-col flex items-start rounded-r-md flex-shrink justify-center w-full">
+        <span className="text-xs">{label}</span>
+        <span className="text-lg">{formatter(value)}</span>
+      </div>
+    </li>
+  );
+};
 
 const WelcomePage = (props: { onFillName: () => void }) => {
   const i18n = useTranslations();
@@ -36,10 +61,12 @@ const WelcomePage = (props: { onFillName: () => void }) => {
 
 const AppPage: NextPageWithLayout = () => {
   const i18n = useTranslations();
-  const [name, dispatch] = Preferences.use((s) => s.user.name);
+  const [user, dispatch] = Preferences.use((s) => s.user);
   const [history, historyDispatch] = History.use();
-  const items = history.items;
   const [firstStateName, setFirstNameState] = useState("");
+  const items = history.items;
+  const name = user.name;
+  const statistics = Statistics.summary(items, user);
 
   useEffect(() => {
     setFirstNameState(name);
@@ -50,9 +77,9 @@ const AppPage: NextPageWithLayout = () => {
     return <WelcomePage onFillName={() => setFirstNameState(name)} />;
 
   return (
-    <main className="flex flex-col gap-6 pb-8">
-      <header className="flex flex-col gap-2">
-        {firstStateName === "" ? (
+    <main className="flex flex-col gap-8">
+      {firstStateName === "" ? (
+        <header className="flex flex-col gap-2">
           <Form className="flex flex-col gap-4">
             <Input
               required
@@ -63,23 +90,34 @@ const AppPage: NextPageWithLayout = () => {
               onChange={(e) => dispatch.onChangeName(e.target.value)}
             />
           </Form>
-        ) : null}
-      </header>
-      <ul className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <li
-            key={`item-${i}`}
-            className="w-full flex flex-nowrap border rounded-md border-card-border shadow-sm"
-          >
-            <div className="h-full rounded-l-md p-6 bg-main-bg text-white">
-              <BanknoteIcon />
-            </div>
-            <div className="flex-1 bg-card-bg flex items-center rounded-r-md flex-shrink justify-center w-full text-black">
-              R$ 99,99
-            </div>
-          </li>
-        ))}
-      </ul>
+        </header>
+      ) : null}
+      <PatternMatch default={<Fragment />}>
+        <PatternMatch.Case when={items.length === 0}>
+          <Fragment>Nothing to show</Fragment>
+        </PatternMatch.Case>
+        <PatternMatch.Case when={items.length > 0}>
+          <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <StatisticCard
+              value={statistics!.total}
+              label="Valor total das contas"
+            />
+            <StatisticCard
+              value={statistics!.ownTotal}
+              label="Valor pago por você"
+            />
+            <StatisticCard
+              value={statistics!.economic}
+              label="Quanto você economizou"
+            />
+            <StatisticCard
+              format={null}
+              value={statistics!.places}
+              label="Lugares já visitados"
+            />
+          </ul>
+        </PatternMatch.Case>
+      </PatternMatch>
       {items.length === 0 ? null : (
         <Card
           title={i18n.get("historyTitle")}

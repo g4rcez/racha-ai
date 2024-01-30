@@ -1,4 +1,3 @@
-"use client";
 import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { Fragment } from "react";
@@ -76,7 +75,7 @@ const ComandaPage: NextPageWithLayout = () => {
             onDelete={dispatch.onRemoveFriend}
             onChangeUser={dispatch.onChangeUsername}
           />
-          <ul className="space-y-4">
+          <ul className="space-y-4 mt-2">
             {state.users.arrayMap((user) => {
               const i = user.id === me.id;
               return (
@@ -86,7 +85,7 @@ const ComandaPage: NextPageWithLayout = () => {
                     i ? "text-main-bg" : ""
                   }`}
                 >
-                  <span className="text-lg">
+                  <span className="text-base">
                     {user.name}
                     {i ? " - Eu" : ""}
                   </span>
@@ -95,9 +94,8 @@ const ComandaPage: NextPageWithLayout = () => {
                       size="small"
                       theme="transparent-danger"
                       onClick={() => dispatch.removeUser(user)}
-                    >
-                      <Trash2Icon />
-                    </Button>
+                      icon={<Trash2Icon size={20} />}
+                    />
                   )}
                 </li>
               );

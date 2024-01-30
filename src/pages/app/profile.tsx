@@ -1,4 +1,3 @@
-"use client";
 import { EyeIcon, EyeOff } from "lucide-react";
 import React, { useState } from "react";
 import AdminLayout from "~/components/admin/layout";
@@ -31,16 +30,6 @@ const Customize = () => {
 
   const colors = [
     { name: i18n.get("colorDefault"), color: DefaultTheme.colors.main.bg },
-    { name: i18n.get("colorOrange"), color: "#d97706" },
-    { name: "Yellow", color: "#eab308" },
-    { name: i18n.get("colorGreen"), color: "#059669" },
-    { name: "Lime", color: "#65a30d" },
-    { name: "Blue", color: "#2563eb" },
-    { name: "Cyan", color: "#06b6d4" },
-    { name: i18n.get("colorIndigo"), color: "#4f46e5" },
-    { name: "Violeta", color: "#7c3aed" },
-    { name: "Pink", color: "#db2777" },
-    { name: "Rose", color: "#f43f5e" },
   ];
 
   return (
@@ -55,14 +44,12 @@ const Customize = () => {
       </section>
       {hide ? null : (
         <ul className="grid grid-cols-2 gap-4 mt-4 whitespace-pre-wrap">
-          {state.devMode ? (
-            <li>
-              <ColorPicker
-                onChangeColor={changeFromRGB}
-                color={state.colors.main?.bg}
-              />
-            </li>
-          ) : null}
+          <li>
+            <ColorPicker
+              onChangeColor={changeFromRGB}
+              color={state.colors.main?.bg}
+            />
+          </li>
           {colors.map((x) => {
             const backgroundColor = x.color.includes(",")
               ? `hsl(${x.color})`
