@@ -1,4 +1,3 @@
-"use client";
 import React, { forwardRef, useEffect, useRef } from "react";
 import { InputField, InputFieldProps } from "~/components/form/input-field";
 import { css } from "~/lib/dom";

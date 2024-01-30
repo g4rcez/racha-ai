@@ -1,4 +1,3 @@
-"use client";
 import { forwardRef, useEffect, useRef } from "react";
 import MaskInput, { TheMaskProps } from "the-mask-input";
 import { FeedbackProps } from "~/components/form/input-feedback";

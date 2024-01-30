@@ -1,4 +1,3 @@
-"use client";
 import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
 import { LocalStorage } from "storage-manager-js";

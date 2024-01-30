@@ -1,8 +1,7 @@
-"use client";
 import { toBlob } from "html-to-image";
 import { ShareIcon } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useRouter } from "next/router";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import AdminLayout from "~/components/admin/layout";
@@ -24,10 +23,12 @@ import { Is } from "~/lib/is";
 import { Links } from "~/router";
 import { Cart } from "~/store/cart.store";
 import { History, HistoryItem } from "~/store/history.store";
+import { Platform } from "~/store/platform";
 import { NextPageWithLayout, Nullable } from "~/types";
 
 const CartId: NextPageWithLayout = () => {
-  const paths = useParams();
+  const router = useRouter();
+  const paths = router.query;
   const i18n = useTranslations();
   const [_, dispatch] = Cart.use();
   const ref = useRef<HTMLDivElement>(null);
@@ -36,7 +37,7 @@ const CartId: NextPageWithLayout = () => {
   useEffect(() => {
     const x = History.get(paths.id as string);
     if (x) setHistory(x);
-  }, []);
+  }, [paths]);
 
   if (Is.nil(history)) {
     return <Fragment />;
@@ -54,11 +55,13 @@ const CartId: NextPageWithLayout = () => {
       lastModified: Date.now(),
       type: blob!.type || "image/png",
     });
-    if (CanIUse.webShareAPI()) {
-      const files = [file];
-      if (navigator.canShare({ files })) {
-        const reset = (e?: any) => (e ? console.error(e) : undefined);
-        return void navigator.share({ files }).catch(reset).then(reset);
+    if (Platform.isMobile()) {
+      if (CanIUse.webShareAPI()) {
+        const files = [file];
+        if (navigator.canShare({ files })) {
+          const reset = (e?: any) => (e ? console.error(e) : undefined);
+          return void navigator.share({ files }).catch(reset).then(reset);
+        }
       }
     }
     if (CanIUse.clipboard()) {
@@ -97,7 +100,7 @@ const CartId: NextPageWithLayout = () => {
         </Button>
       </Card>
       <Card>
-        <ul className="mt-6 space-y-4">
+        <ul className="mt-6 space-y-8">
           {history.users.arrayMap((user) => (
             <li className="flex flex-wrap justify-between" key={user.id}>
               <span className="text-lg font-medium">{user.name}</span>

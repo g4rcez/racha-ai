@@ -61,9 +61,10 @@ export const Button: <T extends React.ElementType = "button">(
   return (
     <Polymorph
       {...props}
-      as={props.as ?? "button"}
-      type={type}
       ref={ref}
+      type={type}
+      data-theme={theme}
+      as={props.as ?? "button"}
       className={css(buttonVariants({ theme, size, rounded }), className)}
     >
       {props.children}
@@ -78,22 +79,21 @@ type Props = {
 };
 
 export const ButtonGroup = (props: Props) => (
-  <div className="flex-row w-full border-2 rounded-md border-main-bg text-main-bg flex">
-    {props.buttons.map((button) => {
-      return (
+  <ul className="flex-row w-full border-2 rounded-md border-main-bg text-main-bg flex">
+    {props.buttons.map((button) => (
+      <li key={`button-group-${button.name}`} className="flex flex-1">
         <button
           {...button}
           type={button.type || "button"}
-          key={`button-group-${button.name}`}
           data-active={props.active === button.name ? "true" : "false"}
           className={css(
             "flex rounded-sm flex-1 gap-1.5 items-center hover:bg-opacity-80 px-4 py-2 border-r-2 last:border-r-0 border-main-bg",
             "justify-center align-middle cursor-pointer whitespace-nowrap font-medium hover:bg-main-bg hover:text-main",
-            "disabled:text-opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shadow-sm",
-            "transition-colors ease-in disabled:cursor-not-allowed disabled:bg-opacity-50 data-[active=true]:bg-main-bg text-main",
+            "disabled:text-opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring shadow-sm",
+            "transition-colors ease-in disabled:cursor-not-allowed disabled:bg-opacity-50 data-[active=true]:bg-main-bg text-body data-[active=true]:text-main",
           )}
         />
-      );
-    })}
-  </div>
+      </li>
+    ))}
+  </ul>
 );

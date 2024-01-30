@@ -1,4 +1,3 @@
-"use client";
 import { Fragment, PropsWithChildren, useEffect, useState } from "react";
 
 export const ClientSide = (

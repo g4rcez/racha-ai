@@ -1,4 +1,3 @@
-"use client";
 import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,9 +24,9 @@ export const MobileLayout = (props: PropsWithChildren) => {
   const title = "Racha aí";
   return (
     <Fragment>
-      <div className="container flex flex-col w-full pb-24 text-body bg-body-bg">
+      <div className="flex flex-col w-full pb-32 text-body bg-body-bg">
         <header className={css(commonBarCss, "top-0 shadow py-4")}>
-          <nav className="flex flex-row px-4 flex-nowrap gap-4 justify-between">
+          <nav className="flex container mx-auto flex-row px-4 flex-nowrap gap-4 justify-between">
             <Link href={Links.app}>
               {title ? (
                 <span className="text-2xl font-bold">{title}</span>
@@ -43,13 +42,13 @@ export const MobileLayout = (props: PropsWithChildren) => {
             </div>
           </nav>
         </header>
-        <div className="flex-1 container flex flex-col mx-auto max-w-2xl px-4 pt-20">
+        <div className="flex-1 mx-auto container w-full flex flex-col px-4 pt-16">
           {props.children}
         </div>
         <footer
           className={css(commonBarCss, "bottom-0 py-2 pb-6 shadow w-full")}
         >
-          <nav className="gap-4 grid grid-cols-5">
+          <nav className="gap-4 grid grid-cols-5 container mx-auto">
             {getActionBarShortcuts().map((x, i) => {
               if (isMenuAction(x)) {
                 return (

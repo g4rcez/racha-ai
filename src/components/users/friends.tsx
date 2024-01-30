@@ -1,4 +1,3 @@
-"use client";
 import {
   CheckIcon,
   Edit2Icon,
@@ -82,7 +81,7 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-x-6">
-        <span className="flex flex-row flex-nowrap gap-4">
+        <span className="flex flex-row flex-nowrap gap-2">
           <Button
             size="icon"
             theme="transparent"

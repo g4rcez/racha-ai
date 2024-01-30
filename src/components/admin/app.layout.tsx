@@ -1,4 +1,3 @@
-"use client";
 import { Fragment } from "react";
 import { Toaster } from "sonner";
 import { DesktopLayout } from "~/components/admin/desktop.layout";

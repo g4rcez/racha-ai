@@ -1,4 +1,3 @@
-"use client";
 import { Fragment, PropsWithChildren } from "react";
 import { InputFeedback } from "~/components/form/input-feedback";
 import { PolymorphicProps } from "~/components/polymorph";

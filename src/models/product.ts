@@ -25,6 +25,6 @@ export namespace Product {
     name: "",
     price: 0,
     monetary: "",
-    quantity: 1,
+    quantity: 0,
   });
 }

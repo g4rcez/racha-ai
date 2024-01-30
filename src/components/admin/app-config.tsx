@@ -1,4 +1,3 @@
-"use client";
 import { Fragment, useEffect } from "react";
 import { Toaster } from "sonner";
 import { Preferences } from "~/store/preferences.store";
