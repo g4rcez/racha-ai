@@ -256,3 +256,8 @@ certificates
 
 # vitest
 tests/node_modules
+
+# xata
+.xata
+.xatarc
+src/xata.ts
