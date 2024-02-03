@@ -86,6 +86,7 @@ const changeQuantity = (args: Getter, q: number): Partial<State> => {
 };
 
 const reducers = (args: Getter) => ({
+  onReset: () => ({ ...initialState }),
   visible: (visible: boolean) => ({ visible }),
   show: () => ({ visible: true }),
   hide: () => ({ visible: false, product: null }),
@@ -203,9 +204,7 @@ export const AnnotateProduct = (props: Props) => {
 
   const onSubmit = () => {
     const product = state.product;
-    if (Is.nil(product)) {
-      return;
-    }
+    if (Is.nil(product)) return;
     const result = Cart.validate({
       ...product,
       quantity: Number(product.quantity),
@@ -216,8 +215,7 @@ export const AnnotateProduct = (props: Props) => {
       })),
     });
     if (result.isSuccess()) {
-      dispatch.hide();
-      dispatch.product(null);
+      dispatch.onReset();
       return props.onChangeProduct(result.success);
     }
     if (result.isError()) {

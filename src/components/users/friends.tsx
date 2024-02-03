@@ -1,3 +1,4 @@
+import { Linq } from "linq-arrays";
 import {
   CheckIcon,
   Edit2Icon,
@@ -114,7 +115,7 @@ export const SelectConsumerFriends = (props: ConsumerProps) => {
   const [state, dispatch] = Friends.use();
   const i18n = useTranslations();
   const isDesktop = !Platform.use();
-  const users = state.users.toArray();
+  const users = new Linq(state.users.toArray()).OrderBy("name", "asc").Select();
 
   const createNewUser = (e: FormEvent<HTMLFormElement>) => {
     const form = e.currentTarget;

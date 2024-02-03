@@ -1,4 +1,5 @@
 import { uuidv7 } from "@kripod/uuidv7";
+import { Linq } from "linq-arrays";
 import { ChangeEvent } from "react";
 import { CurrencyCode } from "the-mask-input";
 import { z } from "zod";
@@ -312,7 +313,11 @@ export const Cart = Entity.create(
     newUser,
     newProduct: (consumers: Dict<string, CartUser>): CartProduct => ({
       ...Product.create(),
-      consumers: new Dict(consumers.arrayMap((x) => [x.id, newUser(x)])),
+      consumers: new Dict(
+        new Linq(consumers.arrayMap((x) => [x.id, newUser(x)]))
+          .OrderBy("name")
+          .Select(),
+      ),
       division: Division.PerConsume,
     }),
     onSubmit: (
