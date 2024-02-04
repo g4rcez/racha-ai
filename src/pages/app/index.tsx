@@ -1,14 +1,14 @@
 import { BanknoteIcon } from "lucide-react";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { HistoryItem } from "~/components/admin/history/history-item";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { PatternMatch } from "~/components/pattern-match";
 import { i18n, useTranslations } from "~/i18n";
 import { noop } from "~/lib/fn";
+import { Is } from "~/lib/is";
 import { Statistics } from "~/models/statistics";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
@@ -92,32 +92,33 @@ const AppPage: NextPageWithLayout = () => {
           </Form>
         </header>
       ) : null}
-      <PatternMatch default={<Fragment />}>
-        <PatternMatch.Case when={items.length === 0}>
-          <Fragment>Nothing to show</Fragment>
-        </PatternMatch.Case>
-        <PatternMatch.Case when={items.length > 0}>
-          <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <StatisticCard
-              value={statistics!.total}
-              label="Valor total das contas"
-            />
-            <StatisticCard
-              value={statistics!.ownTotal}
-              label="Valor pago por você"
-            />
-            <StatisticCard
-              value={statistics!.economic}
-              label="Quanto você economizou"
-            />
-            <StatisticCard
-              format={null}
-              value={statistics!.places}
-              label="Lugares já visitados"
-            />
-          </ul>
-        </PatternMatch.Case>
-      </PatternMatch>
+      {items.length === 0 && Is.nil(statistics) ? (
+        <Card
+          title={i18n.get("historyTitle")}
+          description="Você não possui histórico"
+          className="flex items-center justify-center flex-col"
+        />
+      ) : (
+        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <StatisticCard
+            value={statistics!.total}
+            label="Valor total das contas"
+          />
+          <StatisticCard
+            value={statistics!.ownTotal}
+            label="Valor pago por você"
+          />
+          <StatisticCard
+            value={statistics!.economic}
+            label="Quanto você economizou"
+          />
+          <StatisticCard
+            format={null}
+            value={statistics!.places}
+            label="Lugares já visitados"
+          />
+        </ul>
+      )}
       {items.length === 0 ? null : (
         <Card
           title={i18n.get("historyTitle")}

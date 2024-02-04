@@ -46,7 +46,7 @@ export namespace Entity {
         return state;
       },
     ];
-    if (Env.isLocal && !isServerSide()) {
+    if (Env.isLocal) {
       middle.push((state: State, method: string, prev: State) => {
         console.group(key);
         console.info("Update by", method);

@@ -45,7 +45,7 @@ export const MobileDrawer = {
         <Dialog.Content
           {...(props as any)}
           ref={ref}
-          className="z-20 bg-body-bg text-body focus:outline-none flex flex-col rounded-t-[10px] h-full mt-24 max-h-[90%] fixed bottom-0 left-0 right-0"
+          className="z-20 bg-card-bg text-body focus:outline-none flex flex-col rounded-t-[10px] h-full mt-24 max-h-[90%] fixed bottom-0 left-0 right-0"
         >
           <div className="p-6 flex-1 overflow-y-auto">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
