@@ -55,13 +55,18 @@ const CartId: NextPageWithLayout = () => {
       lastModified: Date.now(),
       type: blob!.type || "image/png",
     });
-    if (Platform.isMobile()) {
-      if (CanIUse.webShareAPI()) {
-        const files = [file];
-        if (navigator.canShare({ files })) {
-          const reset = (e?: any) => (e ? console.error(e) : undefined);
-          return void navigator.share({ files }).catch(reset).then(reset);
-        }
+    if (Platform.isMobile() && CanIUse.webShareAPI()) {
+      const files = [file];
+      if (navigator.canShare({ files })) {
+        const reset = (e?: any) => {
+          if (e) console.log(e);
+          return e;
+        };
+        const result = await navigator
+          .share({ files })
+          .catch(reset)
+          .then(reset);
+        if (result === undefined) return;
       }
     }
     if (CanIUse.clipboard()) {
@@ -161,8 +166,8 @@ const CartId: NextPageWithLayout = () => {
           ) : null}
           {history.hasCouvert ? (
             <li className="flex justify-between">
-              <span>Couvert/pessoa</span>
-              <b>{i18n.format.money(history.couvert)}</b>
+              <span>Couvert total</span>
+              <b>{i18n.format.money(history.couvert * history.users.size)}</b>
             </li>
           ) : null}
           <li className="flex justify-between">

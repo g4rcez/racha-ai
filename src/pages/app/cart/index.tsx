@@ -1,3 +1,4 @@
+import { Linq } from "linq-arrays";
 import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { Fragment } from "react";
@@ -31,6 +32,11 @@ const ComandaPage: NextPageWithLayout = () => {
   const [state, dispatch] = Cart.use();
   const [me] = Preferences.use((x) => x.user);
   const router = useRouter();
+  const users = new Linq(Array.from(state.users.values()))
+    .OrderBy("name", "asc")
+    .Select();
+
+  const onReset = () => dispatch.set(Cart.getState());
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const submitter = (
@@ -39,8 +45,6 @@ const ComandaPage: NextPageWithLayout = () => {
     if (submitter === "submit")
       Cart.onSubmit(me.id, state, (path) => router.push(path as any));
   };
-
-  const onReset = () => dispatch.set(Cart.getState());
 
   return (
     <main>
@@ -76,7 +80,7 @@ const ComandaPage: NextPageWithLayout = () => {
             onChangeUser={dispatch.onChangeUsername}
           />
           <ul className="space-y-4 mt-2">
-            {state.users.arrayMap((user) => {
+            {users.map((user) => {
               const i = user.id === me.id;
               return (
                 <li
