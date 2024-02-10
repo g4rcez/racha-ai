@@ -18,9 +18,11 @@ const Json = dynamic(() => import("@microlink/react-json-view"), {
 
 export default function DebugPage() {
   const [state, setState] = useState({});
+
   useEffect(() => {
     setState(getStorageJson());
   }, []);
+
   return (
     <main className="flex flex-col gap-4">
       <p>{Env.version}</p>

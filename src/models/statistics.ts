@@ -1,4 +1,4 @@
-import { unique } from "linq-arrays";
+import { Linq } from "linq-arrays";
 import { User } from "~/store/friends.store";
 import { HistoryItem } from "~/store/history.store";
 
@@ -14,7 +14,7 @@ export namespace Statistics {
       },
       { total: 0, ownTotal: 0 },
     );
-    const places = unique(history, "title");
+    const places = new Linq(history).Select();
     return {
       places: places.length,
       total: result.total,
