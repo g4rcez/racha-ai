@@ -1,6 +1,5 @@
 import { InferSelectModel, relations } from "drizzle-orm";
 import {
-  integer,
   jsonb,
   pgTable,
   text,

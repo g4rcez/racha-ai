@@ -1,15 +1,20 @@
-import { User, Group } from "../db/users";
-import { CartState } from "../store/cart.store";
-import { Order, OrderItem, Payment, orders } from "../db/orders";
-import { db } from "../db";
 import { uuidv7 } from "@kripod/uuidv7";
+import { db } from "~/db";
+import { Order, OrderItem, orders, Payment } from "~/db/orders";
+import { Group, User } from "~/db/users";
+import { Either } from "~/lib/either";
+import { HistoryItem } from "~/store/history.store";
 
 export namespace Orders {
   export const createOrderItems = async (): Promise<OrderItem[]> => [];
 
   export const createPayments = async (): Promise<Payment[]> => [];
 
-  export const create = async (owner: User, group: Group, cart: CartState) => {
+  export const create = async (
+    owner: User,
+    group: Group,
+    cart: HistoryItem,
+  ) => {
     return db.transaction(async (transaction) => {
       const id = uuidv7();
       const now = new Date();
@@ -18,8 +23,8 @@ export namespace Orders {
         createdAt: now,
         title: cart.title,
         type: "restaurant",
-        total: cart.total,
-        status: cart.status,
+        total: cart.total.toString(),
+        status: "finished",
         groupId: group.id,
         ownerId: owner.id,
         category: "",
@@ -31,6 +36,7 @@ export namespace Orders {
         await db.insert(orders).values(order);
         await createOrderItems();
         await createPayments();
+        return Either.success(order);
       } catch (e) {
         transaction.rollback();
         return Either.error(e);

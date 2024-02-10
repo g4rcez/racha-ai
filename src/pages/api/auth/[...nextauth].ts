@@ -5,6 +5,6 @@ import { db } from "~/db";
 import { Env } from "~/lib/Env";
 
 export default NextAuth({
-  adapter: DrizzleAdapter(db),
+  adapter: DrizzleAdapter(db) as any,
   providers: [GithubProvider(Env.github)],
 });
