@@ -85,7 +85,7 @@ export const LoginButton = ({ className }: { className?: string }) => {
   const [state] = Preferences.use();
   return (
     <ClientSide>
-      <LandingButton className={className} href={Links.app} variant="outline">
+      <LandingButton href={Links.app} variant="outline" className={className}>
         {state.user.name === "" ? "Login" : "Entrar"}
       </LandingButton>
     </ClientSide>

@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { CanIUse } from "~/lib/can";
 import { isServerSide } from "~/lib/fn";
 
 const regex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/g;
@@ -10,18 +9,19 @@ type Fn = () => any;
 
 declare global {
   interface Navigator {
-    userAgentData?: { mobile?: false };
+    userAgentData?: { mobile?: boolean };
   }
 }
 
 const isMobileDevice = (ua: string) => {
   if (window.navigator.userAgentData?.mobile) return true;
-  if (window.navigator.userAgentData?.mobile === false) return false;
   if (isMobileUserAgent(ua)) return true;
-  if (CanIUse.webShareAPI()) return true;
-  return (
-    "maxTouchPoints" in window.navigator && window.navigator.maxTouchPoints > 0
-  );
+  if (
+    "maxTouchPoints" in window.navigator &&
+    window.navigator.maxTouchPoints > 0
+  )
+    return true;
+  return window.navigator.userAgentData?.mobile === false;
 };
 
 const useMobile = () => {
