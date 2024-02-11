@@ -23,6 +23,7 @@ import { SelectConsumerFriends } from "~/components/users/friends";
 import { i18n } from "~/i18n";
 import { fixed, toFraction } from "~/lib/fn";
 import { Cart } from "~/store/cart.store";
+import { Friends } from "~/store/friends.store";
 import { Preferences } from "~/store/preferences.store";
 import { NextPageWithLayout } from "~/types";
 
@@ -126,6 +127,9 @@ const ComandaPage: NextPageWithLayout = () => {
           <ul className="mt-4 space-y-4">
             {state.products.arrayMap((product) => {
               const showAlert = Cart.productWarning(product);
+              const consumers = Friends.order(
+                Array.from(product.consumers.values()),
+              );
               return (
                 <li
                   className="flex flex-col items-center justify-between"
@@ -174,7 +178,7 @@ const ComandaPage: NextPageWithLayout = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {product.consumers.arrayMap((consumer) =>
+                      {consumers.map((consumer) =>
                         consumer.quantity === 0 ? null : (
                           <TableRow key={`consumer-item-${consumer.id}`}>
                             <TableCell>{consumer.name}</TableCell>

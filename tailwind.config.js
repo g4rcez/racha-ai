@@ -105,6 +105,7 @@ export default {
     form({ strategy: "class" }),
     plugin(function ({ addVariant }) {
       addVariant("link", ["&:hover", "&:active"]);
+      addVariant("landing", ["&"]);
       addVariant(
         "group-error",
         ":merge(.group):invalid:has(.input:not(:focus):invalid[data-initialized=true]) &",

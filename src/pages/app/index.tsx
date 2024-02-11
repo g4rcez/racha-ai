@@ -99,25 +99,27 @@ const AppPage: NextPageWithLayout = () => {
           className="flex items-center justify-center flex-col"
         />
       ) : (
-        <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <StatisticCard
-            value={statistics!.total}
-            label="Valor total das contas"
-          />
-          <StatisticCard
-            value={statistics!.ownTotal}
-            label="Valor pago por você"
-          />
-          <StatisticCard
-            value={statistics!.economic}
-            label="Quanto você economizou"
-          />
-          <StatisticCard
-            format={null}
-            value={statistics!.places}
-            label="Lugares já visitados"
-          />
-        </ul>
+        <div className="@container">
+          <ul className="grid-cols-1 lg:grid-cols-2 gap-4 hidden @xs:grid">
+            <StatisticCard
+              value={statistics!.total}
+              label="Valor total das contas"
+            />
+            <StatisticCard
+              value={statistics!.ownTotal}
+              label="Valor pago por você"
+            />
+            <StatisticCard
+              value={statistics!.economic}
+              label="Quanto você economizou"
+            />
+            <StatisticCard
+              format={null}
+              value={statistics!.places}
+              label="Lugares já visitados"
+            />
+          </ul>
+        </div>
       )}
       {items.length === 0 ? null : (
         <Card

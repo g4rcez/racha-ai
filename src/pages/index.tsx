@@ -9,6 +9,8 @@ import { SectionActionLogin } from "~/landing/components/section-action-login";
 export default function IndexPage() {
   useEffect(() => {
     document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("landing");
+    return () => void document.documentElement.classList.remove("landing");
   }, []);
 
   return (
