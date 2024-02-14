@@ -34,13 +34,13 @@ define(["./workbox-79e1e353"], function (e) {
     e.clientsClaim(),
     e.precacheAndRoute(
       [
-        { url: "/", revision: "9lRaAvIDoz0rdPoiQ0opj" },
+        { url: "/", revision: "ZwvbYKVYxnM0X9FuBYcua" },
         {
-          url: "/_next/static/9lRaAvIDoz0rdPoiQ0opj/_buildManifest.js",
+          url: "/_next/static/ZwvbYKVYxnM0X9FuBYcua/_buildManifest.js",
           revision: "ce07b5b641acbdbbb101fc6e74d870ff",
         },
         {
-          url: "/_next/static/9lRaAvIDoz0rdPoiQ0opj/_ssgManifest.js",
+          url: "/_next/static/ZwvbYKVYxnM0X9FuBYcua/_ssgManifest.js",
           revision: "b6652df95db52feb4daf4eca35380933",
         },
         {
@@ -188,12 +188,12 @@ define(["./workbox-79e1e353"], function (e) {
           revision: "60a5848441f3bd14c2a165b67d4a6cc3",
         },
         {
-          url: "/_next/static/chunks/pages/_app-dade752bf737f0c8.js",
-          revision: "dade752bf737f0c8",
+          url: "/_next/static/chunks/pages/_app-5a5a1f2ac38ee225.js",
+          revision: "5a5a1f2ac38ee225",
         },
         {
-          url: "/_next/static/chunks/pages/_app-dade752bf737f0c8.js.map",
-          revision: "a4192f922a4e3b736150f9b59bb8689e",
+          url: "/_next/static/chunks/pages/_app-5a5a1f2ac38ee225.js.map",
+          revision: "00184c16570ec2a477005252a7c581d1",
         },
         {
           url: "/_next/static/chunks/pages/_error-7b3af279a8dc815e.js",
