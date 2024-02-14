@@ -1,4 +1,12 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { SessionProvider } from "next-auth/react";
+import {
+  Fragment,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AppConfig } from "~/components/admin/app-config";
 import { DesktopLayout } from "~/components/admin/desktop.layout";
 import { MobileLayout } from "~/components/admin/mobile.layout";
@@ -7,12 +15,14 @@ import { DesktopSize, Platform, Platforms } from "~/store/platform";
 import { Nullable } from "~/types";
 
 const defaults = "text-body bg-body-bg w-full h-full";
+
 const classes = {
   mobile: `data-[platform=mobile]:block data-[platform=desktop]:hidden ${defaults}`,
   desktop: `data-[platform=mobile]:hidden data-[platform=desktop]:block ${defaults}`,
 };
 
-export default function AdminLayout(page: React.ReactElement) {
+function AdminLayoutRoot(props: PropsWithChildren) {
+  const page = props.children;
   const [platform, setPlatform] = useState<Nullable<Platforms>>(null);
   const prompt = useRef<any | null>(null);
 
@@ -48,24 +58,34 @@ export default function AdminLayout(page: React.ReactElement) {
   return (
     <ClientSide onLoad={onLoad}>
       <AppConfig />
-      {platform === null ? (
-        <Fragment>
-          <div data-platform="desktop" className={classes.desktop}>
-            <DesktopLayout children={page} />
-          </div>
+      <Fragment>
+        {platform === null ? (
+          <Fragment>
+            <div data-platform="desktop" className={classes.desktop}>
+              <DesktopLayout children={page} />
+            </div>
+            <div data-platform="mobile" className={classes.mobile}>
+              <MobileLayout children={page} />
+            </div>
+          </Fragment>
+        ) : platform === Platforms.Mobile ? (
           <div data-platform="mobile" className={classes.mobile}>
             <MobileLayout children={page} />
           </div>
-        </Fragment>
-      ) : platform === Platforms.Mobile ? (
-        <div data-platform="mobile" className={classes.mobile}>
-          <MobileLayout children={page} />
-        </div>
-      ) : (
-        <div data-platform="desktop" className={classes.desktop}>
-          <DesktopLayout children={page} />
-        </div>
-      )}
+        ) : (
+          <div data-platform="desktop" className={classes.desktop}>
+            <DesktopLayout children={page} />
+          </div>
+        )}
+      </Fragment>
     </ClientSide>
+  );
+}
+
+export default function AdminLayout(page: React.ReactElement) {
+  return (
+    <SessionProvider>
+      <AdminLayoutRoot>{page}</AdminLayoutRoot>
+    </SessionProvider>
   );
 }

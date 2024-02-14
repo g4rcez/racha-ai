@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useTranslations } from "~/i18n";
 import { changeThemeColor, hslToHex } from "~/lib/dom";
 import { onlyNumbers } from "~/lib/fn";
-import { Entity } from "~/models/entity";
+import { Store } from "~/models/store";
 import { Friends, User } from "~/store/friends.store";
 import DarkTheme from "~/styles/dark.json";
 import D from "~/styles/default.json";
@@ -33,7 +33,7 @@ type State = {
 };
 
 const schemas = {
-  v1: Entity.validator(
+  v1: Store.validator(
     z.object({
       name: z.string(),
       devMode: z.boolean(),
@@ -70,7 +70,7 @@ const setup = (state?: DeepPartial<State>) => {
   }
 };
 
-export const Preferences = Entity.create(
+export const Preferences = Store.create(
   { name: "preferences", schemas, version: "v1" },
   (storage?: ParseToRaw<State>): State => {
     const id = uuidv7();

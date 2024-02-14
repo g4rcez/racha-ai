@@ -1,7 +1,7 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { db } from "~/db";
 import { Order, OrderItem, orders, Payment } from "~/db/orders";
-import { Group, User } from "~/db/users";
+import { Groups, Users } from "~/db/users";
 import { Either } from "~/lib/either";
 import { HistoryItem } from "~/store/history.store";
 
@@ -11,8 +11,8 @@ export namespace Orders {
   export const createPayments = async (): Promise<Payment[]> => [];
 
   export const create = async (
-    owner: User,
-    group: Group,
+    owner: Users,
+    group: Groups,
     cart: HistoryItem,
   ) => {
     return db.transaction(async (transaction) => {

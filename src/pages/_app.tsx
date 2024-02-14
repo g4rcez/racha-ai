@@ -1,3 +1,4 @@
+import { SessionProvider } from "next-auth/react";
 import Head from "next/head";
 import { Fragment, ReactElement } from "react";
 import DefaultTheme from "~/styles/default.json";
@@ -7,7 +8,10 @@ import { AppPropsWithLayout } from "~/types";
 
 const staticLayout = (page: ReactElement) => page;
 
-export default function App({ Component, pageProps }: AppPropsWithLayout) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? staticLayout;
   return (
     <Fragment>
@@ -27,7 +31,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
           {createCssTheme(DefaultTheme)}
         </style>
       </Head>
-      {getLayout(<Component {...pageProps} />)}
+      <SessionProvider session={session}>
+        {getLayout(<Component {...pageProps} />)}
+      </SessionProvider>
     </Fragment>
   );
 }

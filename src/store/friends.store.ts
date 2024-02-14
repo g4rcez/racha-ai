@@ -1,7 +1,7 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { z } from "zod";
 import { Dict } from "~/lib/dict";
-import { Entity } from "~/models/entity";
+import { Store } from "~/models/store";
 import { ParseToRaw } from "~/types";
 
 const user = z.object({
@@ -10,7 +10,7 @@ const user = z.object({
   createdAt: z.date().or(z.string().datetime()),
 });
 
-const schemas = { v1: Entity.validator(z.object({ users: z.array(user) })) };
+const schemas = { v1: Store.validator(z.object({ users: z.array(user) })) };
 
 export type User = { id: string; name: string; createdAt: Date };
 
@@ -21,7 +21,7 @@ const order = <T extends { name: string; id: string }>(users: T[]): T[] =>
     a.name.toLocaleLowerCase() > b.name.toLocaleLowerCase() ? 1 : -1,
   );
 
-export const Friends = Entity.create(
+export const Friends = Store.create(
   { name: "friends", schemas, version: "v1" },
   (store?: ParseToRaw<State>) =>
     ({ users: Dict.from("id", store?.users ?? []) }) as State,

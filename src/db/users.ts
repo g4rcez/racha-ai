@@ -1,5 +1,6 @@
 import { InferSelectModel, relations } from "drizzle-orm";
 import {
+  index,
   jsonb,
   pgTable,
   text,
@@ -8,15 +9,19 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const users = pgTable("user", {
-  id: uuid("id").notNull().primaryKey(),
-  name: text("name"),
-  email: text("email").notNull(),
-  image: text("image"),
-  preferences: jsonb("preferences").default({}),
-  createdAt: timestamp("createdAt").notNull().defaultNow(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
-});
+export const users = pgTable(
+  "user",
+  {
+    id: uuid("id").notNull().primaryKey(),
+    name: text("name"),
+    image: text("image"),
+    email: text("email").notNull().unique(),
+    preferences: jsonb("preferences").default({}),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    emailVerified: timestamp("emailVerified", { mode: "date" }),
+  },
+  (t) => ({ emailIndex: index("emailIndex").on(t.email) }),
+);
 
 export const groups = pgTable("groups", {
   id: uuid("id").primaryKey().notNull(),
@@ -53,5 +58,6 @@ export const userGroupsRelations = relations(userGroups, ({ one }) => ({
   user: one(users, { fields: [userGroups.id], references: [users.id] }),
 }));
 
-export type User = InferSelectModel<typeof users>;
-export type Group = InferSelectModel<typeof groups>;
+export type Users = InferSelectModel<typeof users>;
+
+export type Groups = InferSelectModel<typeof groups>;

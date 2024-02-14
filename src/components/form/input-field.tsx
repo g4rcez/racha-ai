@@ -62,7 +62,7 @@ export const InputField = <T extends "input" | "select">({
             ) : null}
           </InputFeedback>
         ) : null}
-        <div className="group flex w-full flex-row flex-nowrap items-center gap-x-2 gap-y-1 rounded-md border border-slate-300 bg-transparent transition-colors group-focus-within:border-main-bg group-hover:border-main-bg group-error:border-danger">
+        <div className="group flex w-full flex-row flex-nowrap items-center gap-x-2 gap-y-1 rounded-md border border-muted-input bg-transparent transition-colors group-focus-within:border-main-bg group-hover:border-main-bg group-error:border-danger">
           {left ? (
             <span className="flex flex-nowrap gap-1 whitespace-nowrap pl-2">
               {left}

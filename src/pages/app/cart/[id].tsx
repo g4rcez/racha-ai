@@ -2,7 +2,7 @@ import { toBlob } from "html-to-image";
 import { ShareIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
@@ -45,9 +45,7 @@ const CartId: NextPageWithLayout = () => {
 
   const total = i18n.format.money(history.total);
 
-  const onShare = async () => {
-    const div = ref.current;
-    if (div === null) return;
+  const onShareElement = async (div: HTMLElement) => {
     div.setAttribute("data-image", "true");
     const blob = await toBlob(div, { quality: 100, height: div.clientHeight });
     div.removeAttribute("data-image");
@@ -59,7 +57,7 @@ const CartId: NextPageWithLayout = () => {
       const files = [file];
       if (navigator.canShare({ files })) {
         const reset = (e?: any) => {
-          if (e) console.log(e);
+          if (e) console.error(e);
           return e;
         };
         const result = await navigator
@@ -74,6 +72,13 @@ const CartId: NextPageWithLayout = () => {
       await navigator.clipboard.write(items);
       return void toast.info("Imagem copiada para o seu CTRL + V");
     }
+  };
+
+  const onShare = () => (ref.current ? onShareElement(ref.current) : undefined);
+
+  const onPersonShare = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const element = document.getElementById(e.currentTarget.dataset.id ?? "");
+    if (element) onShareElement(element);
   };
 
   return (
@@ -107,9 +112,22 @@ const CartId: NextPageWithLayout = () => {
       <Card>
         <ul className="mt-6 space-y-8">
           {history.users.arrayMap((user) => (
-            <li className="flex flex-wrap justify-between" key={user.id}>
-              <span className="text-lg font-medium">{user.name}</span>
-              <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
+            <li
+              id={user.id}
+              key={user.id}
+              className="group space-y-6 shareable data-[image=true]:bg-card-bg flex flex-wrap justify-between"
+            >
+              <header className="w-full flex items-center justify-between">
+                <button
+                  data-id={user.id}
+                  onClick={onPersonShare}
+                  className="text-lg font-medium items-center flex gap-2"
+                >
+                  <ShareIcon absoluteStrokeWidth size={16} strokeWidth={2} />
+                  {user.name}
+                </button>
+                <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
+              </header>
               {user.products.length === 0 ? null : (
                 <Table>
                   <TableHead>

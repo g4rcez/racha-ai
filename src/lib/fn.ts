@@ -1,6 +1,4 @@
-import { uuidv7 } from "@kripod/uuidv7";
 import Fraction from "fraction.js";
-import React from "react";
 import { Is } from "~/lib/is";
 
 export const reduceObject = <T extends {}, V>(
@@ -22,25 +20,7 @@ const getEntries = (o: object, prefix = ""): [any, any][] =>
 
 export const flatTuples = <K, V>(input: object): [K, V][] => getEntries(input);
 
-export const uuid = uuidv7;
-
 export const sanitize = (str: string) => str.trim().normalize("NFKD");
-
-export const parseFromSchema = (a: any, schema: any) => {
-  const result = schema.safeParse(a);
-  return result.success ? result.data : schema._def.defaultValue();
-};
-
-export const sortUuidList = <T, K extends keyof T>(
-  list: T[],
-  key: K,
-  order: "asc" | "desc" = "desc",
-) => {
-  const pow = order === "asc" ? -1 : 1;
-  return list.toSorted(
-    (a, b) => (b[key] as string).localeCompare(a[key] as string) * pow,
-  );
-};
 
 const isObject = (object: any): object is object =>
   Object.prototype.toString.call(object) === "[object Object]";
@@ -76,16 +56,6 @@ export const diff = (a: number, b: number) => a - b;
 export const clamp = (min: number, average: number, max: number) =>
   Math.max(Math.min(max, average), min);
 
-export const isReactComponent = (a: any): a is React.FC => {
-  if (a.$$typeof === Symbol.for("react.forward_ref")) {
-    return true;
-  }
-  if (a.$$typeof === Symbol.for("react.fragment")) {
-    return true;
-  }
-  return a.$$typeof === Symbol.for("react.element");
-};
-
 export const fixed = (n: number, decimalPlaces: number = 2) =>
   Number(n.toFixed(decimalPlaces));
 
@@ -100,12 +70,11 @@ export const toFraction = (a: number): string =>
 
 export const sleep = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-export const noop = {
-  fn: <T>(t: T): T => t,
-  array: [],
-  obj: {},
-};
+export const noop = { fn: <T>(t: T): T => t, array: [], obj: {} };
 
 export const isServerSide = () => typeof window === "undefined";
 
 export const normalize = (str: string) => str.normalize("NFKD").trim();
+
+export const has = <T extends {}, K extends keyof T>(o: T, k: K): k is K =>
+  Object.prototype.hasOwnProperty.call(o, k);

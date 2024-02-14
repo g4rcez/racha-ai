@@ -1,8 +1,8 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { z } from "zod";
-import { Entity } from "~/models/entity";
+import { Store } from "~/models/store";
 
-export type Product = Entity.New<{
+export type Product = Store.New<{
   name: string;
   price: number;
   monetary: string;
@@ -11,7 +11,7 @@ export type Product = Entity.New<{
 
 export namespace Product {
   export const schema = z.object({
-    ...Entity.schema.shape,
+    ...Store.schema.shape,
     name: z.string(),
     price: z.number(),
     monetary: z.string(),

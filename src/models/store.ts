@@ -1,12 +1,12 @@
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
 import { createGlobalReducer, ReducerActions } from "use-typed-reducer";
-import { Env } from "~/lib/Env";
+import { Env } from "~/lib/env";
 import { isServerSide } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { FN } from "~/types";
 
-export namespace Entity {
+export namespace Store {
   type Metadata = { id: string; createdAt: Date };
 
   export const dateSchema = z

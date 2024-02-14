@@ -1,4 +1,4 @@
-import { LegacyRef, MutableRefObject, RefCallback } from "react";
+import React, { LegacyRef, MutableRefObject, RefCallback } from "react";
 
 export const mergeRefs =
   <T extends any = any>(
@@ -13,3 +13,13 @@ export const mergeRefs =
       }
     });
   };
+
+export const isReactComponent = (a: any): a is React.FC => {
+  if (a.$$typeof === Symbol.for("react.forward_ref")) {
+    return true;
+  }
+  if (a.$$typeof === Symbol.for("react.fragment")) {
+    return true;
+  }
+  return a.$$typeof === Symbol.for("react.element");
+};

@@ -16,7 +16,7 @@ export class Either<E, S> {
 
   public static transform<Fn extends (...a: any[]) => any, E>(fn: Fn) {
     return (
-      ...params: Parameters<Fn>[]
+      ...params: Parameters<Fn>
     ): ReturnType<Fn> extends Promise<infer R>
       ? Promise<Either<E, R>>
       : Either<E, ReturnType<Fn>> => {
@@ -32,7 +32,7 @@ export class Either<E, S> {
     };
   }
 
-  public isSuccess(): this is Either<unknown, Exclude<S, ChosenOne>> {
+  public isSuccess(): this is Either<unknown, S> {
     return this.success !== undefined;
   }
 

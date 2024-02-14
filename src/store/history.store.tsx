@@ -5,7 +5,7 @@ import { CartMath } from "~/lib/cart-math";
 import { Dict } from "~/lib/dict";
 import { sortId, sum } from "~/lib/fn";
 import { Categories } from "~/models/categories";
-import { Entity } from "~/models/entity";
+import { Store } from "~/models/store";
 import { Product } from "~/models/product";
 import { CartState, CartUser } from "~/store/cart.store";
 import { Friends } from "~/store/friends.store";
@@ -47,13 +47,13 @@ const product = Product.schema.extend({ total: z.number() });
 const commonSchema = z.object({
   id: z.string(),
   title: z.string(),
-  createdAt: Entity.dateSchema,
+  createdAt: Store.dateSchema,
   readonly: z.boolean().default(false),
   historyType: z.nativeEnum(HistoryType),
 });
 
 const schemas = {
-  v1: Entity.validator(
+  v1: Store.validator(
     z.object({
       items: z.array(
         z.discriminatedUnion("historyType", [
@@ -176,7 +176,7 @@ const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {
   };
 };
 
-export const History = Entity.create(
+export const History = Store.create(
   { schemas, name: "history", version: "v1" },
   parseAll,
   () => ({ refresh: (state: State) => state }),

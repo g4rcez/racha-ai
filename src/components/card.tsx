@@ -22,7 +22,7 @@ export const Card = ({ as, description, title, ...props }: Props) => {
             {title}
           </h2>
           {description ? (
-            <p className="mt-1 text-balance text-sm">{description}</p>
+            <p className="mt-1 text-balance text-xs">{description}</p>
           ) : null}
         </header>
       ) : null}

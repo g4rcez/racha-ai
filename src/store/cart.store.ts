@@ -10,7 +10,7 @@ import { Either } from "~/lib/either";
 import { sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Categories } from "~/models/categories";
-import { Entity } from "~/models/entity";
+import { Store } from "~/models/store";
 import { Product } from "~/models/product";
 import { Links } from "~/router";
 import { Friends, User } from "~/store/friends.store";
@@ -41,7 +41,7 @@ export type Metadata = Partial<{
   avatar: string;
 }>;
 
-export type CartState = Entity.New<{
+export type CartState = Store.New<{
   title: string;
   type: Division;
   justMe: boolean;
@@ -69,8 +69,8 @@ const product = Product.schema.extend({
 const defaultSchema = z.object({
   id: z.string().uuid(),
   currentProduct: product,
-  createdAt: Entity.dateSchema,
-  finishedAt: Entity.dateSchema,
+  createdAt: Store.dateSchema,
+  finishedAt: Store.dateSchema,
   type: z.string().default(""),
   title: z.string().default(""),
   couvert: z.string().default(""),
@@ -84,7 +84,7 @@ const defaultSchema = z.object({
   currencyCode: z.string().default(i18n.getCurrency() as string),
 });
 
-const versioningSchema = Entity.validator(
+const versioningSchema = Store.validator(
   defaultSchema.extend({
     justMe: z.boolean().default(false),
     metadata: z
@@ -94,7 +94,7 @@ const versioningSchema = Entity.validator(
     users: z
       .array(
         Friends.schema.extend({
-          paidAt: Entity.dateSchema.nullable().default(null),
+          paidAt: Store.dateSchema.nullable().default(null),
         }),
       )
       .default([]),
@@ -157,7 +157,7 @@ const splitAccountValue = {
   },
 };
 
-export const Cart = Entity.create(
+export const Cart = Store.create(
   { name: "cart", version: "v2", schemas },
   (storage?: ParseToRaw<CartState>): CartState => ({
     id: storage?.id ?? uuidv7(),

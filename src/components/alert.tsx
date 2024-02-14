@@ -3,7 +3,7 @@ import { AlertTriangleIcon, BadgeCheckIcon, BadgeInfoIcon } from "lucide-react";
 import React, { forwardRef } from "react";
 import { Polymorph, PolymorphicProps } from "~/components/polymorph";
 import { css } from "~/lib/dom";
-import { isReactComponent } from "~/lib/fn";
+import { isReactComponent } from "~/lib/react";
 import { Label } from "~/types";
 
 const variants = cva(

@@ -1,5 +1,5 @@
 import { Container } from "~/landing/components/container";
-import { Env } from "~/lib/Env";
+import { Env } from "~/lib/env";
 
 const questions = [
   {

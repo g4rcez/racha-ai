@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import { Suspense, useEffect, useState } from "react";
 import { LocalStorage } from "storage-manager-js";
-import { Env } from "~/lib/Env";
+import { Env } from "~/lib/env";
 
 const getStorageJson = () =>
   Object.keys(LocalStorage.json()).reduce(
