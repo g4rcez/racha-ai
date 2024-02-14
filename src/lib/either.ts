@@ -32,7 +32,7 @@ export class Either<E, S> {
     };
   }
 
-  public isSuccess(): this is Either<unknown, S> {
+  public isSuccess(): this is Either<unknown, Exclude<S, ChosenOne>> {
     return this.success !== undefined;
   }
 
