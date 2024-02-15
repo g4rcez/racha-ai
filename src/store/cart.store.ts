@@ -69,8 +69,8 @@ const product = Product.schema.extend({
 const defaultSchema = z.object({
   id: z.string().uuid(),
   currentProduct: product,
-  createdAt: Store.dateSchema,
-  finishedAt: Store.dateSchema,
+  createdAt: Store.date,
+  finishedAt: Store.date,
   type: z.string().default(""),
   title: z.string().default(""),
   couvert: z.string().default(""),
@@ -94,7 +94,7 @@ const versioningSchema = Store.validator(
     users: z
       .array(
         Friends.schema.extend({
-          paidAt: Store.dateSchema.nullable().default(null),
+          paidAt: Store.date.nullable().default(null),
         }),
       )
       .default([]),

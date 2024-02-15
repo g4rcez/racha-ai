@@ -47,7 +47,7 @@ const product = Product.schema.extend({ total: z.number() });
 const commonSchema = z.object({
   id: z.string(),
   title: z.string(),
-  createdAt: Store.dateSchema,
+  createdAt: Store.date,
   readonly: z.boolean().default(false),
   historyType: z.nativeEnum(HistoryType),
 });

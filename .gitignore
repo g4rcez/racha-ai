@@ -261,5 +261,9 @@ tests/node_modules
 .xata
 .xatarc
 src/xata.ts
+public/sw.js
+public/sw.map.js
 public/*.map.js
+public/workbox-*.js
 public/**/*.map.js
+

@@ -9,7 +9,7 @@ import { FN } from "~/types";
 export namespace Store {
   type Metadata = { id: string; createdAt: Date };
 
-  export const dateSchema = z
+  export const date = z
     .string()
     .datetime()
     .or(z.date())
@@ -17,7 +17,7 @@ export namespace Store {
 
   export const schema = z.object({
     id: z.string().uuid(),
-    createdAt: dateSchema,
+    createdAt: date,
   });
 
   export type New<T extends object> = T & Metadata;
