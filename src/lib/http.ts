@@ -1,7 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession, Session } from "next-auth";
-import { z } from "zod";
-import { nextAuthOptions } from "~/lib/auth";
+import {
+  GetServerSidePropsContext,
+  GetServerSidePropsResult,
+} from "next/types";
+import { getSession, nextAuthOptions } from "~/lib/auth";
 import { has } from "~/lib/fn";
 
 type Endpoint = (req: NextApiRequest, res: NextApiResponse) => any;
@@ -38,6 +41,25 @@ export const endpoint =
       : res.status(405).json({ error: "Method not allowed" });
   };
 
-export const parseMessageError = (issues: z.IssueData[]) => ({
+export const parseMessageError = <
+  I extends { message: string; path: Array<number | string> },
+>(
+  issues: I[],
+) => ({
   errors: issues.map((x) => `${x.path?.join?.(".")}|${x.message}`),
 });
+
+export const serverSideMiddleware =
+  (
+    callback: (
+      context: GetServerSidePropsContext,
+      session: Session & { user: Session["user"] & { id: string } },
+    ) => Promise<GetServerSidePropsResult<any>>,
+  ) =>
+  async (
+    context: GetServerSidePropsContext,
+  ): Promise<GetServerSidePropsResult<any>> => {
+    const session = await getSession(context);
+    if (session === null) return { notFound: true };
+    return callback(context, session as any);
+  };

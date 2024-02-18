@@ -6,5 +6,5 @@ export const Links = {
   friends: "/app/friends",
   login: "/login",
   userGroupId: <ID extends string>(id: ID) =>
-    `/app/social/group/${id}` as const,
+    `/app/social/groups/${id}` as const,
 } as const;

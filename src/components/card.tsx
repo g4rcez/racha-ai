@@ -1,9 +1,11 @@
+import React from "react";
 import { PolymorphicProps } from "~/components/polymorph";
 import { css } from "~/lib/dom";
+import { Form } from "~/components/form/form";
 
 type Props = PolymorphicProps<
   { description?: string },
-  "div" | "section" | "article" | "nav" | "ul"
+  "div" | "section" | "article" | "nav" | "ul" | "form" | typeof Form
 >;
 
 export const Card = ({ as, description, title, ...props }: Props) => {

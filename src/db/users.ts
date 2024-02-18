@@ -5,6 +5,7 @@ import {
   pgTable,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -35,15 +36,23 @@ export const groups = pgTable("groups", {
   deletedAt: timestamp("deletedAt"),
 });
 
-export const userGroups = pgTable("userGroups", {
-  id: uuid("id").primaryKey(),
-  userId: uuid("userId")
-    .notNull()
-    .references(() => users.id),
-  groupId: uuid("groupId")
-    .notNull()
-    .references(() => groups.id),
-});
+export const userGroups = pgTable(
+  "userGroups",
+  {
+    id: uuid("id").primaryKey(),
+    userId: uuid("userId")
+      .notNull()
+      .references(() => users.id),
+    groupId: uuid("groupId")
+      .notNull()
+      .references(() => groups.id),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    deletedAt: timestamp("deletedAt"),
+  },
+  (t) => ({
+    uniqueUserInGroup: unique().on(t.userId, t.groupId),
+  }),
+);
 
 export const userRelations = relations(users, (relation) => ({
   userGroups: relation.many(groups),

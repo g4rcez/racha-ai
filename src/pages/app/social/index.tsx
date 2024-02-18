@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
 import {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -43,13 +42,12 @@ export const getServerSideProps = async (
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>;
 
 function V2FriendsPage(props: Props) {
-  const router = useRouter();
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const json = Object.fromEntries(new FormData(e.currentTarget) as any);
     const response = await httpClient.post(Endpoints.createGroup, json);
     if (response.ok) {
-      await response.json();
-      router.reload();
+      const json = await response.json();
+      console.log(json);
     }
   };
 
@@ -69,8 +67,20 @@ function V2FriendsPage(props: Props) {
         description="Crie grupos de amigos para facilitar suas contas"
       >
         <Form onSubmit={onSubmit} className="flex flex-col gap-4">
-          <Input required name="title" title="Nome" />
-          <Input required name="description" title="Description" />
+          <Input
+            required
+            name="title"
+            title="Nome"
+            minLength={1}
+            maxLength={255}
+          />
+          <Input
+            required
+            minLength={1}
+            maxLength={255}
+            name="description"
+            title="Description"
+          />
           <input
             name="avatar"
             type="hidden"

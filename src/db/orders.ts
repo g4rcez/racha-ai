@@ -23,9 +23,7 @@ export const orders = pgTable("orders", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId")
-    .notNull()
-    .references(() => groups.id),
+  groupId: uuid("groupId").references(() => groups.id),
 });
 
 export const orderItems = pgTable("orderItems", {
@@ -39,9 +37,7 @@ export const orderItems = pgTable("orderItems", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId")
-    .notNull()
-    .references(() => groups.id),
+  groupId: uuid("groupId").references(() => groups.id),
   type: varchar("type", { length: 32 }),
   price: decimal("price").notNull().default("0"),
   quantity: decimal("quantity").notNull().default("1"),
@@ -58,9 +54,7 @@ export const payments = pgTable("payments", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId")
-    .notNull()
-    .references(() => groups.id),
+  groupId: uuid("groupId").references(() => groups.id),
   amount: decimal("amount").notNull().default("0"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });

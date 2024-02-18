@@ -13,6 +13,9 @@ export const nextAuthOptions: NextAuthOptions = {
   adapter: DrizzleAdapter(db) as any,
   providers: [GithubProvider(Env.github)],
   session: { strategy: "jwt", generateSessionToken: uuidv7 },
+  jwt: {
+    maxAge: 28_800_000,
+  },
   callbacks: {
     session: ({ session, token }) => {
       if (session.user) (session.user as any).id = token.sub;
