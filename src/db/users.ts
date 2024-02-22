@@ -40,6 +40,7 @@ export const userGroups = pgTable(
   "userGroups",
   {
     id: uuid("id").primaryKey(),
+    role: varchar("role", { length: 16 }).default("default"),
     userId: uuid("userId")
       .notNull()
       .references(() => users.id),

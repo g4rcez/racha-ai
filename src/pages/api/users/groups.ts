@@ -11,6 +11,15 @@ export default endpoint({
       validation.data,
       session.user?.id,
     );
-    return res.json(createdGroup);
+    return createdGroup.isSuccess()
+      ? res.json(createdGroup.success)
+      : res.status(400).json(
+          parseMessageError([
+            {
+              path: ["."],
+              message: `${JSON.stringify((createdGroup as any).error)}`,
+            },
+          ]),
+        );
   }),
 });

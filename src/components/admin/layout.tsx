@@ -27,11 +27,7 @@ function AdminLayoutRoot(props: PropsWithChildren) {
   const page = props.children;
   const [platform, setPlatform] = useState<Nullable<Platforms>>(null);
   const prompt = useRef<any | null>(null);
-  const session = useAuthSession();
-
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
+  useAuthSession();
 
   useEffect(() => {
     window.addEventListener("beforeinstallprompt", (event) => {

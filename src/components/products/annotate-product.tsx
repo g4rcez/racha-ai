@@ -218,10 +218,8 @@ export const AnnotateProduct = (props: Props) => {
       dispatch.onReset();
       return props.onChangeProduct(result.success);
     }
-    if (result.isError()) {
-      dispatch.hide();
-      return void console.error(result.error);
-    }
+    dispatch.hide();
+    return void console.error(result.error);
   };
 
   const onClickQuantity = (e: React.MouseEvent<HTMLButtonElement>) => {

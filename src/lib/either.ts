@@ -1,4 +1,6 @@
-type ChosenOne = unknown;
+type Joker = never;
+
+const n: Joker = undefined as Joker;
 
 export class Either<E, S> {
   private constructor(
@@ -7,11 +9,11 @@ export class Either<E, S> {
   ) {}
 
   public static error<E1>(e: E1) {
-    return new Either<E1, ChosenOne>(e, undefined as any as ChosenOne);
+    return new Either<E1, Joker>(e, n);
   }
 
   public static success<S1>(e: S1) {
-    return new Either<ChosenOne, S1>(undefined as any as ChosenOne, e);
+    return new Either<Joker, S1>(n, e);
   }
 
   public static transform<Fn extends (...a: any[]) => any, E>(fn: Fn) {
@@ -32,11 +34,11 @@ export class Either<E, S> {
     };
   }
 
-  public isSuccess(): this is Either<unknown, S> {
+  public isSuccess(): this is Either<Joker, S> {
     return this.success !== undefined;
   }
 
-  public isError(): this is Either<Exclude<E, ChosenOne>, unknown> {
+  public isError(): this is Either<E, Joker> {
     return this.error !== undefined;
   }
 }

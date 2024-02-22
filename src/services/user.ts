@@ -1,5 +1,6 @@
 import { uuidv7 } from "@kripod/uuidv7";
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
+import { createLogger } from "vite";
 import { z } from "zod";
 import { db } from "~/db";
 import { DB } from "~/db/types";
@@ -18,12 +19,12 @@ export namespace User {
   export type MappedUser = ReturnType<typeof mapUser>;
 
   export const getFriends = Either.transform(async (id: string) => {
-    const result = await db
+    const query = db
       .select()
       .from(users)
       .innerJoin(groups, eq(users.id, groups.ownerId))
-      .where(and(eq(groups.ownerId, id), isNotNull(groups.deletedAt)))
-      .execute();
+      .where(and(eq(groups.ownerId, id), isNull(groups.deletedAt)));
+    const result = await query.execute();
     return result.map((x) => x.groups);
   });
 
@@ -41,13 +42,13 @@ export namespace User {
       userId: string,
       groupId: string,
     ): Promise<Nullable<ParseToRaw<Groups> & { users: MappedUser[] }>> => {
-      const result = await db
+      const query = db
         .select()
         .from(groups)
         .innerJoin(userGroups, eq(userGroups.groupId, groups.id))
         .innerJoin(users, eq(users.id, userGroups.userId))
-        .where(eq(groups.id, groupId))
-        .execute();
+        .where(and(eq(groups.id, groupId), isNull(userGroups.deletedAt)));
+      const result = await query.execute();
       if (result.length === 0) return null;
       const hasCurrentUser = result.some((x) => x.user.id === userId);
       if (!hasCurrentUser) return null;
@@ -71,6 +72,12 @@ export namespace User {
     owner: z.string().uuid(),
     email: z.string().email(),
     groupId: z.string().uuid(),
+  });
+
+  export const deleteUserGroup = z.object({
+    userId: z.string().uuid(),
+    groupId: z.string().uuid(),
+    ownerId: z.string().uuid(),
   });
 
   export type GroupSchema = z.infer<typeof groupSchema>;
@@ -105,6 +112,7 @@ export namespace User {
           await addToGroup(transaction, userId, id);
           return createdGroup;
         } catch (e) {
+          console.log(e);
           transaction.rollback();
           throw e;
         }
@@ -122,4 +130,30 @@ export namespace User {
       return result.length === 1;
     },
   );
+
+  export const removeFromGroup = Either.transform(
+    async (userToRemove: string, groupId: string) => {
+      await db
+        .update(userGroups)
+        .set({
+          deletedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(userGroups.groupId, groupId),
+            eq(userGroups.userId, userToRemove),
+          ),
+        )
+        .execute();
+    },
+  );
+
+  export const deleteGroup = Either.transform(async (id: string) => {
+    const query = db
+      .update(userGroups)
+      .set({ deletedAt: new Date() })
+      .where(eq(groups.id, id));
+    console.log(query.toSQL());
+    return query.execute();
+  });
 }

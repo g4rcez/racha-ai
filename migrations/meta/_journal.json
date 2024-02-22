@@ -36,6 +36,13 @@
       "when": 1708217398453,
       "tag": "0004_smart_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1708554589307,
+      "tag": "0005_groovy_leopardon",
+      "breakpoints": true
     }
   ]
 }

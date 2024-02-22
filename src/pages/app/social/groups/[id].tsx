@@ -1,6 +1,8 @@
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect } from "react";
 import AdminLayout from "~/components/admin/layout";
+import { Button } from "~/components/button";
 import { Card } from "~/components/card";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
@@ -12,8 +14,8 @@ import { User } from "~/services/user";
 import { Nullable, ParseToRaw } from "~/types";
 
 export const getServerSideProps = serverSideMiddleware(async (ctx, session) => {
-  const params = ctx.params?.id ?? "";
-  const group = await User.getGroupById(session.user.id, params as string);
+  const groupId = ctx.params?.id ?? "";
+  const group = await User.getGroupById(session.user.id, groupId as string);
   if (group.isError()) {
     return { props: { group: null } };
   }
@@ -28,14 +30,27 @@ function AppSocialGroupsIdPage(props: Props) {
   const group = props.group;
   const groupId = useRouter().query.id as string;
 
+  useEffect(() => {
+    console.log(group);
+  }, []);
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const email = (
       e.currentTarget.elements.namedItem("email") as HTMLFormElement
     ).value;
-    const response = await httpClient.post(Endpoints.addMember(groupId), {
+    const response = await httpClient.patch(Endpoints.memberId(groupId), {
       email,
     });
     return response.ok ? alert("OK") : console.log(response);
+  };
+
+  const onDelete = async (e: React.ChangeEvent<HTMLFormElement>) => {
+    const form = e.currentTarget;
+    const user = form.dataset.id as string;
+    const response = await httpClient.delete(Endpoints.memberId(groupId), {
+      user,
+    });
+    console.log(response);
   };
 
   return (
@@ -46,7 +61,15 @@ function AppSocialGroupsIdPage(props: Props) {
           type="email"
           name="email"
           title="Email"
-          placeholder="email.do.amigo@email.com"
+          placeholder="email.amigo@email.com"
+          right={
+            <Button
+              type="submit"
+              size="small"
+              theme="transparent"
+              icon={<PlusIcon size={18} />}
+            />
+          }
         />
       </Card>
       {group === null ? null : (
@@ -54,9 +77,18 @@ function AppSocialGroupsIdPage(props: Props) {
           title="Membros do grupo"
           description={`Seu grupo possui ${group.users.length} membros`}
         >
-          <ul className="space-y-4">
+          <ul className="space-y-2 mt-8">
             {group.users.map((user) => (
-              <li key={user.id}>{user.name}</li>
+              <li className="flex w-full justify-between" key={user.id}>
+                {user.name}
+                <Form data-id={user.id} onSubmit={onDelete}>
+                  <Button
+                    type="submit"
+                    theme="transparent-danger"
+                    icon={<Trash2Icon size={16} className="text-danger-bg" />}
+                  />
+                </Form>
+              </li>
             ))}
           </ul>
         </Card>

@@ -54,10 +54,15 @@ function V2FriendsPage(props: Props) {
   return (
     <main className="flex flex-col gap-8">
       <Card title="Meus grupos">
-        <ul>
+        <ul className="space-y-4">
           {props.groups.map((group) => (
             <li key={group.id}>
-              <Link href={Links.userGroupId(group.id)}>{group.title}</Link>
+              <Link
+                href={Links.userGroupId(group.id)}
+                className="link:underline link:text-main-bg"
+              >
+                {group.title}
+              </Link>
             </li>
           ))}
         </ul>
