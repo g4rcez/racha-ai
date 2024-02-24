@@ -10,9 +10,11 @@ import { Either } from "~/lib/either";
 import { sum } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Categories } from "~/models/categories";
+import { Division } from "~/models/entity-types";
 import { Store } from "~/models/store";
 import { Product } from "~/models/product";
 import { Links } from "~/router";
+import { OrdersValidator } from "~/services/orders/order.validator";
 import { Friends, User } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { ParseToRaw } from "~/types";
@@ -22,13 +24,6 @@ export type CartUser = User & {
   quantity: number;
   paidAt: Date | null;
 };
-
-export enum Division {
-  Equals = "equals",
-  Percent = "percent",
-  Absolute = "absolute",
-  PerConsume = "perConsume",
-}
 
 export type CartProduct = Product & {
   consumers: Dict<string, CartUser>;
@@ -59,38 +54,9 @@ export type CartState = Store.New<{
   products: Dict<string, CartProduct>;
 }>;
 
-const product = Product.schema.extend({
-  division: z.nativeEnum(Division).optional().default(Division.Equals),
-  consumers: z.array(
-    Friends.schema.extend({ amount: z.number(), quantity: z.number() }),
-  ),
-});
-
-const defaultSchema = z.object({
-  id: z.string().uuid(),
-  currentProduct: product,
-  createdAt: Store.date,
-  finishedAt: Store.date,
-  type: z.string().default(""),
-  title: z.string().default(""),
-  couvert: z.string().default(""),
-  category: z.string().default(""),
-  justMe: z.boolean().default(false),
-  additional: z.string().default(""),
-  products: z.array(product).default([]),
-  hasCouvert: z.boolean().default(false),
-  hasAdditional: z.boolean().default(true),
-  users: z.array(Friends.schema).default([]),
-  currencyCode: z.string().default(i18n.getCurrency() as string),
-});
-
 const versioningSchema = Store.validator(
-  defaultSchema.extend({
+  OrdersValidator.cartSchema.extend({
     justMe: z.boolean().default(false),
-    metadata: z
-      .object({ location: z.any(), description: z.string() })
-      .partial()
-      .default({}),
     users: z
       .array(
         Friends.schema.extend({
@@ -193,7 +159,11 @@ export const Cart = Store.create(
           consumers: new Dict(
             Friends.order(product.consumers).map((user) => [
               user.id,
-              { ...user, createdAt: new Date(user.createdAt) },
+              {
+                ...user,
+                createdAt: new Date(user.createdAt),
+                paidAt: user.paidAt ? new Date(user.paidAt) : null,
+              },
             ]),
           ),
         },
@@ -343,7 +313,7 @@ export const Cart = Store.create(
       return diff > 0.2;
     },
     validate: (cartProduct: ParseToRaw<CartProduct>) => {
-      const validated = product.safeParse(cartProduct);
+      const validated = OrdersValidator.product.safeParse(cartProduct);
       const messages: FormError[] = [];
       const consumers = Array.from(cartProduct.consumers.values());
       const exceededPayers = consumers.filter(

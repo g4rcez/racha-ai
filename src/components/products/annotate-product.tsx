@@ -7,8 +7,9 @@ import { Input } from "~/components/form/input";
 import { Dict } from "~/lib/dict";
 import { clamp, diff, sum, toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
+import { Division } from "~/models/entity-types";
 import { Product } from "~/models/product";
-import { Cart, CartProduct, CartUser, Division } from "~/store/cart.store";
+import { Cart, CartProduct, CartUser } from "~/store/cart.store";
 import { User } from "~/store/friends.store";
 import { Platform } from "~/store/platform";
 import { Title } from "../typography";
@@ -212,6 +213,7 @@ export const AnnotateProduct = (props: Props) => {
       consumers: product.consumers.toArray().map((item) => ({
         ...item,
         createdAt: new Date(item.createdAt).toISOString(),
+        paidAt: item.paidAt ? new Date(item.paidAt).toISOString() : null,
       })),
     });
     if (result.isSuccess()) {

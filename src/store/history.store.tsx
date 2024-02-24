@@ -122,7 +122,7 @@ const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {
     couvert,
     total,
     products: sumProducts,
-  } = CartMath.calculate(cart);
+  } = CartMath.calculate({ ...cart, products: cart.products.toArray() });
   const products = cart.products.toArray();
   const users = cart.users.toArray().map((user) => {
     const result = CartMath.perUser(products, user, additional, couvert);
@@ -147,7 +147,10 @@ const parseFromCart = (ownerId: string, cart: CartState): HistoryItem => {
       sum: ownProducts.reduce((acc, el) => sum(acc, el.total), 0),
     };
   });
-  const calculate = CartMath.calculate(cart);
+  const calculate = CartMath.calculate({
+    ...cart,
+    products: cart.products.toArray(),
+  });
   return {
     total,
     type: cart.type,

@@ -41,7 +41,7 @@ function AppSocialGroupsIdPage(props: Props) {
     const response = await httpClient.patch(Endpoints.memberId(groupId), {
       email,
     });
-    return response.ok ? alert("OK") : console.log(response);
+    return response.ok ? alert("Grupo criado") : console.log(response);
   };
 
   const onDelete = async (e: React.ChangeEvent<HTMLFormElement>) => {

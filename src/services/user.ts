@@ -1,6 +1,5 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { and, eq, isNull } from "drizzle-orm";
-import { createLogger } from "vite";
 import { z } from "zod";
 import { db } from "~/db";
 import { DB } from "~/db/types";
@@ -112,7 +111,7 @@ export namespace User {
           await addToGroup(transaction, userId, id);
           return createdGroup;
         } catch (e) {
-          console.log(e);
+          console.error(e);
           transaction.rollback();
           throw e;
         }
@@ -153,7 +152,6 @@ export namespace User {
       .update(userGroups)
       .set({ deletedAt: new Date() })
       .where(eq(groups.id, id));
-    console.log(query.toSQL());
     return query.execute();
   });
 }

@@ -29,7 +29,9 @@ export type ParseToRaw<T> = {
     : Date extends T[K]
       ? null extends T[K]
         ? string | null
-        : string
+        : T[K] extends Date
+          ? string
+          : T[K]
       : T[K];
 };
 
