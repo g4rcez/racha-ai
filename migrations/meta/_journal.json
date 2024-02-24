@@ -15,6 +15,34 @@
       "when": 1707763970287,
       "tag": "0001_fuzzy_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1708191741543,
+      "tag": "0002_mature_the_hand",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1708207802352,
+      "tag": "0003_late_boom_boom",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1708217398453,
+      "tag": "0004_smart_hulk",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1708554589307,
+      "tag": "0005_groovy_leopardon",
+      "breakpoints": true
     }
   ]
 }

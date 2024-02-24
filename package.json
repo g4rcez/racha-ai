@@ -10,7 +10,9 @@
     "prepare": "husky install",
     "preview": "vite preview",
     "start": "next start",
-    "migration": "drizzle-kit generate:pg"
+    "test:watch": "vitest watch",
+    "test": "vitest run",
+    "migration": "drizzle-kit generate:pg; npx drizzle-kit push:pg"
   },
   "dependencies": {
     "@auth/core": "^0.25.1",
@@ -46,6 +48,7 @@
     "react-error-boundary": "4.0.12",
     "sonner": "1.4.0",
     "storage-manager-js": "4.2.6-5",
+    "swr": "2.2.5",
     "tailwind-merge": "2.2.1",
     "the-mask-input": "3.3.12",
     "use-debounce": "10.0.0",

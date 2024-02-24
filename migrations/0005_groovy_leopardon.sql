@@ -1,0 +1,1 @@
+ALTER TABLE "userGroups" ADD COLUMN "role" varchar(16) DEFAULT 'default';

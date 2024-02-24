@@ -78,3 +78,5 @@ export const normalize = (str: string) => str.normalize("NFKD").trim();
 
 export const has = <T extends {}, K extends keyof T>(o: T, k: K): k is K =>
   Object.prototype.hasOwnProperty.call(o, k);
+
+export const inspect = (...a: any[]) => console.log(JSON.stringify(a, null, 4));

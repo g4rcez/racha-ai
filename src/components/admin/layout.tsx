@@ -1,3 +1,4 @@
+import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import {
   Fragment,
@@ -11,6 +12,7 @@ import { AppConfig } from "~/components/admin/app-config";
 import { DesktopLayout } from "~/components/admin/desktop.layout";
 import { MobileLayout } from "~/components/admin/mobile.layout";
 import { ClientSide } from "~/components/client-side";
+import { useAuthSession } from "~/hooks/use-auth-session";
 import { DesktopSize, Platform, Platforms } from "~/store/platform";
 import { Nullable } from "~/types";
 
@@ -25,6 +27,7 @@ function AdminLayoutRoot(props: PropsWithChildren) {
   const page = props.children;
   const [platform, setPlatform] = useState<Nullable<Platforms>>(null);
   const prompt = useRef<any | null>(null);
+  useAuthSession();
 
   useEffect(() => {
     window.addEventListener("beforeinstallprompt", (event) => {
@@ -82,9 +85,12 @@ function AdminLayoutRoot(props: PropsWithChildren) {
   );
 }
 
-export default function AdminLayout(page: React.ReactElement) {
+export default function AdminLayout(
+  page: React.ReactElement,
+  session: Session,
+) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <AdminLayoutRoot>{page}</AdminLayoutRoot>
     </SessionProvider>
   );

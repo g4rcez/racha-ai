@@ -26,15 +26,19 @@ export type DeepPartial<T> = T extends object
 export type ParseToRaw<T> = {
   [K in keyof T]: T[K] extends Dict<any, infer Value>
     ? ParseToRaw<Value>[]
-    : T[K] extends Date
-      ? string
+    : Date extends T[K]
+      ? null extends T[K]
+        ? string | null
+        : T[K] extends Date
+          ? string
+          : T[K]
       : T[K];
 };
 
 export type Nullable<T> = T | null;
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-  getLayout?: (page: ReactElement) => ReactNode;
+  getLayout?: (page: ReactElement, session: any) => ReactNode;
 };
 
 export type AppPropsWithLayout = AppProps & {

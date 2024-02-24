@@ -32,7 +32,7 @@ export default function App({
         </style>
       </Head>
       <SessionProvider session={session}>
-        {getLayout(<Component {...pageProps} />)}
+        {getLayout(<Component {...pageProps} />, session)}
       </SessionProvider>
     </Fragment>
   );

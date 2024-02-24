@@ -1,4 +1,4 @@
-import { InferSelectModel, relations } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   decimal,
   jsonb,
@@ -23,14 +23,11 @@ export const orders = pgTable("orders", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId")
-    .notNull()
-    .references(() => groups.id),
+  groupId: uuid("groupId").references(() => groups.id),
 });
 
 export const orderItems = pgTable("orderItems", {
   id: uuid("id").notNull().primaryKey(),
-  nameId: uuid("id").notNull(),
   title: varchar("title", { length: 256 }).notNull(),
   category: varchar("category", { length: 32 }),
   orderId: uuid("orderId")
@@ -39,9 +36,7 @@ export const orderItems = pgTable("orderItems", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId")
-    .notNull()
-    .references(() => groups.id),
+  groupId: uuid("groupId").references(() => groups.id),
   type: varchar("type", { length: 32 }),
   price: decimal("price").notNull().default("0"),
   quantity: decimal("quantity").notNull().default("1"),
@@ -58,9 +53,7 @@ export const payments = pgTable("payments", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId")
-    .notNull()
-    .references(() => groups.id),
+  groupId: uuid("groupId").references(() => groups.id),
   amount: decimal("amount").notNull().default("0"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
@@ -82,7 +75,3 @@ export const orderRelations = relations(orders, ({ many }) => ({
   payments: many(payments),
   orderItems: many(orderItems),
 }));
-
-export type Order = InferSelectModel<typeof orders>;
-export type OrderItem = InferSelectModel<typeof orderItems>;
-export type Payment = InferSelectModel<typeof payments>;
