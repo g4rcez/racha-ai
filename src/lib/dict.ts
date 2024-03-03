@@ -40,4 +40,14 @@ export class Dict<K, V> extends Map<K, V> {
   public clone() {
     return new Dict(this);
   }
+
+  public static groupBy<T, K extends keyof T>(key: K, array: T[]) {
+    const dict = new Dict<T[K], T[]>();
+    array.forEach((item) => {
+      const id = item[key];
+      const group = dict.get(id) || [];
+      dict.set(id, [...group, item]);
+    });
+    return dict;
+  }
 }

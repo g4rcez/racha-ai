@@ -43,6 +43,13 @@
       "when": 1708554589307,
       "tag": "0005_groovy_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1708910052460,
+      "tag": "0006_wealthy_trish_tilby",
+      "breakpoints": true
     }
   ]
 }

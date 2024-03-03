@@ -20,10 +20,10 @@ export const orders = pgTable("orders", {
   status: varchar("status", { length: 32 }),
   currencyCode: varchar("currencyCode", { length: 8 }),
   metadata: jsonb("metadata").default({}),
+  groupId: uuid("groupId").references(() => groups.id),
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId").references(() => groups.id),
 });
 
 export const orderItems = pgTable("orderItems", {

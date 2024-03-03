@@ -1,8 +1,11 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { DB } from "~/db/types";
 import { CartMath } from "~/lib/cart-math";
+import { Dict } from "~/lib/dict";
+import { fromStrNumber } from "~/lib/fn";
 import { Categories } from "~/models/categories";
 import { OrdersValidator } from "~/services/orders/order.validator";
+import { Orders } from "~/services/orders/orders.types";
 
 export namespace OrdersMapper {
   export type Result = {
@@ -74,7 +77,7 @@ export namespace OrdersMapper {
             ownerId,
             price,
             quantity: "1",
-            title: "@internal/additional",
+            title: Orders.OrderItem.Additional,
             total: price,
             type: order.type,
           });
@@ -91,7 +94,7 @@ export namespace OrdersMapper {
             ownerId,
             price,
             quantity: "1",
-            title: "@internal/couvert",
+            title: Orders.OrderItem.Couvert,
             total: price,
             type: order.type,
           });
@@ -118,25 +121,98 @@ export namespace OrdersMapper {
     );
   };
 
-  export const parse = (cart: OrdersValidator.Cart): Result => {
-    const id = uuidv7();
-    const now = new Date();
-    const order = {
-      id,
+  export const fromCart = (cart: OrdersValidator.Cart): Orders.Shape => {
+    const result = toDb(cart);
+    const order = result.order;
+    const payments = Dict.groupBy("ownerId", result.payments);
+    const products = Dict.groupBy("ownerId", result.items);
+    const userData = Dict.from("id", cart.users);
+    return {
+      id: order.id,
+      ownerId: order.ownerId,
+      group: {} as any,
+      groupId: order.groupId,
+      lastUpdatedAt: order.lastUpdatedAt,
+      metadata: order.metadata,
+      total: order.total,
+      status: order.status,
+      createdAt: order.createdAt,
+      title: order.title,
+      type: order.type,
+      category: order.category,
+      currencyCode: order.currencyCode,
+      users: result.payments.map((x): Orders.UserInfo => {
+        const data = userData.get(x.ownerId);
+        return {
+          id: x.ownerId,
+          payment: payments.get(x.ownerId)![0],
+          orderItem: products.get(x.ownerId)!,
+          data: { id: x.ownerId, name: data?.name } as Orders.UserInfo["data"],
+        };
+      }),
+    };
+  };
+
+  const createMetadata = (
+    cart: OrdersValidator.Cart,
+    items: ParseProductsProps["items"],
+  ) => {
+    const metadata: Record<string, any> = {
+      ...cart.metadata,
+      consumers: cart.users.length,
+    };
+    if (cart.hasAdditional) {
+      metadata.additional = items.reduce(
+        (acc, el) =>
+          acc + (el.category === "additional" ? Number(el.total) : 0),
+        0,
+      );
+    }
+    if (cart.hasCouvert) metadata.couvert = fromStrNumber(cart.couvert);
+    return metadata as DB.Order["metadata"];
+  };
+
+  export const toDb = (cart: OrdersValidator.Cart): Result => {
+    const order: DB.Order = {
+      id: uuidv7(),
       total: "",
-      createdAt: now,
+      createdAt: new Date(),
       type: cart.type,
-      lastUpdatedAt: now,
+      lastUpdatedAt: null,
       title: cart.title,
       ownerId: cart.me?.id!,
-      groupId: cart.groupId,
-      metadata: cart.metadata,
+      groupId: cart.groupId || null,
+      metadata: {} as any,
       category: cart.category,
       currencyCode: cart.currencyCode,
       status: OrdersValidator.CartStatus.pending,
     } satisfies DB.Order;
-    const result = parseProducts(order, cart);
+    const result = parseProducts(order, { ...cart, products: cart.products });
     order.total = result.total.toString();
+    order.metadata = createMetadata(cart, result.items);
     return { order, items: result.items, payments: result.payments };
+  };
+
+  const createDefaultInfo = (userId: string): Orders.UserInfo => ({
+    id: userId,
+    payment: null,
+    data: {} as any,
+    orderItem: [],
+  });
+
+  export const toRequest = (result: Orders.DB[]): Orders.Shape => {
+    const first = result[0];
+    const order = first.orders;
+    const group = first.groups || null;
+    const userInfo = new Map<string, Orders.UserInfo>();
+    result.forEach((order) => {
+      const info =
+        userInfo.get(order.user.id) || createDefaultInfo(order.user.id);
+      info.data = order.user;
+      info.payment = order.payments;
+      info.orderItem.push(order.orderItem);
+      userInfo.set(order.user.id, info);
+    });
+    return { ...order, group, users: Array.from(userInfo.values()) };
   };
 }

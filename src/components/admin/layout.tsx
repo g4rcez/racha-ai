@@ -1,3 +1,4 @@
+import { SessionProviderProps } from "next-auth/react";
 import React, {
   Fragment,
   PropsWithChildren,
@@ -24,6 +25,7 @@ function AdminLayoutRoot(props: PropsWithChildren) {
   const page = props.children;
   const [platform, setPlatform] = useState<Nullable<Platforms>>(null);
   const prompt = useRef<any | null>(null);
+  // useAuthSession();
 
   useEffect(() => {
     window.addEventListener("beforeinstallprompt", (event) => {
@@ -81,6 +83,13 @@ function AdminLayoutRoot(props: PropsWithChildren) {
   );
 }
 
-export default function AdminLayout(page: React.ReactElement) {
-  return <AdminLayoutRoot>{page}</AdminLayoutRoot>;
+export default function AdminLayout(
+  page: React.ReactElement,
+  _session: SessionProviderProps,
+) {
+  return (
+    // <SessionProvider session={session as any}>
+    <AdminLayoutRoot>{page}</AdminLayoutRoot>
+    // </SessionProvider>
+  );
 }

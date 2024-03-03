@@ -6,7 +6,7 @@ export default function ordersHandler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const validation = OrdersValidator.schema.safeParse(req.body);
+  const validation = OrdersValidator.cartSchema.safeParse(req.body);
   if (!validation.success)
     return res.status(400).json(parseMessageError(validation.error.issues));
 }

@@ -1,7 +1,7 @@
 {
   "name": "frontend-template",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "build": "NEXT_PUBLIC_TAG_VERSION=$(node -e 'console.log(require(\"./package.json\").version)') next build --no-lint",
     "dev": "next dev --experimental-https --port 1337",
@@ -12,7 +12,8 @@
     "start": "next start",
     "test:watch": "vitest watch",
     "test": "vitest run",
-    "migration": "drizzle-kit generate:pg; npx drizzle-kit push:pg"
+    "migration": "drizzle-kit generate:pg; npx drizzle-kit push:pg",
+    "seed": "tsx ./src/seed.ts"
   },
   "dependencies": {
     "@auth/core": "^0.25.1",
@@ -76,6 +77,7 @@
     "tailwindcss": "3.4.1",
     "tailwindcss-animate": "1.0.7",
     "ts-toolbelt": "9.6.0",
+    "tsx": "4.7.1",
     "typescript": "5.3.3",
     "vite": "5.0.0",
     "vitest": "1.2.2",

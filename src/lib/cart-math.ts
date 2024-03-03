@@ -27,7 +27,10 @@ export namespace CartMath {
 
   const sumProducts = (
     products: Array<{ price: number; quantity: number }>,
-  ): number => products.map((x) => x.quantity * x.price).reduce(sum, 0);
+  ): number => {
+    console.log(products);
+    return products.map((x) => x.quantity * x.price).reduce(sum, 0);
+  };
 
   export const perUser = (
     products: CartProduct[],

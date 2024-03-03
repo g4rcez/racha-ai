@@ -1,12 +1,12 @@
 import { User2Icon } from "lucide-react";
 import Link from "next/link";
 import { Fragment } from "react";
-import { HistoryItemProps } from "~/components/admin/history/history-item";
 import { Category } from "~/components/category";
 import { i18n } from "~/i18n";
 import { Links } from "~/router";
+import { Orders } from "~/services/orders/orders.types";
 
-export default function DefaultHistoryItem({ item }: HistoryItemProps) {
+export default function DefaultHistoryItem({ item }: { item: Orders.Shape }) {
   return (
     <li
       key={item.id}
@@ -30,16 +30,12 @@ export default function DefaultHistoryItem({ item }: HistoryItemProps) {
         <div className="flex flex-row gap-2 mt-2 items-center justify-between">
           <div className="flex items-center text-sm gap-1">
             <User2Icon size={16} />{" "}
-            {item.justMe ? (
-              "Apenas você"
-            ) : (
-              <Fragment>Você e mais {item.users.size - 1} amigos</Fragment>
-            )}
+            <Fragment>Você e mais {item.users.length - 1} amigos</Fragment>
           </div>
           <div className="text-right">
             Total:{" "}
             <span className="text-danger-mask">
-              {i18n.format.money(item.total)}
+              {i18n.format.money(Number(item.total))}
             </span>
           </div>
         </div>

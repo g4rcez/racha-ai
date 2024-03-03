@@ -290,20 +290,10 @@ export const Cart = Store.create(
       ),
       division: Division.PerConsume,
     }),
-    onSubmit: (
-      ownerId: string,
-      state: CartState,
-      push: (id: string) => void,
-    ) => {
-      const now = new Date();
-      History.save(ownerId, {
-        ...state,
-        createdAt: now,
-        finishedAt: now,
-        currentProduct: null,
-      });
+    onSubmit: (state: CartState, push: (id: string) => void) => {
+      const order = History.save(state);
       Cart.clearStorage();
-      push(Links.cartId(state.id));
+      push(Links.cartId(order.id));
     },
     productWarning: (product: CartProduct): boolean => {
       const quantitySum = product.consumers
