@@ -44,7 +44,7 @@ const ComandaPage: NextPageWithLayout = () => {
       (e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement
     )?.value;
     if (submitter === "submit")
-      Cart.onSubmit(me.id, state, (path) => router.push(path as any));
+      Cart.onSubmit(state, (path) => router.push(path as any));
   };
 
   return (

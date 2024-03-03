@@ -20,12 +20,12 @@ export namespace OrdersValidator {
     currentProduct: product.nullable().default(null),
     createdAt: Store.date,
     finishedAt: Store.date,
-    type: z.literal("restaurant"),
+    type: z.string(),
     title: z.string().default(""),
-    couvert: z.string().default(""),
+    couvert: z.coerce.string().default(""),
     category: z.string().default(""),
     justMe: z.boolean().default(false),
-    additional: z.string().default(""),
+    additional: z.coerce.string().default(""),
     products: z.array(product).default([]),
     hasCouvert: z.boolean().default(false),
     hasAdditional: z.boolean().default(true),
@@ -40,8 +40,6 @@ export namespace OrdersValidator {
   });
 
   export type Cart = z.infer<typeof cartSchema>;
-
-  export const schema = z.discriminatedUnion("type", [cartSchema]);
 
   export enum CartStatus {
     paid = "paid",

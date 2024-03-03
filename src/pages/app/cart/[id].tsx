@@ -21,8 +21,9 @@ import { CanIUse } from "~/lib/can";
 import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Links } from "~/router";
+import { Orders } from "~/services/orders/orders.types";
 import { Cart } from "~/store/cart.store";
-import { History, HistoryItem } from "~/store/history.store";
+import { History } from "~/store/history.store";
 import { Platform } from "~/store/platform";
 import { NextPageWithLayout, Nullable } from "~/types";
 
@@ -32,24 +33,19 @@ const CartId: NextPageWithLayout = () => {
   const i18n = useTranslations();
   const [_, dispatch] = Cart.use();
   const ref = useRef<HTMLDivElement>(null);
-  const [history, setHistory] = useState<Nullable<HistoryItem>>(null);
+  const [order, setOrder] = useState<Nullable<Orders.Shape>>(null);
 
-  useEffect(() => {
-    const x = History.get(paths.id as string);
-    if (x) setHistory(x);
-  }, [paths]);
+  useEffect(() => setOrder(History.get(paths.id as string)), [paths]);
 
-  if (Is.nil(history)) {
+  if (Is.nil(order)) {
     return <Fragment />;
   }
-
-  const total = i18n.format.money(history.total);
 
   const onShareElement = async (div: HTMLElement) => {
     div.setAttribute("data-image", "true");
     const blob = await toBlob(div, { quality: 100, height: div.clientHeight });
     div.removeAttribute("data-image");
-    const file = new File([blob!], `${history.title}.png`, {
+    const file = new File([blob!], `${order.title}.png`, {
       lastModified: Date.now(),
       type: blob!.type || "image/png",
     });
@@ -78,8 +74,16 @@ const CartId: NextPageWithLayout = () => {
 
   const onPersonShare = (e: React.MouseEvent<HTMLButtonElement>) => {
     const element = document.getElementById(e.currentTarget.dataset.id ?? "");
-    if (element) onShareElement(element);
+    if (element) return onShareElement(element);
   };
+
+  const nTotal = Number(order.total);
+
+  const total = i18n.format.money(nTotal);
+
+  const couvert = order.metadata.couvert * order.metadata.consumers;
+
+  const consume = nTotal - order.metadata.additional - couvert;
 
   return (
     <main
@@ -87,15 +91,15 @@ const CartId: NextPageWithLayout = () => {
       className="group space-y-6 shareable data-[image=true]:p-2 text-body bg-body-bg"
     >
       <Card className="flex gap-2 flex-col">
-        <Title>{history.title}</Title>
-        <p>Data do evento: {i18n.format.datetime(history.createdAt)}</p>
+        <Title>{order.title}</Title>
+        <p>Data do evento: {i18n.format.datetime(order.createdAt)}</p>
         <div className="flex justify-between items-center">
           <p>
             Total: <b className="text-main-bg">{total}</b>
           </p>
           <Link
             href={Links.cart}
-            onClick={() => dispatch.set(History.parseToCart(history))}
+            onClick={() => dispatch.set(History.parseToCart(order))}
             className="underline underline-offset-4 group-data-[image=true]:hidden"
           >
             Editar comanda
@@ -111,7 +115,7 @@ const CartId: NextPageWithLayout = () => {
       </Card>
       <Card>
         <ul className="mt-6 space-y-8">
-          {history.users.arrayMap((user) => (
+          {order.users.map((user) => (
             <li
               id={user.id}
               key={user.id}
@@ -124,11 +128,11 @@ const CartId: NextPageWithLayout = () => {
                   className="text-lg font-medium items-center flex gap-2"
                 >
                   <ShareIcon absoluteStrokeWidth size={16} strokeWidth={2} />
-                  {user.name}
+                  {user.data.name}
                 </button>
-                <span>{i18n.format.money(user.result.totalWithCouvert)}</span>
+                <span>{i18n.format.money(Number(user.payment?.amount!))}</span>
               </header>
-              {user.products.length === 0 ? null : (
+              {user.orderItem.length === 0 ? null : (
                 <Table>
                   <TableHead>
                     <TableRow>
@@ -138,35 +142,19 @@ const CartId: NextPageWithLayout = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {user.products.map((product) =>
-                      product.quantity === 0 ? null : (
+                    {user.orderItem.map((product) =>
+                      Number(product.quantity) === 0 ? null : (
                         <TableRow key={`${user.id}-${product.id}`}>
-                          <TableCell>{product.name}</TableCell>
+                          <TableCell>{product.title}</TableCell>
                           <TableCell>
-                            {i18n.format.money(product.total)}
+                            {i18n.format.money(Number(product.total))}
                           </TableCell>
-                          <TableCell>{toFraction(product.quantity)}</TableCell>
+                          <TableCell>
+                            {toFraction(Number(product.quantity))}
+                          </TableCell>
                         </TableRow>
                       ),
                     )}
-                    {history.hasAdditional ? (
-                      <TableRow>
-                        <TableCell>Gorjeta</TableCell>
-                        <TableCell>
-                          {i18n.format.money(user.result.total)}
-                        </TableCell>
-                        <TableCell>1</TableCell>
-                      </TableRow>
-                    ) : null}
-                    {history.hasCouvert ? (
-                      <TableRow>
-                        <TableCell>Couvert</TableCell>
-                        <TableCell>
-                          {i18n.format.money(history.couvert)}
-                        </TableCell>
-                        <TableCell>1</TableCell>
-                      </TableRow>
-                    ) : null}
                   </TableBody>
                 </Table>
               )}
@@ -174,18 +162,18 @@ const CartId: NextPageWithLayout = () => {
           ))}
           <li className="flex justify-between pt-2">
             <span>Consumo</span>
-            <b>{i18n.format.money(history.totalProducts)}</b>
+            <b>{i18n.format.money(consume)}</b>
           </li>
-          {history.hasAdditional ? (
+          {consume !== nTotal ? (
             <li className="flex justify-between">
               <span>Gorjeta</span>
-              <b>{i18n.format.money(history.withAdditional)}</b>
+              <b>{i18n.format.money(order.metadata.additional)}</b>
             </li>
           ) : null}
-          {history.hasCouvert ? (
+          {order.metadata.couvert > 0 ? (
             <li className="flex justify-between">
               <span>Couvert total</span>
-              <b>{i18n.format.money(history.couvert * history.users.size)}</b>
+              <b>{i18n.format.money(couvert)}</b>
             </li>
           ) : null}
           <li className="flex justify-between">

@@ -4,4 +4,4 @@ import { Env } from "~/lib/env";
 
 export const dbConnection = postgres(Env.database);
 
-export const db = drizzle(dbConnection);
+export const db = drizzle(dbConnection, { logger: true });

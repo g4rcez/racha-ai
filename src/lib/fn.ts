@@ -1,4 +1,5 @@
 import Fraction from "fraction.js";
+import { z } from "zod";
 import { Is } from "~/lib/is";
 
 export const reduceObject = <T extends {}, V>(
@@ -80,3 +81,7 @@ export const has = <T extends {}, K extends keyof T>(o: T, k: K): k is K =>
   Object.prototype.hasOwnProperty.call(o, k);
 
 export const inspect = (...a: any[]) => console.log(JSON.stringify(a, null, 4));
+
+const uuidSchema = z.string().uuid();
+
+export const isUuid = (id: string) => uuidSchema.safeParse(id).success;

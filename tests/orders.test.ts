@@ -2,12 +2,11 @@ import { uuidv7 } from "@kripod/uuidv7";
 import { describe, expect, test } from "vitest";
 import { Division } from "../src/models/entity-types";
 import { OrdersMapper } from "../src/services/orders/orders.mapper";
-import { inspect } from "../src/lib/fn";
 
 describe("Should test orders mapping", () => {
   test("Should test simple order", () => {
     const me = { id: uuidv7(), name: "Me", createdAt: new Date() };
-    const result = OrdersMapper.parse({
+    const result = OrdersMapper.toDb({
       me,
       products: [
         {
@@ -45,7 +44,7 @@ describe("Should test orders mapping", () => {
   test("Should test split product", () => {
     const me = { id: uuidv7(), name: "Me", createdAt: new Date() };
     const otherUser = { id: uuidv7(), name: "Other", createdAt: new Date() };
-    const result = OrdersMapper.parse({
+    const result = OrdersMapper.toDb({
       me,
       products: [
         {
@@ -86,7 +85,7 @@ describe("Should test orders mapping", () => {
   test("Should test with more products", () => {
     const me = { id: uuidv7(), name: "Me", createdAt: new Date() };
     const otherUser = { id: uuidv7(), name: "Other", createdAt: new Date() };
-    const result = OrdersMapper.parse({
+    const result = OrdersMapper.toDb({
       me,
       products: [
         {
@@ -137,6 +136,6 @@ describe("Should test orders mapping", () => {
     expect(order.total).toBe("69.4");
     expect(result.payments[0].amount).toBe("45.7");
     expect(result.payments[1].amount).toBe("23.700000000000003");
-    inspect(result.items);
+    expect((order.metadata as any).consumers).toBe(2);
   });
 });
