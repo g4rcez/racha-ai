@@ -1,5 +1,4 @@
 import { DB } from "~/db/types";
-import { Override } from "~/types";
 
 export namespace Orders {
   export type UserInfo = {
@@ -9,16 +8,7 @@ export namespace Orders {
     orderItem: DB.OrderItem[];
   };
 
-  export type Shape = Override<
-    DB.Order,
-    {
-      metadata: {
-        couvert: number;
-        consumers: number;
-        additional: number;
-      };
-    }
-  > & { users: UserInfo[]; group: DB.Group | null };
+  export type Shape = DB.Order & { users: UserInfo[]; group: DB.Group | null };
 
   export type DB = {
     orders: DB.Order;
@@ -27,4 +17,9 @@ export namespace Orders {
     payments: DB.Payment;
     orderItem: DB.OrderItem;
   };
+
+  export enum OrderItem {
+    Couvert = "@internal/couvert",
+    Additional = "@internal/additional",
+  }
 }

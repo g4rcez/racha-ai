@@ -77,7 +77,7 @@ export namespace OrdersMapper {
             ownerId,
             price,
             quantity: "1",
-            title: "@internal/additional",
+            title: Orders.OrderItem.Additional,
             total: price,
             type: order.type,
           });
@@ -94,7 +94,7 @@ export namespace OrdersMapper {
             ownerId,
             price,
             quantity: "1",
-            title: "@internal/couvert",
+            title: Orders.OrderItem.Couvert,
             total: price,
             type: order.type,
           });
@@ -126,6 +126,7 @@ export namespace OrdersMapper {
     const order = result.order;
     const payments = Dict.groupBy("ownerId", result.payments);
     const products = Dict.groupBy("ownerId", result.items);
+    const userData = Dict.from("id", cart.users);
     return {
       id: order.id,
       ownerId: order.ownerId,
@@ -140,19 +141,39 @@ export namespace OrdersMapper {
       type: order.type,
       category: order.category,
       currencyCode: order.currencyCode,
-      users: result.payments.map(
-        (x): Orders.UserInfo => ({
+      users: result.payments.map((x): Orders.UserInfo => {
+        const data = userData.get(x.ownerId);
+        return {
           id: x.ownerId,
-          data: { id: x.ownerId } as Orders.UserInfo["data"],
           payment: payments.get(x.ownerId)![0],
           orderItem: products.get(x.ownerId)!,
-        }),
-      ),
+          data: { id: x.ownerId, name: data?.name } as Orders.UserInfo["data"],
+        };
+      }),
     };
   };
 
+  const createMetadata = (
+    cart: OrdersValidator.Cart,
+    items: ParseProductsProps["items"],
+  ) => {
+    const metadata: Record<string, any> = {
+      ...cart.metadata,
+      consumers: cart.users.length,
+    };
+    if (cart.hasAdditional) {
+      metadata.additional = items.reduce(
+        (acc, el) =>
+          acc + (el.category === "additional" ? Number(el.total) : 0),
+        0,
+      );
+    }
+    if (cart.hasCouvert) metadata.couvert = fromStrNumber(cart.couvert);
+    return metadata as DB.Order["metadata"];
+  };
+
   export const toDb = (cart: OrdersValidator.Cart): Result => {
-    const order = {
+    const order: DB.Order = {
       id: uuidv7(),
       total: "",
       createdAt: new Date(),
@@ -161,22 +182,14 @@ export namespace OrdersMapper {
       title: cart.title,
       ownerId: cart.me?.id!,
       groupId: cart.groupId || null,
-      metadata: { ...cart.metadata, consumers: cart.users.length },
+      metadata: {} as any,
       category: cart.category,
       currencyCode: cart.currencyCode,
       status: OrdersValidator.CartStatus.pending,
     } satisfies DB.Order;
     const result = parseProducts(order, { ...cart, products: cart.products });
     order.total = result.total.toString();
-    if (cart.hasAdditional) {
-      (order.metadata as any).additional = result.items.reduce(
-        (acc, el) =>
-          acc + (el.category === "additional" ? Number(el.total) : 0),
-        0,
-      );
-    }
-    if (cart.hasCouvert)
-      (order.metadata as any).couvert = fromStrNumber(cart.couvert);
+    order.metadata = createMetadata(cart, result.items);
     return { order, items: result.items, payments: result.payments };
   };
 

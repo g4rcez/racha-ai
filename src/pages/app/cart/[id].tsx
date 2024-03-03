@@ -145,7 +145,13 @@ const CartId: NextPageWithLayout = () => {
                     {user.orderItem.map((product) =>
                       Number(product.quantity) === 0 ? null : (
                         <TableRow key={`${user.id}-${product.id}`}>
-                          <TableCell>{product.title}</TableCell>
+                          <TableCell>
+                            {product.title === Orders.OrderItem.Additional
+                              ? "Gorjeta"
+                              : product.title === Orders.OrderItem.Couvert
+                                ? "Couvert"
+                                : product.title}
+                          </TableCell>
                           <TableCell>
                             {i18n.format.money(Number(product.total))}
                           </TableCell>

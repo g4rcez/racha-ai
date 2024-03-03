@@ -3,6 +3,7 @@ import { PgTransaction } from "drizzle-orm/pg-core";
 import type { db } from "~/db/index";
 import type { users, groups, userGroups } from "~/db/users";
 import type { orderItems, orders, payments } from "~/db/orders";
+import { Override } from "~/types";
 
 export namespace DB {
   export type User = InferSelectModel<typeof users>;
@@ -11,7 +12,16 @@ export namespace DB {
 
   export type UserGroup = InferSelectModel<typeof userGroups>;
 
-  export type Order = InferSelectModel<typeof orders>;
+  export type Order = Override<
+    InferSelectModel<typeof orders>,
+    {
+      metadata: {
+        couvert: number;
+        consumers: number;
+        additional: number;
+      };
+    }
+  >;
 
   export type OrderItem = InferSelectModel<typeof orderItems>;
 
