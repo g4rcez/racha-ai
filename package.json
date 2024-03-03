@@ -1,7 +1,7 @@
 {
   "name": "frontend-template",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "build": "NEXT_PUBLIC_TAG_VERSION=$(node -e 'console.log(require(\"./package.json\").version)') next build --no-lint",
     "dev": "next dev --experimental-https --port 1337",
