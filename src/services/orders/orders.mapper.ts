@@ -64,7 +64,7 @@ export namespace OrdersMapper {
         let ownTotal = 0;
         const result = createOrderItems(ownTotal, info, order, ownerId);
         ownTotal += result.total;
-        if (cart.hasAdditional) {
+        if (cart.hasAdditional && result.total > 0) {
           const withAdditional = CartMath.sumWithAdditional(math, ownTotal);
           const price = (withAdditional - ownTotal).toString();
           ownTotal = withAdditional;
@@ -160,8 +160,12 @@ export namespace OrdersMapper {
     const metadata: Record<string, any> = {
       ...cart.metadata,
       consumers: cart.users.length,
+      percentAdditional: "",
+      additional: 0,
+      couvert: 0,
     };
     if (cart.hasAdditional) {
+      metadata.percentAdditional = cart.additional;
       metadata.additional = items.reduce(
         (acc, el) =>
           acc + (el.category === "additional" ? Number(el.total) : 0),

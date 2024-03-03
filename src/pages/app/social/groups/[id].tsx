@@ -1,6 +1,6 @@
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useRouter } from "next/router";
-import React, { useEffect } from "react";
+import React from "react";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
@@ -29,10 +29,6 @@ type Props = {
 function AppSocialGroupsIdPage(props: Props) {
   const group = props.group;
   const groupId = useRouter().query.id as string;
-
-  useEffect(() => {
-    console.log(group);
-  }, []);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const email = (

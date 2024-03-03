@@ -15,6 +15,7 @@ import { Store } from "~/models/store";
 import { Product } from "~/models/product";
 import { Links } from "~/router";
 import { OrdersValidator } from "~/services/orders/order.validator";
+import { Orders } from "~/services/orders/orders.types";
 import { Friends, User } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { ParseToRaw } from "~/types";
@@ -30,12 +31,6 @@ export type CartProduct = Product & {
   division: Division;
 };
 
-export type Metadata = Partial<{
-  location: any;
-  description: string;
-  avatar: string;
-}>;
-
 export type CartState = Store.New<{
   title: string;
   type: Division;
@@ -45,10 +40,10 @@ export type CartState = Store.New<{
   category: string;
   finishedAt: Date;
   additional: string;
-  metadata?: Metadata;
+  metadata: Orders.Shape["metadata"];
   hasCouvert: boolean;
   hasAdditional: boolean;
-  users: Dict<string, CartUser>;
+  users: Dict<string, User>;
   currencyCode: CurrencyCode | string;
   currentProduct: CartProduct | null;
   products: Dict<string, CartProduct>;
@@ -129,6 +124,7 @@ export const Cart = Store.create(
     id: storage?.id ?? uuidv7(),
     justMe: storage?.justMe ?? false,
     title: storage?.title ?? "",
+    metadata: (storage?.metadata ?? {}) as any,
     hasAdditional: storage?.hasAdditional ?? true,
     category: storage?.category || Categories.default.name,
     createdAt: storage?.createdAt ? new Date(storage.createdAt) : new Date(),
@@ -143,11 +139,7 @@ export const Cart = Store.create(
     users: new Dict(
       storage?.users.map((x) => [
         x.id,
-        {
-          ...x,
-          createdAt: new Date(x.createdAt),
-          paidAt: x.paidAt ? new Date(x.paidAt) : null,
-        },
+        { ...x, createdAt: new Date(x.createdAt), paidAt: new Date() },
       ]),
     ),
     products: new Dict(

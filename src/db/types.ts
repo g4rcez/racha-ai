@@ -19,6 +19,7 @@ export namespace DB {
         couvert: number;
         consumers: number;
         additional: number;
+        percentAdditional: string;
       };
     }
   >;

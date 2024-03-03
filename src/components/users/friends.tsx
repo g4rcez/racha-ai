@@ -101,15 +101,17 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
   );
 };
 
-type ConsumerProps = {
+type ConsumerProps<F extends User | CartUser> = {
   me: User;
-  friends: Dict<string, CartUser>;
+  friends: Dict<string, F>;
   onDelete: (user: CartUser) => void;
   onChangeUser?: (id: string, name: string) => void;
   onAdd: (user: CartUser, alone?: boolean) => void;
 };
 
-export const SelectConsumerFriends = (props: ConsumerProps) => {
+export const SelectConsumerFriends = <T extends User | CartUser>(
+  props: ConsumerProps<T>,
+) => {
   const me = props.me;
   const [visible, setVisible] = useState(false);
   const [state, dispatch] = Friends.use();

@@ -1,18 +1,100 @@
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
+import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { sortId } from "~/lib/fn";
+import { Division } from "~/models/entity-types";
 import { Store } from "~/models/store";
 import { OrdersValidator } from "~/services/orders/order.validator";
 import { OrdersMapper } from "~/services/orders/orders.mapper";
 import { Orders } from "~/services/orders/orders.types";
-import { CartState } from "~/store/cart.store";
+import { CartProduct, CartState, CartUser } from "~/store/cart.store";
 import { ParseToRaw } from "~/types";
 
 type State = { items: Orders.Shape[] };
 
 const schemas = {
   v1: Store.validator(z.object({ items: z.array(OrdersValidator.cartSchema) })),
+};
+
+const parseToCart = (order: Orders.Shape): CartState => {
+  const users = Dict.from(
+    "id",
+    order.users.map((user) => ({
+      id: user.id,
+      name: user.data.name!,
+      createdAt: new Date(),
+    })),
+  );
+  const products = Dict.groupBy(
+    "title",
+    order.users.flatMap((data) => {
+      return data.orderItem.map((orderItem) => ({
+        ...data,
+        ...orderItem,
+      }));
+    }),
+  );
+  const cart = {
+    users,
+    type: order.type! as any,
+    category: order.category!,
+    createdAt: order.createdAt,
+    finishedAt: order.lastUpdatedAt ?? new Date(),
+    title: order.title,
+    currencyCode: order.currencyCode!,
+    id: order.id,
+    justMe: order.users.length === 1,
+    metadata: order.metadata,
+    products: new Dict(),
+    additional: "",
+    couvert: "",
+    hasAdditional: false,
+    hasCouvert: false,
+    currentProduct: null,
+  };
+  if (products.has(Orders.OrderItem.Couvert)) {
+    const item = products.get(Orders.OrderItem.Couvert);
+    const couvert = i18n.format.percent(Number(item?.[0].price));
+    cart.hasCouvert = true;
+    cart.couvert = couvert;
+    products.remove(Orders.OrderItem.Couvert);
+  }
+  if (products.has(Orders.OrderItem.Additional)) {
+    cart.additional = order.metadata.percentAdditional;
+    cart.hasAdditional = true;
+    products.remove(Orders.OrderItem.Additional);
+  }
+  const consumedProducts = Array.from(products.values()).map(
+    (items): CartProduct => {
+      const first = items[0];
+      const consumers: CartProduct["consumers"] = Dict.from(
+        "id",
+        items.map(
+          (c): CartUser => ({
+            createdAt: c.createdAt,
+            quantity: Number(c.quantity),
+            name: c.data.name!,
+            id: c.data.id,
+            amount: Number(c.price),
+            paidAt: null,
+          }),
+        ),
+      );
+      return {
+        consumers,
+        id: first.id,
+        price: Number(first.price),
+        name: first.title,
+        monetary: first.price,
+        createdAt: first.createdAt,
+        division: Division.PerConsume,
+        quantity: items.length,
+      };
+    },
+  );
+  cart.products = Dict.from("id", consumedProducts);
+  return cart as any;
 };
 
 const parse = (
@@ -40,6 +122,7 @@ export const History = Store.create(
   () => ({ refresh: (state: State) => state }),
   (args) => ({
     parse,
+    parseToCart,
     init: args.getState,
     save: (cart: CartState): Orders.Shape => {
       const storage = (LocalStorage.get(args.storageKey) as {
@@ -64,16 +147,6 @@ export const History = Store.create(
       if (storage === null) return null;
       const item = storage.items.find((item) => item.id === id);
       return item ? parse(item) : null;
-    },
-    parseToCart: (item: Orders.Shape): CartState => {
-      return {
-        type: item.type,
-        category: item.category,
-        createdAt: item.createdAt,
-        finishedAt: item.lastUpdatedAt ?? new Date(),
-        title: item.title,
-        currencyCode: item.currencyCode,
-      } as any;
     },
   }),
 );

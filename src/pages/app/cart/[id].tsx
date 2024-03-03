@@ -83,7 +83,13 @@ const CartId: NextPageWithLayout = () => {
 
   const couvert = order.metadata.couvert * order.metadata.consumers;
 
-  const consume = nTotal - order.metadata.additional - couvert;
+  const consume = nTotal - order.metadata.additional - (couvert || 0);
+
+  const sortedUsers = order.users.toSorted((a, b) =>
+    a.payment?.amount && b.payment?.amount
+      ? Number(b.payment.amount) - Number(a.payment.amount)
+      : 1,
+  );
 
   return (
     <main
@@ -115,7 +121,7 @@ const CartId: NextPageWithLayout = () => {
       </Card>
       <Card>
         <ul className="mt-6 space-y-8">
-          {order.users.map((user) => (
+          {sortedUsers.map((user) => (
             <li
               id={user.id}
               key={user.id}
@@ -142,25 +148,23 @@ const CartId: NextPageWithLayout = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {user.orderItem.map((product) =>
-                      Number(product.quantity) === 0 ? null : (
-                        <TableRow key={`${user.id}-${product.id}`}>
-                          <TableCell>
-                            {product.title === Orders.OrderItem.Additional
-                              ? "Gorjeta"
-                              : product.title === Orders.OrderItem.Couvert
-                                ? "Couvert"
-                                : product.title}
-                          </TableCell>
-                          <TableCell>
-                            {i18n.format.money(Number(product.total))}
-                          </TableCell>
-                          <TableCell>
-                            {toFraction(Number(product.quantity))}
-                          </TableCell>
-                        </TableRow>
-                      ),
-                    )}
+                    {user.orderItem.map((product) => (
+                      <TableRow key={`${user.id}-${product.id}`}>
+                        <TableCell>
+                          {product.title === Orders.OrderItem.Additional
+                            ? "Gorjeta"
+                            : product.title === Orders.OrderItem.Couvert
+                              ? "Couvert"
+                              : product.title}
+                        </TableCell>
+                        <TableCell>
+                          {i18n.format.money(Number(product.total))}
+                        </TableCell>
+                        <TableCell>
+                          {toFraction(Number(product.quantity))}
+                        </TableCell>
+                      </TableRow>
+                    ))}
                   </TableBody>
                 </Table>
               )}
