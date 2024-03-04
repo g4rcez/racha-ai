@@ -132,7 +132,7 @@ export const SelectConsumerFriends = <T extends User | CartUser>(
 
   const onCheckFriend =
     (u: User) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!props.friends.has(me.id)) props.onAdd(Cart.newUser(me));
+      props.onAdd(Cart.newUser(me));
       const checked = e.target.checked;
       const user = Cart.newUser(u);
       return checked ? props.onAdd(user) : props.onDelete(user);

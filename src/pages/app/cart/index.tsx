@@ -82,19 +82,19 @@ const ComandaPage: NextPageWithLayout = () => {
           />
           <ul className="space-y-4 mt-2">
             {users.map((user) => {
-              const i = user.id === me.id;
+              const itsMe = user.id === me.id;
               return (
                 <li
                   key={`${user.id}-comanda-list`}
                   className={`flex items-center justify-between ${
-                    i ? "text-main-bg" : ""
+                    itsMe ? "text-main-bg" : ""
                   }`}
                 >
                   <span className="text-base">
                     {user.name}
-                    {i ? " - Eu" : ""}
+                    {itsMe ? " - Eu" : ""}
                   </span>
-                  {i ? null : (
+                  {itsMe ? null : (
                     <Button
                       size="small"
                       theme="transparent-danger"
