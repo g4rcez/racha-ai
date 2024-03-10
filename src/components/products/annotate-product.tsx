@@ -234,7 +234,11 @@ export const AnnotateProduct = (props: Props) => {
   return (
     <Drawer open={state.visible} onChange={onChangeVisible}>
       <Drawer.Trigger asChild>
-        <Button disabled={props.disabled} onClick={onClickNewProduct}>
+        <Button
+          data-name="new-product"
+          disabled={props.disabled}
+          onClick={onClickNewProduct}
+        >
           Novo produto
         </Button>
       </Drawer.Trigger>

@@ -1,6 +1,7 @@
 import Fraction from "fraction.js";
 import { z } from "zod";
 import { Is } from "~/lib/is";
+import { ParseToRaw } from "~/types";
 
 export const reduceObject = <T extends {}, V>(
   object: T,
@@ -85,3 +86,6 @@ export const inspect = (...a: any[]) => console.log(JSON.stringify(a, null, 4));
 const uuidSchema = z.string().uuid();
 
 export const isUuid = (id: string) => uuidSchema.safeParse(id).success;
+
+export const safeJson = <T extends object>(t: T): ParseToRaw<T> =>
+  JSON.parse(JSON.stringify(t));

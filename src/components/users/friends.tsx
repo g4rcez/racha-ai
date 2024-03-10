@@ -140,16 +140,19 @@ export const SelectConsumerFriends = <T extends User | CartUser>(
 
   return (
     <div className="my-2 grid grid-cols-2 items-end gap-4">
-      <Button onClick={() => props.onAdd(Cart.newUser(me), true)}>
+      <Button
+        data-name="share-alone"
+        onClick={() => props.onAdd(Cart.newUser(me), true)}
+      >
         Tô sozinho
       </Button>
       <Drawer open={visible} onChange={setVisible}>
         <Drawer.Trigger asChild>
-          <Button>Com os amigos</Button>
+          <Button data-name="share-friends">Com os amigos</Button>
         </Drawer.Trigger>
         <Drawer.Content>
-          <Drawer.Title>Lista de amigos</Drawer.Title>
-          <ul role="list" className="my-4 space-y-6">
+          <Drawer.Title>Amigos e grupos</Drawer.Title>
+          <ul data-name="friends" role="list" className="my-4 space-y-6">
             <li>
               <Form
                 onSubmit={createNewUser}
@@ -161,20 +164,22 @@ export const SelectConsumerFriends = <T extends User | CartUser>(
                   autoComplete="name"
                   title="Nome do amigo"
                   placeholder={i18n.get("userInputPlaceholder")}
-                />
-                <Button
-                  size="small"
-                  type="submit"
-                  className="mb-1"
-                  theme="transparent"
-                  title="Adicionar amigo"
-                  aria-label="Adicionar amigo"
-                  icon={
-                    <PlusIcon
-                      strokeWidth={2}
-                      aria-hidden="true"
-                      absoluteStrokeWidth
-                      color="hsl(var(--main-bg))"
+                  right={
+                    <Button
+                      size="small"
+                      type="submit"
+                      className="mb-1"
+                      theme="transparent"
+                      title="Adicionar amigo"
+                      aria-label="Adicionar amigo"
+                      icon={
+                        <PlusIcon
+                          className="text-main-bg"
+                          strokeWidth={1}
+                          aria-hidden="true"
+                          absoluteStrokeWidth
+                        />
+                      }
                     />
                   }
                 />
@@ -197,7 +202,9 @@ export const SelectConsumerFriends = <T extends User | CartUser>(
             ))}
           </ul>
           <Drawer.Trigger asChild>
-            <Button className="w-full">Salvar</Button>
+            <Button data-name="save" className="w-full">
+              Salvar
+            </Button>
           </Drawer.Trigger>
         </Drawer.Content>
       </Drawer>

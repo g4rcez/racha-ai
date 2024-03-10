@@ -13,7 +13,9 @@
     "test:watch": "vitest watch",
     "test": "vitest run",
     "migration": "drizzle-kit generate:pg; npx drizzle-kit push:pg",
-    "seed": "tsx ./src/seed.ts"
+    "seed": "tsx ./src/seed.ts",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@auth/core": "^0.25.1",
@@ -59,6 +61,7 @@
     "zod": "3.22.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.42.1",
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/forms": "0.5.7",
     "@tailwindcss/typography": "0.5.10",

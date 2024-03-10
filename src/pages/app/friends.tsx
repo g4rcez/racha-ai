@@ -43,21 +43,25 @@ const FriendsPage: NextPageWithLayout = () => {
             autoFocus={isDesktop}
             title={i18n.get("addFriendInput")}
             placeholder={i18n.get("userInputPlaceholder")}
+            right={
+              <Button
+                data-id="add-friend"
+                size="small"
+                type="submit"
+                className="mb-1"
+                theme="transparent"
+                aria-label={i18n.get("addFriend")}
+                icon={
+                  <PlusIcon
+                    color="hsl(var(--main-bg))"
+                    absoluteStrokeWidth
+                    strokeWidth={2}
+                    size={16}
+                  />
+                }
+              />
+            }
           />
-          <Button
-            size="small"
-            type="submit"
-            className="mb-1"
-            theme="transparent"
-            aria-label={i18n.get("addFriend")}
-          >
-            <PlusIcon
-              color="hsl(var(--main-bg))"
-              absoluteStrokeWidth
-              strokeWidth={2}
-              size={16}
-            />
-          </Button>
         </Form>
       </Card>
       <Card

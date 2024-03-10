@@ -37,14 +37,17 @@ const ComandaPage: NextPageWithLayout = () => {
     .OrderBy("name", "asc")
     .Select();
 
-  const onReset = () => dispatch.set(Cart.getState());
+  const onReset = () => {
+    dispatch.set(Cart.getState());
+    window.scroll({ top: 0, behavior: "smooth" });
+  };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const submitter = (
       (e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement
     )?.value;
-    if (submitter === "submit")
-      Cart.onSubmit(state, (path) => router.push(path as any));
+    if (submitter !== "submit") return;
+    return Cart.onSubmit(state, (path) => router.push(path));
   };
 
   return (
