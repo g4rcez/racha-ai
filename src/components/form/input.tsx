@@ -17,6 +17,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       rightLabel,
       optionalText,
       hideLeft = false,
+      right,
+      left,
       ...props
     }: InputProps,
     ref,
@@ -35,6 +37,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <InputField<"input">
         {...(props as any)}
+        right={right}
+        left={left}
         hideLeft={hideLeft}
         rightLabel={rightLabel}
         optionalText={optionalText}
