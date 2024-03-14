@@ -31,17 +31,17 @@ test("Should test the creation of cart", async ({ page }) => {
     await fillInput("input[name=name]", name);
     await fillInput("input[name=monetary]", price);
     await fillInput("input[name=quantity]", quantity);
-    const ul = await page.locator('ul[data-name="consumers"]');
+    const ul = page.locator('ul[data-name="consumers"]');
     for (const row of await ul.all()) {
       const count = await row.locator("input[data-id]").count();
       for (let i = 0; i < count; i += 1) {
-        const input = await row.locator("input[data-id]").nth(i);
+        const input = row.locator("input[data-id]").nth(i);
         await input.scrollIntoViewIfNeeded();
         const value = await input.inputValue();
         expect(`${value}`).toBe(`${perConsumer}`);
       }
     }
-    const save = await page.locator('button[data-name="save-product"]');
+    const save = page.locator('button[data-name="save-product"]');
     await save.scrollIntoViewIfNeeded();
     await save.click();
   }
@@ -60,7 +60,7 @@ test("Should test the creation of cart", async ({ page }) => {
   await page.locator("a[href='/app/cart']").click();
   await page.locator("input[name=title]").fill("Racha aí - Restaurant");
   await page.locator("button[data-name=share-friends]").click();
-  const ul = await page.locator("ul[data-name=friends]");
+  const ul = page.locator("ul[data-name=friends]");
   for (const row of await ul.all()) {
     const count = await row.locator("input[type=checkbox]").count();
     for (let i = 0; i < count; i += 1) {
@@ -70,4 +70,11 @@ test("Should test the creation of cart", async ({ page }) => {
   await page.locator("button[data-name=save]").click();
   await addProduct("Heineken", "R$ 15,00", 5, 1);
   await addProduct("Batata", "R$ 40,00", 1, "1/5");
+  const submit = page.locator("button[name=submit]");
+  await submit.scrollIntoViewIfNeeded();
+  await submit.focus();
+  await submit.scrollIntoViewIfNeeded({ timeout: 10000 });
+  await submit.click();
+  const url = page.url();
+  expect(url.includes("/app/cart/")).toBe(true);
 });
