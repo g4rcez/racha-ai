@@ -34,8 +34,7 @@ type ButtonProps = (
       variant: "outline";
       color?: keyof typeof variantStyles.outline;
     }
-) &
-  (
+) & { name?: string } & (
     | Omit<React.ComponentPropsWithoutRef<typeof Link>, "color">
     | (Omit<React.ComponentPropsWithoutRef<"button">, "color"> & {
         href?: undefined;
@@ -57,9 +56,9 @@ export function LandingButton({ className, ...props }: ButtonProps) {
   );
 
   return Is.undefined(props.href) ? (
-    <button className={c} {...(props as any)} />
+    <button {...(props as any)} className={c} />
   ) : (
-    <Link className={c} {...(props as any)} />
+    <Link {...(props as any)} className={c} />
   );
 }
 
@@ -85,7 +84,12 @@ export const LoginButton = ({ className }: { className?: string }) => {
   const [state] = Preferences.use();
   return (
     <ClientSide>
-      <LandingButton href={Links.app} variant="outline" className={className}>
+      <LandingButton
+        name="login"
+        href={Links.app}
+        variant="outline"
+        className={className}
+      >
         {state.user.name === "" ? "Login" : "Entrar"}
       </LandingButton>
     </ClientSide>

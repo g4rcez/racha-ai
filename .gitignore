@@ -266,4 +266,7 @@ public/sw.map.js
 public/*.map.js
 public/workbox-*.js
 public/**/*.map.js
-
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

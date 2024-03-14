@@ -234,7 +234,11 @@ export const AnnotateProduct = (props: Props) => {
   return (
     <Drawer open={state.visible} onChange={onChangeVisible}>
       <Drawer.Trigger asChild>
-        <Button disabled={props.disabled} onClick={onClickNewProduct}>
+        <Button
+          data-name="new-product"
+          disabled={props.disabled}
+          onClick={onClickNewProduct}
+        >
           Novo produto
         </Button>
       </Drawer.Trigger>
@@ -337,7 +341,7 @@ export const AnnotateProduct = (props: Props) => {
                     </Fragment>
                   )}
                 </section>
-                <ul className="col-span-2 space-y-4">
+                <ul data-name="consumers" className="col-span-2 space-y-4">
                   {props.users.arrayMap((user) => {
                     const consumer = product.consumers.get(user.id) ?? null;
                     if (
@@ -431,7 +435,11 @@ export const AnnotateProduct = (props: Props) => {
                   })}
                 </ul>
                 <Drawer.Close asChild>
-                  <Button className="col-span-2" type="submit">
+                  <Button
+                    data-name="save-product"
+                    className="col-span-2"
+                    type="submit"
+                  >
                     Salvar
                   </Button>
                 </Drawer.Close>
