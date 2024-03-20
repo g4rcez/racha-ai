@@ -1,4 +1,6 @@
+import { ExternalLinkIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
@@ -42,12 +44,13 @@ export const getServerSideProps = async (
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>;
 
 function V2FriendsPage(props: Props) {
+  const router = useRouter();
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const json = Object.fromEntries(new FormData(e.currentTarget) as any);
     const response = await httpClient.post(Endpoints.createGroup, json);
     if (response.ok) {
-      const json = await response.json();
-      console.log(json);
+      await response.json();
+      router.reload();
     }
   };
 
@@ -59,8 +62,9 @@ function V2FriendsPage(props: Props) {
             <li key={group.id}>
               <Link
                 href={Links.userGroupId(group.id)}
-                className="link:underline link:text-main-bg"
+                className="link:underline items-center link:text-main-bg flex gap-2"
               >
+                <ExternalLinkIcon size={16} />
                 {group.title}
               </Link>
             </li>

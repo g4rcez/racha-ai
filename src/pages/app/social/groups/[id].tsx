@@ -28,7 +28,8 @@ type Props = {
 
 function AppSocialGroupsIdPage(props: Props) {
   const group = props.group;
-  const groupId = useRouter().query.id as string;
+  const router = useRouter();
+  const groupId = router.query.id as string;
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     const email = (
@@ -37,16 +38,16 @@ function AppSocialGroupsIdPage(props: Props) {
     const response = await httpClient.patch(Endpoints.memberId(groupId), {
       email,
     });
-    return response.ok ? alert("Grupo criado") : console.log(response);
+    return response.ok ? router.reload() : console.log(response);
   };
 
   const onDelete = async (e: React.ChangeEvent<HTMLFormElement>) => {
     const form = e.currentTarget;
     const user = form.dataset.id as string;
-    const response = await httpClient.delete(Endpoints.memberId(groupId), {
+    await httpClient.delete(Endpoints.memberId(groupId), {
       user,
     });
-    console.log(response);
+    router.reload();
   };
 
   return (

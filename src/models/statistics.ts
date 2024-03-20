@@ -4,16 +4,15 @@ import { Orders } from "~/services/orders/orders.types";
 import { User } from "~/store/friends.store";
 
 export namespace Statistics {
-  export const summary = (history: Orders.Shape[], _user: User) => {
+  export const summary = (history: Orders.Shape[], user: User) => {
     if (history.length === 0) return null;
     const result = history.reduce(
       (acc, el) => {
-        const total = acc.total + el.total;
-        const users = Dict.from("id", el.users);
-        console.log({ total, users });
-        // const ownTotal =
-        //   users.get(user.id)!.result.totalWithCouvert + acc.ownTotal;
-        return { ownTotal: 0, total: 0 };
+        const total = acc.total + Number(el.total);
+        const users = Dict.from("id", el.users, (x) => x);
+        const data = users.get(user.id)!;
+        const ownTotal = Number(data.payment?.amount || 0);
+        return { ownTotal: ownTotal + acc.ownTotal, total };
       },
       { total: 0, ownTotal: 0 },
     );
@@ -21,7 +20,7 @@ export namespace Statistics {
     return {
       places: places.length,
       total: result.total,
-      ownTotal: result.total,
+      ownTotal: result.ownTotal,
       economic: result.total - result.ownTotal,
     };
   };

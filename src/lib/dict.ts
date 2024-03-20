@@ -2,11 +2,12 @@ export class Dict<K, V> extends Map<K, V> {
   public static from<
     Item,
     K extends keyof Item,
-    Fn extends (item: Item) => any,
-  >(key: K, list: Item[], fn?: (item: Item) => any) {
-    return new Dict<Item[K], ReturnType<Fn>>(
-      list.map((x) => [x[key], fn ? fn(x) : x]),
-    );
+    Fn extends ((item: Item) => any) | undefined,
+  >(key: K, list: Item[], fn?: Fn) {
+    return new Dict<
+      Item[K],
+      Fn extends undefined ? Item : ReturnType<NonNullable<Fn>>
+    >(list.map((x) => [x[key], fn ? fn(x) : x]));
   }
 
   public static toArray<K, V>(dict: Dict<K, V>) {

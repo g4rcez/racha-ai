@@ -42,7 +42,7 @@ export const MobileLayout = (props: PropsWithChildren) => {
             </div>
           </nav>
         </header>
-        <div className="flex-1 mx-auto container w-full flex flex-col px-4 pt-20">
+        <div className="flex-1 w-full flex flex-col px-4 pt-20 container mx-auto">
           {props.children}
         </div>
         <footer
