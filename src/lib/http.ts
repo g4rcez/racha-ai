@@ -1,26 +1,26 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession, Session } from "next-auth";
-import {
-  GetServerSidePropsContext,
-  GetServerSidePropsResult,
-} from "next/types";
-import { getSession, nextAuthOptions } from "~/lib/auth";
 import { has } from "~/lib/fn";
+import { Nullable } from "~/types";
 
 type Endpoint = (req: NextApiRequest, res: NextApiResponse) => any;
+
+type User = { id: string; email: string };
+
+type Session = { user: User };
 
 type SessionEndpoint = (
   req: NextApiRequest,
   res: NextApiResponse,
-  session: Session & {
-    user: Session["user"] & { id: string };
-  },
+  session: Session,
 ) => any;
+
+export const fakeSession: Nullable<Session> = { user: { id: "", email: "" } };
+
+const session = fakeSession;
 
 export const authMiddleware =
   <T extends SessionEndpoint>(callback: T) =>
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await getServerSession(req, res, nextAuthOptions);
     if (session === null) {
       return res.status(401).json({ notAuthorized: true });
     }
@@ -48,18 +48,3 @@ export const parseMessageError = <
 ) => ({
   errors: issues.map((x) => `${x.path?.join?.(".")}|${x.message}`),
 });
-
-export const serverSideMiddleware =
-  (
-    callback: (
-      context: GetServerSidePropsContext,
-      session: Session & { user: Session["user"] & { id: string } },
-    ) => Promise<GetServerSidePropsResult<any>>,
-  ) =>
-  async (
-    context: GetServerSidePropsContext,
-  ): Promise<GetServerSidePropsResult<any>> => {
-    const session = await getSession(context);
-    if (session === null) return { notFound: true };
-    return callback(context, session as any);
-  };

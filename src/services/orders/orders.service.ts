@@ -2,7 +2,7 @@ import { eq, sql } from "drizzle-orm";
 import { db } from "~/db";
 import { orderItems, orders, payments } from "~/db/orders";
 import { DB } from "~/db/types";
-import { groups, userGroups, users } from "~/db/users";
+import { users } from "~/db/users";
 import { Either } from "~/lib/either";
 import { OrdersMapper } from "~/services/orders/orders.mapper";
 import { Orders } from "~/services/orders/orders.types";
@@ -51,7 +51,6 @@ export namespace OrdersService {
       orders: orders,
       orderItem: orderItems,
       payments: payments,
-      groups: groups,
       user: {
         id: users.id,
         image: users.image,
@@ -62,11 +61,7 @@ export namespace OrdersService {
     .from(orders)
     .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
     .leftJoin(payments, eq(orders.id, payments.orderId))
-    .leftJoin(users, eq(users.id, payments.ownerId))
-    .leftJoin(
-      groups,
-      sql`(case when orders."groupId" is null then FALSE when orders."groupId" = groups.id then TRUE else FALSE end)`,
-    );
+    .leftJoin(users, eq(users.id, payments.ownerId));
 
   const byId = Either.transform(async (id: string) => {
     const query = drizzleSelect.where(eq(orders.id, id));
@@ -87,16 +82,7 @@ export namespace OrdersService {
     const query = db
       .select()
       .from(orders)
-      .leftJoin(payments, eq(orders.id, payments.id))
-      .leftJoin(
-        userGroups,
-        sql`(case
-        when orders."groupId" is null then TRUE
-        when uG."userId" = '${id}'
-            AND uG."userId" = p."ownerId"
-            then TRUE
-        else FALSE end)`,
-      ).where(sql`(case
+      .leftJoin(payments, eq(orders.id, payments.id)).where(sql`(case
               when orders."groupId" is null then TRUE
               when uG."userId" = '${id}' then TRUE
               else FALSE end)`);

@@ -1,8 +1,8 @@
 import { GetServerSidePropsContext } from "next/types";
 import { useEffect } from "react";
 import AdminLayout from "~/components/admin/layout";
-import { getSession } from "~/lib/auth";
 import { isUuid } from "~/lib/fn";
+import { fakeSession } from "~/lib/http";
 import { OrdersService } from "~/services/orders/orders.service";
 
 const serverSideProps = async (userId: string, orderId: string) => {
@@ -26,9 +26,9 @@ export const getServerSideProps = async (
   if (!isUuid(uuid)) {
     return serverSideProps("", "");
   }
-  const session = await getSession(context);
+  const session = fakeSession;
   if (session === null) return { props: serverSideProps("", "") };
-  const id = (session.user as any)?.id;
+  const id = session.user?.id;
   if (!id) return { props: serverSideProps("", "") };
   return { props: serverSideProps(id, uuid) };
 };

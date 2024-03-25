@@ -36,7 +36,6 @@ export namespace OrdersMapper {
       return {
         orderId: order.id,
         id: uuidv7(),
-        groupId: order.groupId,
         ownerId,
         type: order.type,
         createdAt: order.createdAt,
@@ -71,7 +70,6 @@ export namespace OrdersMapper {
           result.items.push({
             category: Categories.additional.name,
             createdAt: order.createdAt,
-            groupId: order.groupId,
             id: uuidv7(),
             orderId: order.id,
             ownerId,
@@ -88,7 +86,6 @@ export namespace OrdersMapper {
           result.items.push({
             category: Categories.couvert.name,
             createdAt: order.createdAt,
-            groupId: order.groupId,
             id: uuidv7(),
             orderId: order.id,
             ownerId,
@@ -105,7 +102,6 @@ export namespace OrdersMapper {
           payments: acc.payments.concat({
             id: uuidv7(),
             createdAt: order.createdAt,
-            groupId: order.groupId,
             orderId: order.id,
             ownerId,
             status: OrdersValidator.CartStatus.pending,
@@ -130,8 +126,6 @@ export namespace OrdersMapper {
     return {
       id: order.id,
       ownerId: order.ownerId,
-      group: {} as any,
-      groupId: order.groupId,
       lastUpdatedAt: order.lastUpdatedAt,
       metadata: order.metadata,
       total: order.total,
@@ -185,7 +179,6 @@ export namespace OrdersMapper {
       lastUpdatedAt: null,
       title: cart.title,
       ownerId: cart.me?.id!,
-      groupId: cart.groupId || null,
       metadata: {} as any,
       category: cart.category,
       currencyCode: cart.currencyCode,
@@ -207,7 +200,6 @@ export namespace OrdersMapper {
   export const toRequest = (result: Orders.DB[]): Orders.Shape => {
     const first = result[0];
     const order = first.orders;
-    const group = first.groups || null;
     const userInfo = new Map<string, Orders.UserInfo>();
     result.forEach((order) => {
       const info =
@@ -217,6 +209,6 @@ export namespace OrdersMapper {
       info.orderItem.push(order.orderItem);
       userInfo.set(order.user.id, info);
     });
-    return { ...order, group, users: Array.from(userInfo.values()) };
+    return { ...order, users: Array.from(userInfo.values()) };
   };
 }

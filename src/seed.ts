@@ -6,27 +6,28 @@ import { users } from "~/db/users";
 import { Division } from "~/models/entity-types";
 import { OrdersService } from "~/services/orders/orders.service";
 import { OrdersMapper } from "~/services/orders/orders.mapper";
-import { User } from "~/services/user";
 
 async function insertUsers() {
   const listOfUsers: DB.User[] = [
     {
       id: "018de2eb-f922-77e6-b282-0ffc93695a7b",
       name: "John Doe",
+      password: "",
+      secretId: "",
       email: "johndoe@gmail.com",
       createdAt: new Date(),
       image: "https://avatars.githubusercontent.com/u/583231?v=4",
       preferences: {},
-      emailVerified: null,
     },
     {
       id: "018de2ed-ce07-7cd2-80b9-dd5710f95abf",
       name: "Fulano",
       email: "fulano@gmail.com",
+      password: "",
+      secretId: "",
       createdAt: new Date(),
       image: "https://avatars.githubusercontent.com/u/583231?v=4",
       preferences: {},
-      emailVerified: null,
     },
   ];
   try {
@@ -39,34 +40,8 @@ async function insertUsers() {
   }
 }
 
-const insertGroup = async (listOfUsers: DB.User[]) => {
-  try {
-    return await User.createGroup(
-      {
-        avatar: "https://avatars.githubusercontent.com/u/583231?v=4",
-        title: "Group",
-        description: "Seed group",
-      },
-      listOfUsers[0].id,
-    );
-  } catch (e) {
-    return {
-      id: uuidv7(),
-      createdAt: new Date(),
-      deletedAt: null,
-      title: "GROUP WITH ERROR",
-      ownerId: listOfUsers[0].id,
-      description: "GROUP WITH Error",
-      avatar: "https://avatars.githubusercontent.com/u/583231?v=4",
-    };
-  }
-};
-
 async function seed() {
   const listOfUsers = await insertUsers();
-  await insertGroup(listOfUsers);
-  // group
-  // orders
   const me = listOfUsers[0]!;
   const other = listOfUsers[1]!;
   const result = OrdersMapper.toDb({

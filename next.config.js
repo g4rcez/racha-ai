@@ -4,12 +4,15 @@ const { withSentryConfig } = require("@sentry/nextjs");
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  experimental: { instrumentationHook: true },
   compiler: {
     reactRemoveProperties: { properties: ["^data-test$", "^data-testid$"] },
   },
 };
 
-module.exports = withSentryConfig(
+const withPlugins = false ? withSentryConfig : (t) => t;
+
+module.exports = withPlugins(
   require("next-pwa")({
     scope: "/app",
     dest: "public",

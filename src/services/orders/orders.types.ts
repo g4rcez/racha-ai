@@ -8,12 +8,11 @@ export namespace Orders {
     orderItem: DB.OrderItem[];
   };
 
-  export type Shape = DB.Order & { users: UserInfo[]; group: DB.Group | null };
+  export type Shape = DB.Order & { users: UserInfo[] };
 
   export type DB = {
     orders: DB.Order;
     user: DB.User;
-    groups: DB.Group;
     payments: DB.Payment;
     orderItem: DB.OrderItem;
   };

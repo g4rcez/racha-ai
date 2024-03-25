@@ -1,4 +1,4 @@
-import { InferSelectModel, relations } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   index,
   jsonb,
@@ -10,64 +10,55 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const users = pgTable(
-  "user",
-  {
-    id: uuid("id").notNull().primaryKey(),
-    name: text("name"),
-    image: text("image"),
-    email: text("email").notNull().unique(),
-    preferences: jsonb("preferences").default({}),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    emailVerified: timestamp("emailVerified", { mode: "date" }),
-  },
-  (t) => ({ emailIndex: index("emailIndex").on(t.email) }),
-);
-
-export const groups = pgTable("groups", {
-  id: uuid("id").primaryKey().notNull(),
-  avatar: text("avatar"),
-  ownerId: uuid("ownerId")
-    .notNull()
-    .references(() => users.id),
-  title: varchar("title", { length: 256 }),
-  description: varchar("description", { length: 256 }),
+export const secrets = pgTable("secrets", {
+  id: uuid("id").notNull().primaryKey(),
+  type: varchar("type", { length: 16 }).notNull(),
+  secret: text("secret"),
+  public: text("public"),
+  createdBy: varchar("createdBy", { length: 512 }).notNull(),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   deletedAt: timestamp("deletedAt"),
 });
 
-export const userGroups = pgTable(
-  "userGroups",
+export const users = pgTable(
+  "users",
   {
-    id: uuid("id").primaryKey(),
-    role: varchar("role", { length: 16 }).default("default"),
-    userId: uuid("userId")
+    id: uuid("id").notNull().primaryKey(),
+    image: text("image"),
+    name: varchar("name", { length: 256 }).notNull(),
+    password: varchar("password", { length: 256 }),
+    email: varchar("email", { length: 256 }).notNull().unique(),
+    preferences: jsonb("preferences").default({}),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    secretId: uuid("secretId").references(() => secrets.id),
+  },
+  (t) => ({ emailIndex: index("emailIndex").on(t.email) }),
+);
+
+export const usersFriends = pgTable(
+  "usersFriends",
+  {
+    id: uuid("id").notNull().primaryKey(),
+    createdAt: timestamp("createdAt").notNull().defaultNow(),
+    message: varchar("message", { length: 256 }).notNull().default(""),
+    status: varchar("status", { length: 16 }).notNull(),
+    ownerId: uuid("ownerId")
       .notNull()
       .references(() => users.id),
-    groupId: uuid("groupId")
+    invitedId: uuid("invitedId")
       .notNull()
-      .references(() => groups.id),
-    createdAt: timestamp("createdAt").notNull().defaultNow(),
-    deletedAt: timestamp("deletedAt"),
+      .references(() => users.id),
   },
   (t) => ({
-    uniqueUserInGroup: unique().on(t.userId, t.groupId),
+    uniqueFriends: unique().on(t.ownerId, t.invitedId),
   }),
 );
 
-export const userRelations = relations(users, (relation) => ({
-  userGroups: relation.many(groups),
+export const usersRelations = relations(users, (relation) => ({
+  friends: relation.many(users),
 }));
 
-export const groupRelations = relations(users, (relation) => ({
-  userGroups: relation.many(users),
+export const userGroupsRelations = relations(usersFriends, ({ one }) => ({
+  friend: one(users, { fields: [usersFriends.id], references: [users.id] }),
+  user: one(users, { fields: [usersFriends.id], references: [users.id] }),
 }));
-
-export const userGroupsRelations = relations(userGroups, ({ one }) => ({
-  group: one(groups, { fields: [userGroups.id], references: [groups.id] }),
-  user: one(users, { fields: [userGroups.id], references: [users.id] }),
-}));
-
-export type Users = InferSelectModel<typeof users>;
-
-export type Groups = InferSelectModel<typeof groups>;

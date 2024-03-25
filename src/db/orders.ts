@@ -7,7 +7,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { groups, users } from "~/db/users";
+import { users } from "~/db/users";
 
 export const orders = pgTable("orders", {
   id: uuid("id").notNull().primaryKey(),
@@ -20,7 +20,6 @@ export const orders = pgTable("orders", {
   status: varchar("status", { length: 32 }),
   currencyCode: varchar("currencyCode", { length: 8 }),
   metadata: jsonb("metadata").default({}),
-  groupId: uuid("groupId").references(() => groups.id),
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
@@ -36,7 +35,6 @@ export const orderItems = pgTable("orderItems", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId").references(() => groups.id),
   type: varchar("type", { length: 32 }),
   price: decimal("price").notNull().default("0"),
   quantity: decimal("quantity").notNull().default("1"),
@@ -53,15 +51,13 @@ export const payments = pgTable("payments", {
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  groupId: uuid("groupId").references(() => groups.id),
   amount: decimal("amount").notNull().default("0"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 });
 
 export const paymentsRelations = relations(payments, ({ one }) => ({
-  users: one(users, { fields: [payments.groupId], references: [users.id] }),
-  orders: one(orders, { fields: [payments.groupId], references: [orders.id] }),
-  groups: one(groups, { fields: [payments.groupId], references: [groups.id] }),
+  users: one(users, { fields: [payments.orderId], references: [users.id] }),
+  orders: one(orders, { fields: [payments.orderId], references: [orders.id] }),
 }));
 
 export const productRelations = relations(orderItems, ({ one }) => ({
