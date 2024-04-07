@@ -1,4 +1,3 @@
-import { SessionProviderProps } from "next-auth/react";
 import React, { PropsWithChildren, useEffect, useRef } from "react";
 import { AppConfig } from "~/components/admin/app-config";
 import { MobileLayout } from "~/components/admin/mobile.layout";
@@ -32,9 +31,6 @@ function AdminLayoutRoot(props: PropsWithChildren) {
   );
 }
 
-export default function AdminLayout(
-  page: React.ReactElement,
-  _session: SessionProviderProps,
-) {
+export default function AdminLayout(page: React.ReactElement) {
   return <AdminLayoutRoot>{page}</AdminLayoutRoot>;
 }

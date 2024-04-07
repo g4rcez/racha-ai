@@ -285,7 +285,7 @@ export const Cart = Store.create(
     onSubmit: (state: CartState, push: (id: string) => void) => {
       const order = History.save(state);
       Cart.clearStorage();
-      push(Links.cartId(order.id));
+      push(Links.orderId(order.id));
     },
     productWarning: (product: CartProduct): boolean => {
       const quantitySum = product.consumers

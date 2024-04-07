@@ -16,7 +16,7 @@ export const Checkbox = ({
     <fieldset
       aria-disabled={props.disabled}
       disabled={props.disabled}
-      className={css("group", container)}
+      className={css("group block w-auto", container)}
     >
       <label
         className={css(

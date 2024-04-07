@@ -1,9 +1,9 @@
-import { PgTransaction } from "drizzle-orm/pg-core";
+import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
 import type { db } from "~/db/index";
 import type { users, secrets } from "~/db/users";
 import type { orderItems, orders, payments } from "~/db/orders";
-import { Override } from "~/types";
+import type { Override } from "~/types";
 
 export namespace DB {
   export type User = InferSelectModel<typeof users>;
@@ -15,7 +15,7 @@ export namespace DB {
         couvert: number;
         consumers: number;
         additional: number;
-        percentAdditional: string;
+        base: number;
       };
     }
   >;

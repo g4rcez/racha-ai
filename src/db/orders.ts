@@ -27,6 +27,8 @@ export const orders = pgTable("orders", {
 
 export const orderItems = pgTable("orderItems", {
   id: uuid("id").notNull().primaryKey(),
+  productId: uuid("productId").notNull(),
+  splitType: varchar("splitType", { length: 16 }).notNull(),
   title: varchar("title", { length: 256 }).notNull(),
   category: varchar("category", { length: 32 }),
   orderId: uuid("orderId")

@@ -2,7 +2,7 @@ import * as Radio from "@radix-ui/react-radio-group";
 import React from "react";
 import { Label, Override } from "~/types";
 
-type Value = { value: string; label: Label };
+type Value = { value: string; label: Label; description?: Label };
 
 type Props<T extends readonly Value[]> = Override<
   React.ComponentProps<"input">,
@@ -11,6 +11,7 @@ type Props<T extends readonly Value[]> = Override<
     title: Label;
     ariaLabel: string;
     defaultValue?: T[number]["value"];
+    onValueChange?: (value: T[number]["value"]) => void;
   }
 >;
 
@@ -22,10 +23,12 @@ export const RadioGroup = <const T extends readonly Value[]>({
 }: Props<T>) => {
   return (
     <fieldset className="block w-full">
-      <label className="mb-2 block text-sm">{title}</label>
+      <label className="mb-3 block text-base text-balance font-medium">
+        {title}
+      </label>
       <Radio.Root
         {...(props as any)}
-        className="flex gap-4"
+        className="flex flex-col gap-4"
         aria-label={ariaLabel}
       >
         {values.map((item) => (

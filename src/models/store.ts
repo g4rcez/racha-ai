@@ -1,7 +1,12 @@
+import { EffectCallback, useEffect } from "react";
 import { LocalStorage } from "storage-manager-js";
+import {
+  createGlobalReducer,
+  createLocalStoragePlugin,
+  createLoggerPlugin,
+  ReducerActions,
+} from "use-typed-reducer";
 import { z } from "zod";
-import { createGlobalReducer, ReducerActions } from "use-typed-reducer";
-import { Env } from "~/lib/env";
 import { isServerSide } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { FN } from "~/types";
@@ -24,8 +29,14 @@ export namespace Store {
 
   export const validator =
     (validator: z.ZodType) =>
-    <State>(data: any, defaultData: (storage: any) => State): State => {
+    <State>(
+      data: any,
+      defaultData: (storage: any) => State,
+      name: string,
+    ): State => {
       const result = validator.safeParse(data);
+      if (!result.success)
+        console.log(name, validator, data, result.error.issues);
       return result.success
         ? defaultData(result.data as State)
         : defaultData(data);
@@ -33,30 +44,6 @@ export namespace Store {
 
   type ValidatorsSchema = {
     [K in `v${number}`]: ReturnType<typeof validator>;
-  };
-
-  type Middleware<T> = (state: T, method: string, prev: T) => T;
-
-  export const createStorageMiddleware = <State>(
-    key: string,
-  ): Middleware<State>[] => {
-    const middle: Middleware<State>[] = [
-      (state: State) => {
-        LocalStorage.set(key, state);
-        return state;
-      },
-    ];
-    if (Env.isLocal) {
-      middle.push((state: State, method: string, prev: State) => {
-        console.group(key);
-        console.info("Update by", method);
-        console.info("Previous state", prev);
-        console.info(state);
-        console.groupEnd();
-        return state;
-      });
-    }
-    return middle;
   };
 
   export const create = <
@@ -79,7 +66,6 @@ export namespace Store {
     actions: Actions,
   ) => {
     type State = ReturnType<Getter>;
-    type FullState = State & Metadata;
 
     const schema = info.schemas[info.version as any] as ReturnType<
       typeof validator
@@ -90,7 +76,7 @@ export namespace Store {
     const getInitialState = (): State => {
       if (isServerSide()) return getState();
       const storageData = LocalStorage.get(storageKey);
-      return schema<State>(storageData, getState) as State;
+      return schema<State>(storageData, getState, storageKey) as State;
     };
 
     const setStore = (state: State) => {
@@ -98,16 +84,22 @@ export namespace Store {
       LocalStorage.set(storageKey, state);
     };
 
-    const middleware = createStorageMiddleware<State>(storageKey);
+    const useStore = createGlobalReducer(getInitialState(), reducer, {
+      interceptor: [
+        createLocalStoragePlugin(storageKey),
+        createLoggerPlugin(storageKey),
+      ],
+    });
 
-    const useStore = createGlobalReducer(
-      getInitialState(),
-      reducer,
-      undefined,
-      middleware,
-    );
-    const use = <Selector extends (s: State) => any>(selector?: Selector) =>
-      useStore(selector);
+    const use = <Selector extends (s: State) => any>(
+      selector?: Selector,
+      effect?: EffectCallback,
+    ) => {
+      useEffect(() => {
+        if (effect) return effect();
+      }, []);
+      return useStore(selector);
+    };
 
     const setup = () =>
       setStore(
@@ -121,15 +113,14 @@ export namespace Store {
       : actions;
 
     setup();
-
     return {
       ...act,
-      use,
-      getState,
-      clearStorage: () => LocalStorage.delete(storageKey),
       action: useStore.dispatchers,
-      __state: undefined as unknown as FullState,
+      clearStorage: () => LocalStorage.delete(storageKey),
+      getCurrentState: (): State => getState(LocalStorage.get(storageKey)),
+      getState,
       initialState: getInitialState,
+      use,
     } as const;
   };
 }

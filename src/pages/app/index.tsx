@@ -1,5 +1,5 @@
 import { BanknoteIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HistoryItem } from "~/components/admin/history/history-item";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
@@ -10,6 +10,8 @@ import { i18n, useTranslations } from "~/i18n";
 import { noop } from "~/lib/fn";
 import { Is } from "~/lib/is";
 import { Statistics } from "~/models/statistics";
+import { OrdersMapper } from "~/services/orders/orders.mapper";
+import { Friends } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { Preferences } from "~/store/preferences.store";
 import { NextPageWithLayout } from "~/types";
@@ -62,9 +64,14 @@ const WelcomePage = (props: { onFillName: () => void }) => {
 const AppPage: NextPageWithLayout = () => {
   const i18n = useTranslations();
   const [user, dispatch] = Preferences.use((s) => s.user);
+  const [friendsState] = Friends.use();
   const [history, historyDispatch] = History.use();
   const [firstStateName, setFirstNameState] = useState("");
-  const items = history.items;
+  const items = useMemo(
+    () =>
+      OrdersMapper.parseToRawOrder(history.items, friendsState.users.toArray()),
+    [history.items, friendsState.users],
+  );
   const name = user.name;
   const statistics = Statistics.summary(items, user);
 

@@ -15,7 +15,7 @@ export namespace Numbers {
     return localeString.toUpperCase() as LocaleCurrencyCode;
   };
 
-  export const getCurrency = function (locale: string) {
+  export const getCurrency = (locale: string) => {
     const countryCode = getCountryCode(locale);
     return countryCode in localeCurrencyMap
       ? localeCurrencyMap[countryCode]
@@ -26,6 +26,8 @@ export namespace Numbers {
     number: new Intl.NumberFormat(lang, options?.number).format,
     percent: new Intl.NumberFormat(lang, {
       style: "percent",
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
       ...options?.percent,
     }).format,
     money: new Intl.NumberFormat(lang, {

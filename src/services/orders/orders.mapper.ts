@@ -1,193 +1,187 @@
 import { uuidv7 } from "@kripod/uuidv7";
-import { DB } from "~/db/types";
-import { CartMath } from "~/lib/cart-math";
+import { z } from "zod";
+import type { DB } from "~/db/types";
 import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
-import { Categories } from "~/models/categories";
-import { OrdersValidator } from "~/services/orders/order.validator";
+import { Product } from "~/models/product";
 import { Orders } from "~/services/orders/orders.types";
+import { User } from "~/store/friends.store";
 
 export namespace OrdersMapper {
   export type Result = {
+    id: string;
     order: DB.Order;
     payments: DB.Payment[];
     items: DB.OrderItem[];
   };
 
-  type CartProduct = OrdersValidator.Cart["products"][0];
+  const date = z.string().datetime().or(z.date());
 
-  type ParseProductsProps = {
-    items: DB.OrderItem[];
-    payments: DB.Payment[];
-    total: number;
-  };
+  const id = z.string().uuid();
 
-  type Info = { product: CartProduct; user: CartProduct["consumers"][0] };
+  export const payment = z.object({
+    id,
+    status: z.string(),
+    orderId: id,
+    ownerId: id,
+    amount: z.number(),
+    createdAt: date,
+  });
 
-  const createOrderItems = (
-    total: number,
-    info: Info[],
-    order: DB.Order,
-    ownerId: string,
-  ) => {
-    const items = info.map(({ product, user }): DB.OrderItem => {
-      const orderTotal = product.price * user.quantity;
-      total += orderTotal;
-      return {
-        orderId: order.id,
-        id: uuidv7(),
-        ownerId,
-        type: order.type,
-        createdAt: order.createdAt,
-        category: order.category,
-        title: product.name,
-        total: orderTotal.toString(),
-        price: product.price.toString(),
-        quantity: user.quantity.toString(),
-      };
-    });
-    return { items, total };
-  };
+  export type Payment = z.infer<typeof payment>;
 
-  const parseProducts = (order: DB.Order, cart: OrdersValidator.Cart) => {
-    const math = CartMath.calculate(cart as any);
-    const map = new Map<string, Info[]>();
-    cart.products.forEach((product) => {
-      product.consumers.forEach((user) => {
-        const info = map.get(user.id) || [];
-        map.set(user.id, [...info, { product, user }]);
-      });
-    });
-    return Array.from(map.entries()).reduce<ParseProductsProps>(
-      (acc, [ownerId, info]): ParseProductsProps => {
-        let ownTotal = 0;
-        const result = createOrderItems(ownTotal, info, order, ownerId);
-        ownTotal += result.total;
-        if (cart.hasAdditional && result.total > 0) {
-          const withAdditional = CartMath.sumWithAdditional(math, ownTotal);
-          const price = (withAdditional - ownTotal).toString();
-          ownTotal = withAdditional;
-          result.items.push({
-            category: Categories.additional.name,
-            createdAt: order.createdAt,
-            id: uuidv7(),
-            orderId: order.id,
-            ownerId,
-            price,
-            quantity: "1",
-            title: Orders.OrderItem.Additional,
-            total: price,
-            type: order.type,
-          });
-        }
-        if (cart.hasCouvert) {
-          const price = math.couvert.each.toString();
-          ownTotal += math.couvert.each;
-          result.items.push({
-            category: Categories.couvert.name,
-            createdAt: order.createdAt,
-            id: uuidv7(),
-            orderId: order.id,
-            ownerId,
-            price,
-            quantity: "1",
-            title: Orders.OrderItem.Couvert,
-            total: price,
-            type: order.type,
-          });
-        }
-        return {
-          total: ownTotal + acc.total,
-          items: acc.items.concat(result.items),
-          payments: acc.payments.concat({
-            id: uuidv7(),
-            createdAt: order.createdAt,
-            orderId: order.id,
-            ownerId,
-            status: OrdersValidator.CartStatus.pending,
-            amount: ownTotal.toString(),
-          }),
-        };
-      },
-      {
-        total: 0,
-        items: [],
-        payments: [],
-      } as ParseProductsProps,
-    );
-  };
+  export const orderItem = z.object({
+    category: z.string(),
+    createdAt: date,
+    id,
+    orderId: id,
+    ownerId: id,
+    price: z.string(),
+    productId: z.string().uuid(),
+    quantity: z.string(),
+    splitType: z.string(),
+    title: z.string(),
+    total: z.string(),
+    type: z.string(),
+  });
 
-  export const fromCart = (cart: OrdersValidator.Cart): Orders.Shape => {
-    const result = toDb(cart);
-    const order = result.order;
-    const payments = Dict.groupBy("ownerId", result.payments);
-    const products = Dict.groupBy("ownerId", result.items);
-    const userData = Dict.from("id", cart.users);
+  export type OrderItem = z.infer<typeof orderItem>;
+
+  export const schema = z.object({
+    couvert: z.string(),
+    tip: z.string(),
+    id: z.string().uuid(),
+    title: z.string(),
+    createdAt: z.string().datetime().or(z.date()),
+    lastUpdatedAt: z.string().nullable().or(z.date()).nullable(),
+    total: z.coerce.number(),
+    type: z.string(),
+    category: z.string(),
+    status: z.string(),
+    currencyCode: z.string().default("BRL"),
+    ownerId: z.string(),
+    metadata: z
+      .object({
+        couvert: z.number(),
+        consumers: z.number(),
+        additional: z.number(),
+        percentAdditional: z.number().min(0).max(1),
+        names: z.record(z.string()),
+      })
+      .partial()
+      .default({}),
+  });
+
+  export type Order = z.infer<typeof schema>;
+
+  const parseOrder = (
+    order: Order,
+    payments: DB.Payment[],
+    date: Date,
+    basePayment: number,
+  ): DB.Order => {
+    const tip = calculateTip(order.tip);
     return {
       id: order.id,
       ownerId: order.ownerId,
-      lastUpdatedAt: order.lastUpdatedAt,
-      metadata: order.metadata,
-      total: order.total,
-      status: order.status,
-      createdAt: order.createdAt,
-      title: order.title,
       type: order.type,
       category: order.category,
+      title: order.title,
+      total: payments
+        .reduce((acc, el) => Number(el.amount) + acc, 0)
+        .toString(),
+      createdAt: date,
       currencyCode: order.currencyCode,
-      users: result.payments.map((x): Orders.UserInfo => {
-        const data = userData.get(x.ownerId);
-        return {
-          id: x.ownerId,
-          payment: payments.get(x.ownerId)![0],
-          orderItem: products.get(x.ownerId)!,
-          data: { id: x.ownerId, name: data?.name } as Orders.UserInfo["data"],
-        };
-      }),
+      status: order.status,
+      lastUpdatedAt: null,
+      metadata: {
+        additional: tip,
+        base: basePayment,
+        consumers: payments.length,
+        couvert: calculateCouvert(order.couvert),
+      },
     };
   };
 
-  const createMetadata = (
-    cart: OrdersValidator.Cart,
-    items: ParseProductsProps["items"],
+  type OrderItemPayments = {
+    payment: DB.Payment;
+    items: DB.OrderItem[];
+    base: number;
+  };
+
+  const calculateTip = (tip: string) =>
+    tip === "" ? 1 : fromStrNumber(tip) / 100 + 1;
+
+  const calculateCouvert = (couvert: string) =>
+    couvert === "" ? 0 : fromStrNumber(couvert);
+
+  const calculateTotal = (
+    items: DB.OrderItem[],
+    tip: string,
+    couvert: string,
   ) => {
-    const metadata: Record<string, any> = {
-      ...cart.metadata,
-      consumers: cart.users.length,
-      percentAdditional: "",
-      additional: 0,
-      couvert: 0,
+    const item = items[0];
+    const base = items.reduce((acc, cur) => acc + Number(cur.total), 0);
+    let amount = base;
+    const numberTip = calculateTip(tip);
+    const numberCouvert = calculateCouvert(couvert);
+    const common = {
+      orderId: item.orderId,
+      ownerId: item.ownerId,
+      type: item.type,
+      category: item.category,
+      splitType: item.splitType,
     };
-    if (cart.hasAdditional) {
-      metadata.percentAdditional = cart.additional;
-      metadata.additional = items.reduce(
-        (acc, el) =>
-          acc + (el.category === "additional" ? Number(el.total) : 0),
-        0,
+    if (numberTip > 0) {
+      const total = amount * numberTip - amount;
+      amount *= numberTip;
+      items.push(Product.tip({ ...common, total: total.toString() }));
+    }
+    if (numberCouvert > 0) {
+      amount += numberCouvert;
+      items.push(
+        Product.couvert({ ...common, total: numberCouvert.toString() }),
       );
     }
-    if (cart.hasCouvert) metadata.couvert = fromStrNumber(cart.couvert);
-    return metadata as DB.Order["metadata"];
+    return { amount, items, base };
   };
 
-  export const toDb = (cart: OrdersValidator.Cart): Result => {
-    const order: DB.Order = {
-      id: uuidv7(),
-      total: "",
-      createdAt: new Date(),
-      type: cart.type,
-      lastUpdatedAt: null,
-      title: cart.title,
-      ownerId: cart.me?.id!,
-      metadata: {} as any,
-      category: cart.category,
-      currencyCode: cart.currencyCode,
-      status: OrdersValidator.CartStatus.pending,
-    } satisfies DB.Order;
-    const result = parseProducts(order, { ...cart, products: cart.products });
-    order.total = result.total.toString();
-    order.metadata = createMetadata(cart, result.items);
-    return { order, items: result.items, payments: result.payments };
+  const fetchPayments = (
+    order: Order,
+    orderItems: DB.OrderItem[],
+    date: Date,
+  ): OrderItemPayments[] =>
+    Dict.groupBy("ownerId", orderItems).arrayMap((value): OrderItemPayments => {
+      const product = value[0];
+      const result = calculateTotal(value, order.tip, order.couvert);
+      const payment: DB.Payment = {
+        amount: result.amount.toString(),
+        createdAt: date,
+        id: uuidv7(),
+        orderId: order.id,
+        ownerId: product.ownerId,
+        status: "",
+      };
+      return { payment, items: result.items, base: result.base };
+    });
+
+  export const splitBills = (order: Order, items: DB.OrderItem[]): Result => {
+    const now = new Date();
+    const result = fetchPayments(order, items, now);
+    const x = result.reduce(
+      (acc, el) => ({
+        base: acc.base + el.base,
+        items: acc.items.concat(el.items),
+        payments: acc.payments.concat(el.payment),
+      }),
+      { items: [] as DB.OrderItem[], payments: [] as DB.Payment[], base: 0 },
+    );
+    return {
+      id: order.id,
+      items: x.items,
+      payments: x.payments,
+      order: parseOrder(order, x.payments, now, x.base),
+    };
   };
 
   const createDefaultInfo = (userId: string): Orders.UserInfo => ({
@@ -210,5 +204,86 @@ export namespace OrdersMapper {
       userInfo.set(order.user.id, info);
     });
     return { ...order, users: Array.from(userInfo.values()) };
+  };
+
+  export const historySchema = z.object({
+    id: z.string(),
+    payments: z.array(
+      z.object({
+        amount: z.string(),
+        createdAt: z.string(),
+        id: z.string(),
+        orderId: z.string(),
+        ownerId: z.string(),
+        status: z.string(),
+      }),
+    ),
+    items: z.array(
+      z.object({
+        category: z.string(),
+        createdAt: z.string(),
+        id: z.string(),
+        orderId: z.string(),
+        ownerId: z.string(),
+        price: z.string(),
+        productId: z.string(),
+        quantity: z.string(),
+        splitType: z.string(),
+        title: z.string(),
+        total: z.string(),
+        type: z.string(),
+      }),
+    ),
+    order: z.object({
+      id: z.string(),
+      ownerId: z.string(),
+      type: z.string(),
+      category: z.string(),
+      title: z.string(),
+      total: z.string(),
+      createdAt: z.string(),
+      currencyCode: z.string(),
+      status: z.string(),
+      lastUpdatedAt: z.string().datetime().optional().nullable(),
+      metadata: z.object({
+        base: z.number(),
+        additional: z.number(),
+        consumers: z.number(),
+        couvert: z.number(),
+      }),
+    }),
+  });
+
+  export const parseProduct = (item: OrderItem): DB.OrderItem => ({
+    ...item,
+    price: item.price.toString(),
+    total: item.total.toString(),
+    quantity: item.quantity.toString(),
+    createdAt: new Date(item.createdAt),
+  });
+
+  export const parseRawOrder = (x: Result, users: User[]) => {
+    const paymentUsers = Dict.from("ownerId", x.payments);
+    const items = Dict.groupBy("ownerId", x.items);
+    return {
+      ...x.order,
+      createdAt: new Date(x.order.createdAt),
+      users: users.reduce<Orders.UserInfo[]>((acc, el) => {
+        if (!paymentUsers.has(el.id)) return acc;
+        return acc.concat({
+          id: el.id,
+          data: el as any,
+          orderItem: items.get(el.id)!,
+          payment: paymentUsers.get(el.id)!,
+        });
+      }, []),
+    };
+  };
+
+  export const parseToRawOrder = (
+    orders: Result[],
+    users: User[],
+  ): Orders.Shape[] => {
+    return orders.map((x) => parseRawOrder(x, users));
   };
 }

@@ -2,18 +2,25 @@ import { User2Icon } from "lucide-react";
 import Link from "next/link";
 import { Fragment } from "react";
 import { Category } from "~/components/category";
-import { i18n } from "~/i18n";
+import { useI18n } from "~/i18n";
 import { Links } from "~/router";
 import { Orders } from "~/services/orders/orders.types";
 
+const options = {
+  day: "numeric",
+  month: "numeric",
+  year: "numeric",
+} as const;
+
 export default function DefaultHistoryItem({ item }: { item: Orders.Shape }) {
+  const [i18n] = useI18n();
   return (
     <li
       key={item.id}
       className="border-b border-card-border first:border-t last:border-b-0"
     >
       <Link
-        href={Links.cartId(item.id)}
+        href={Links.orderId(item.id)}
         className="group py-4 flex flex-col gap-2"
       >
         <header className="flex flex-row gap-6">
@@ -23,7 +30,7 @@ export default function DefaultHistoryItem({ item }: { item: Orders.Shape }) {
               {item.title}
             </h2>
             <time dateTime={item.createdAt.toISOString()} className="text-base">
-              {item.createdAt.toLocaleDateString()}
+              {item.createdAt.toLocaleDateString(i18n.language, options)}
             </time>
           </div>
         </header>

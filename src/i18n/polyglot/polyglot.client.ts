@@ -34,11 +34,5 @@ export const createPolyglotStore = <
       },
     }),
     undefined,
-    [
-      (state) => {
-        changeLanguage(state.language);
-        return state;
-      },
-    ],
   );
 };

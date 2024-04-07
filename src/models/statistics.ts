@@ -10,7 +10,8 @@ export namespace Statistics {
       (acc, el) => {
         const total = acc.total + Number(el.total);
         const users = Dict.from("id", el.users, (x) => x);
-        const data = users.get(user.id)!;
+        const data = users.get(user.id);
+        if (!data) return acc;
         const ownTotal = Number(data.payment?.amount || 0);
         return { ownTotal: ownTotal + acc.ownTotal, total };
       },

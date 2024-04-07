@@ -18,7 +18,7 @@ export namespace Orders {
   };
 
   export enum OrderItem {
-    Couvert = "@internal/couvert",
-    Additional = "@internal/additional",
+    Couvert = "@racha-ai/couvert",
+    Additional = "@racha-ai/tip",
   }
 }

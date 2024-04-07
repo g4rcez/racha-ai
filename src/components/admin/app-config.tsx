@@ -3,7 +3,7 @@ import { Toaster } from "sonner";
 import { Preferences } from "~/store/preferences.store";
 
 export const AppConfig = () => {
-  const [theme] = Preferences.use((state) => state.theme);
+  const [state] = Preferences.use((state) => state);
 
   useEffect(() => {
     const initialPreferences = Preferences.initialState();
@@ -16,7 +16,7 @@ export const AppConfig = () => {
         className="toaster group"
         closeButton
         duration={3000}
-        theme={theme}
+        theme={state.theme}
         visibleToasts={3}
       />
     </Fragment>
