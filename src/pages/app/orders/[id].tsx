@@ -1,8 +1,7 @@
 import { toBlob } from "html-to-image";
 import { ShareIcon } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
@@ -18,35 +17,49 @@ import {
 import { Title } from "~/components/typography";
 import { useTranslations } from "~/i18n";
 import { CanIUse } from "~/lib/can";
-import { toFraction } from "~/lib/fn";
 import { Is } from "~/lib/is";
-import { Links } from "~/router";
+import { Product } from "~/models/product";
 import { Orders } from "~/services/orders/orders.types";
 import { Cart } from "~/store/cart.store";
 import { Friends } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { Platform } from "~/store/platform";
+import { Preferences } from "~/store/preferences.store";
 import { NextPageWithLayout, Nullable } from "~/types";
 
 const CartId: NextPageWithLayout = () => {
+  const [friends] = Friends.use();
+  const [preferences] = Preferences.use();
   const router = useRouter();
   const paths = router.query;
   const i18n = useTranslations();
-  const [_, dispatch] = Cart.use();
+  const [_] = Cart.use();
   const ref = useRef<HTMLDivElement>(null);
-  const [friends] = Friends.use();
   const [order, setOrder] = useState<Nullable<Orders.Shape>>(null);
+  console.log(order);
 
   useEffect(
-    () => setOrder(History.get(paths.id as string, friends.users.toArray())),
+    () =>
+      setOrder(
+        History.get(
+          paths.id as string,
+          friends.users.toArray().concat(preferences.user),
+        ),
+      ),
     [paths, friends.users],
   );
 
-  console.log(order);
+  const sortedUsers = useMemo(
+    () =>
+      Is.nil(order)
+        ? []
+        : order?.users.toSorted((a, b) =>
+            a.data.name.toLowerCase().localeCompare(b.data.name.toLowerCase()),
+          ),
+    [order],
+  );
 
-  if (Is.nil(order)) {
-    return <Fragment />;
-  }
+  if (Is.nil(order)) return <Fragment />;
 
   const onShareElement = async (div: HTMLElement) => {
     div.setAttribute("data-image", "true");
@@ -92,12 +105,6 @@ const CartId: NextPageWithLayout = () => {
 
   const consume = nTotal - order.metadata.additional - (couvert || 0);
 
-  const sortedUsers = order.users.toSorted((a, b) =>
-    a.payment?.amount && b.payment?.amount
-      ? Number(b.payment.amount) - Number(a.payment.amount)
-      : 1,
-  );
-
   return (
     <main
       ref={ref}
@@ -132,7 +139,7 @@ const CartId: NextPageWithLayout = () => {
             <li
               id={user.id}
               key={user.id}
-              className="group space-y-6 shareable data-[image=true]:bg-card-bg flex flex-wrap justify-between"
+              className="group space-y-6 data-[image=true]:space-y-0 shareable data-[image=true]:bg-card-bg flex flex-wrap justify-between"
             >
               <header className="w-full flex items-center justify-between">
                 <button
@@ -168,7 +175,12 @@ const CartId: NextPageWithLayout = () => {
                           {i18n.format.money(Number(product.total))}
                         </TableCell>
                         <TableCell>
-                          {toFraction(Number(product.quantity))}
+                          {Product.isTipOrCouvert(product)
+                            ? product.quantity
+                            : Product.formatQuantity(
+                                product.quantity,
+                                order.metadata.products[product.productId],
+                              )}
                         </TableCell>
                       </TableRow>
                     ))}

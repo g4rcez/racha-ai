@@ -70,7 +70,7 @@ export const InputField = <T extends "input" | "select">({
           ) : null}
           {children}
           {right ? (
-            <span className="flex flex-nowrap gap-1 whitespace-nowrap pr-2">
+            <span className="flex flex-nowrap gap-2 whitespace-nowrap pr-1">
               {right}
             </span>
           ) : null}

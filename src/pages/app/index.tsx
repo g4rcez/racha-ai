@@ -69,7 +69,10 @@ const AppPage: NextPageWithLayout = () => {
   const [firstStateName, setFirstNameState] = useState("");
   const items = useMemo(
     () =>
-      OrdersMapper.parseToRawOrder(history.items, friendsState.users.toArray()),
+      OrdersMapper.parseOrdersAsResponse(
+        history.items,
+        friendsState.users.toArray().concat(user),
+      ),
     [history.items, friendsState.users],
   );
   const name = user.name;

@@ -1,6 +1,8 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import React from "react";
+import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
+import { Dict } from "~/lib/dict";
 import { Hide } from "~/models/globals";
 import { Product } from "~/models/product";
 import { Store } from "~/models/store";
@@ -39,25 +41,25 @@ export const Orders = Store.create(
       category: state?.order?.category || "",
       couvert: state?.order?.couvert || "",
       createdAt: state?.order?.createdAt
-        ? new Date(state?.order.createdAt)
-        : new Date(),
+        ? new Date(state?.order.createdAt).toISOString()
+        : new Date().toISOString(),
       currencyCode: state?.order?.currencyCode || "",
       id: state?.order?.id || uuidv7(),
       lastUpdatedAt: state?.order?.lastUpdatedAt
-        ? new Date(state?.order?.lastUpdatedAt)
+        ? new Date(state?.order?.lastUpdatedAt).toISOString()
         : "",
       metadata: state?.order?.metadata || {
         couvert: 0,
         additional: 0,
         consumers: 0,
-        names: {},
-        percentAdditional: 0,
+        base: 0,
+        products: {}
       },
       ownerId: state?.order?.ownerId || "",
       status: state?.order?.status || "",
       tip: state?.order?.tip || "",
       title: state?.order?.title || "",
-      total: state?.order?.total || 0,
+      total: state?.order?.total || "",
       type: state?.order?.type || "",
     },
   }),
@@ -66,9 +68,8 @@ export const Orders = Store.create(
       const state = get.state();
       const previous = state.order;
       const me = Preferences.getCurrentState().user;
-      const users = state.users.some((x) => x.id === me.id)
-        ? state.users
-        : [me, ...state.users];
+      const dict = Dict.from("id", state.users);
+      const users = dict.set(me.id, { ...dict.get(me.id), ...me }).toArray();
       return { order: { ...previous, ...callback(previous) }, users };
     },
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,11 +129,12 @@ export const Orders = Store.create(
       };
     },
   }),
-  {
+  (args) => ({
+    clear: () => LocalStorage.delete(args.storageKey),
     onSubmit: async (state: State) =>
       OrdersMapper.splitBills(
         state.order,
         state.items.map(OrdersMapper.parseProduct),
       ),
-  },
+  }),
 );

@@ -17,6 +17,7 @@ import {
 } from "~/components/table";
 import { i18n, useI18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
+import { fromStrNumber } from "~/lib/fn";
 import { Links } from "~/router";
 import { Friends } from "~/store/friends.store";
 import { History } from "~/store/history.store";
@@ -148,7 +149,11 @@ const MyProducts = () => {
         <TableBody>
           {products.arrayMap((product) => {
             const item = product[0];
-            const quantity = product.reduce((acc, x) => +x.quantity + acc, 0);
+            const quantity = product.reduce(
+              (acc, x) => fromStrNumber(x.quantity) + acc,
+              0,
+            );
+            const intPrice = fromStrNumber(item.price);
             return (
               <TableRow key={item.id}>
                 <TableCell>
@@ -161,10 +166,8 @@ const MyProducts = () => {
                   </Link>
                 </TableCell>
                 <TableCell>{quantity}</TableCell>
-                <TableCell>{i18n.format.money(+item.price)}</TableCell>
-                <TableCell>
-                  {i18n.format.money(quantity * +item.price)}
-                </TableCell>
+                <TableCell>{i18n.format.money(intPrice)}</TableCell>
+                <TableCell>{i18n.format.money(quantity * intPrice)}</TableCell>
               </TableRow>
             );
           })}
@@ -188,12 +191,14 @@ const MyProducts = () => {
 const ComandaPage: NextPageWithLayout = () => {
   const [state] = Orders.use();
   const router = useRouter();
+
   const onSubmit = async () => {
     const result = await Orders.onSubmit(state);
     const saved = History.save(result);
-    console.log(saved.id, saved);
-    await router.push(Links.app);
+    Orders.clear();
+    await router.push(Links.orderId(saved.id));
   };
+
   return (
     <main className="flex flex-col gap-8">
       <Form className="hidden h-0" id="form" name="form" onSubmit={onSubmit} />

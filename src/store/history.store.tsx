@@ -41,7 +41,7 @@ export const History = Store.create(
         }) || null;
       if (storage === null) return null;
       const item = storage.items.find((item) => item.id === id);
-      return item ? OrdersMapper.parseRawOrder(item, users) : null;
+      return item ? OrdersMapper.parseOrderResponse(item, users) : null;
     },
     save: (result: OrdersMapper.Result) => {
       const storage = (LocalStorage.get(args.storageKey) || {

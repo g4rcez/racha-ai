@@ -19,4 +19,12 @@ export const Is = {
   keyof: <T extends {}>(o: T, k: any): k is keyof T =>
     Object.prototype.hasOwnProperty.call(o, k),
   nan: (a: any): a is NaN => Number.isNaN(a),
+  empty: (a: any) =>
+    typeof a === "object"
+      ? Object.keys(a).length === 0
+      : typeof a === "string"
+        ? a === ""
+        : Array.isArray(a)
+          ? a.length === 0
+          : isNull(a) || isUndefined(a) || Number.isNaN(a),
 };

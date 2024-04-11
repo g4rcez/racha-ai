@@ -1,8 +1,9 @@
 import { uuidv7 } from "@kripod/uuidv7";
+import { BlendIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { useRouter } from "next/router";
-import React, { useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useRef } from "react";
 import { LocalStorage } from "storage-manager-js";
-import { useReducer, createLocalStoragePlugin } from "use-typed-reducer";
+import { createLocalStoragePlugin, useReducer } from "use-typed-reducer";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/button";
 import { Card } from "~/components/card";
@@ -10,19 +11,15 @@ import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { RadioGroup } from "~/components/form/radio-group";
 import { i18n } from "~/i18n";
+import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
-import { Consumer } from "~/models/globals";
+import { Is } from "~/lib/is";
+import { Consumer, DivisionType } from "~/models/globals";
+import { Product } from "~/models/product";
 import { Links } from "~/router";
 import type { User } from "~/store/friends.store";
 import { Orders } from "~/store/orders.store";
-
-enum DivisionType {
-  Equality = "equality",
-  // Amount = "amount",
-  // Percent = "percent",
-  // Share = "share",
-  // Adjustment = "adjustment",
-}
+import { Nullable } from "~/types";
 
 type State = {
   division: DivisionType;
@@ -31,54 +28,8 @@ type State = {
   title: string;
   total: number;
   users: Consumer[];
+  errors: Nullable<Record<string, string>>;
 };
-
-type ProductCalculus = (args: {
-  quantity: number;
-  price: number;
-  users: Consumer[];
-}) => Consumer[];
-
-const division = {
-  [DivisionType.Equality]: (args) => {
-    const users = args.users;
-    const total = args.price * args.quantity;
-    if (total === 0)
-      return users.map((x): Consumer => ({ ...x, consummation: "" }));
-    const quantity = args.quantity / users.length;
-    const consummation = (quantity * args.price).toString();
-    return users.map((x): Consumer => ({ ...x, consummation, quantity }));
-  },
-  // [DivisionType.Amount]: fnBase,
-  // [DivisionType.Percent]: fnBase,
-  // [DivisionType.Share]: fnBase,
-  // [DivisionType.Adjustment]: fnBase,
-} satisfies Record<string, ProductCalculus>;
-
-const divisions = [
-  {
-    label: "Igualdade",
-    description: "Igualdade",
-    value: DivisionType.Equality,
-  },
-  // {
-  //   label: "Fracionário",
-  //   description: "Fracionário",
-  //   value: DivisionType.Share,
-  // },
-  // {
-  //   label: "Percentual",
-  //   description: "Percentual",
-  //   value: DivisionType.Percent,
-  // },
-  // {
-  //   label: "Valor absoluto",
-  //   description: "Valor absoluto",
-  //   value: DivisionType.Amount,
-  // },
-] as const;
-
-type Divisions = typeof divisions;
 
 const KEY = "@app/temporary-product";
 
@@ -89,6 +40,13 @@ const emptyState: State = {
   title: "",
   total: 0,
   users: [],
+  errors: null,
+};
+
+const operations = {
+  quantitySum: (a: number, user: Consumer) => a + user.quantity,
+  quantityDiff: (a: number, user: Consumer) => user.quantity - a,
+  noop: (a: number) => a,
 };
 
 const useProduct = (users: User[]) => {
@@ -99,6 +57,7 @@ const useProduct = (users: User[]) => {
   const quantity = initial.current.quantity || 0;
   const r = useReducer(
     {
+      ...emptyState,
       division: d,
       price,
       quantity,
@@ -106,7 +65,7 @@ const useProduct = (users: User[]) => {
       total,
       users:
         initial.current.users ||
-        division[d]({
+        Product.division[d]({
           price: fromStrNumber(price || "0"),
           quantity,
           users: users.map(
@@ -116,9 +75,10 @@ const useProduct = (users: User[]) => {
     } as State,
     (get) => ({
       reset: () => emptyState,
+      setError: (errors: State["errors"]) => ({ errors }),
       onValueChange: (d: DivisionType) => {
         const state = get.state();
-        const fn = division[d];
+        const fn = Product.division[d];
         return {
           division: d,
           users: fn?.({
@@ -128,24 +88,41 @@ const useProduct = (users: User[]) => {
           }),
         };
       },
-      onChangeUser: () => {
-        return {};
+      onChangeValue: (
+        name: string,
+        value: number,
+        id: string,
+        operation: (a: number, user: Consumer) => number,
+      ) => ({
+        users: get
+          .state()
+          .users.map((x) =>
+            x.id === id ? { ...x, [name]: operation(value, x) } : x,
+          ),
+      }),
+      onChangeUser: (e: React.ChangeEvent<HTMLInputElement>) => {
+        const state = get.state();
+        const value = e.target.value;
+        const name = e.target.name;
+        const id = e.target.dataset.id || "";
+        return {
+          users: state.users.map((x) =>
+            x.id === id ? { ...x, [name]: value } : x,
+          ),
+        };
       },
       onSetUsers: (list: User[]) => {
         const storage = (LocalStorage.get(KEY)! || {}) as State;
-        const emptyUsers =
-          Array.isArray(storage?.users) && storage.users.length === 0;
-        return !emptyUsers
-          ? get.state()
-          : {
-              users: list.map(
-                (user): Consumer => ({
-                  ...user,
-                  consummation: "",
-                  quantity: 0,
-                }),
-              ),
-            };
+        const users = Dict.from("id", storage.users ?? []);
+        list.forEach((user) => {
+          if (users.has(user.id)) return;
+          users.set(user.id, {
+            ...user,
+            consummation: "",
+            quantity: 0,
+          });
+        });
+        return { users: users.toArray() };
       },
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
         const name = e.target.name;
@@ -159,10 +136,9 @@ const useProduct = (users: User[]) => {
         (state: State, prev: State) => {
           const price = fromStrNumber(state.price || "0");
           const total = price * state.quantity;
-          const hasDiff =
-            state.price !== prev.price || state.quantity !== prev.quantity;
-          const users = hasDiff
-            ? division[state.division]({
+          const hasDiff = state.price !== prev.price || state.quantity !== prev.quantity;
+          const users = state.users !== prev.users || hasDiff
+            ? Product.division[state.division]({
                 users: state.users,
                 quantity: state.quantity,
                 price,
@@ -179,47 +155,126 @@ const useProduct = (users: User[]) => {
   return r;
 };
 
-const UserConsummation = ({
-  user,
-  dispatch,
-  product,
-}: {
-  user: Consumer;
+type ConsummationProps = {
+  users: number;
   dispatch: any;
+  user: Consumer;
   product: Omit<State, "consumers">;
-}) => {
+};
+
+const getConsummationProps = (props: ConsummationProps) => {
+  if (props.product.division === DivisionType.Amount) {
+    const total = props.product.quantity * fromStrNumber(props.product.price);
+    return {
+      mask: "money",
+      max: total,
+      name: "consummation",
+      placeholder: "Valor de consumo...",
+      title: `Valor pago por ${props.user.name}`,
+      value: props.user.consummation,
+    } as const;
+  }
+  const minQuantity = props.product.quantity / props.users;
+  return {
+    max: props.product.quantity,
+    name: "quantity",
+    placeholder: "Total do consumo...",
+    step: 0.000000000000000000000001,
+    title: `Consumo de ${props.user.name}`,
+    type: "number",
+    value: props.user.quantity,
+    right: (
+      <Fragment>
+        <button
+          type="button"
+          onClick={() =>
+            props.dispatch.onChangeValue(
+              "quantity",
+              minQuantity,
+              props.user.id,
+              operations.quantityDiff,
+            )
+          }
+        >
+          <MinusIcon size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            props.dispatch.onChangeValue(
+              "quantity",
+              minQuantity,
+              props.user.id,
+              operations.noop,
+            )
+          }
+        >
+          <BlendIcon size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            props.dispatch.onChangeValue(
+              "quantity",
+              minQuantity,
+              props.user.id,
+              operations.quantitySum,
+            )
+          }
+        >
+          <PlusIcon size={16} />
+        </button>
+      </Fragment>
+    ),
+  } as const;
+};
+
+const UserConsummation = (props: ConsummationProps) => {
   return (
     <li>
       <Input
-        max={product.quantity}
+        {...getConsummationProps(props)}
+        data-id={props.user.id}
         min={0}
-        name="quantity"
-        onChange={dispatch.onChangeUser}
-        placeholder="Total do consumo..."
+        onChange={props.dispatch.onChangeUser}
         required
-        step={0.000000000000000000000001}
-        title={`Consumo de ${user.name}`}
-        type="number"
-        value={user.quantity}
       />
     </li>
   );
+};
+
+const validate = (state: State, _e: React.FormEvent<HTMLFormElement>) => {
+  let errors: State["errors"] = {};
+  const sum = state.users.reduce(
+    (acc, x) => acc + fromStrNumber(x.consummation),
+    0,
+  );
+  const productTotal = fromStrNumber(state.price) * state.quantity;
+  if (sum !== productTotal)
+    errors.users = "A soma dos pagamentos é maior que o valor do produto";
+  return errors;
 };
 
 function AppOrderNewProductPage() {
   const [state, dispatch] = Orders.use();
   const [product, action] = useProduct(state.users as User[]);
   const router = useRouter();
-  const onSubmit = async () => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.persist();
+    const result = validate(product, e);
+    if (!Is.empty(result)) {
+      console.log(result);
+      return action.setError(result);
+    }
     dispatch.addProduct({
       category: "default",
       orderId: state.order.id,
       id: uuidv7(),
-      price: fromStrNumber(product.price),
-      quantity: product.quantity,
+      price: product.price,
+      quantity: product.quantity.toString(),
       splitType: product.division,
       title: product.title,
-      total: product.total,
+      total: product.total.toString(),
       type: "default",
       users: product.users,
     });
@@ -272,10 +327,10 @@ function AppOrderNewProductPage() {
           description="Anote aqui quem consumiu este produto"
         >
           <section className="flex flex-wrap flex-col mb-6">
-            <RadioGroup<Divisions>
+            <RadioGroup<Product.Divisions>
               required
               name="division"
-              values={divisions}
+              values={Product.divisions}
               value={product.division}
               onValueChange={action.onValueChange}
               title="Tipo de divisão"
@@ -285,10 +340,11 @@ function AppOrderNewProductPage() {
           <ul className="space-y-4">
             {product.users.map((user) => (
               <UserConsummation
-                key={user.id}
                 dispatch={action}
-                user={user}
+                key={user.id}
                 product={product}
+                user={user}
+                users={product.users.length}
               />
             ))}
           </ul>

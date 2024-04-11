@@ -20,12 +20,12 @@ export namespace OrdersMapper {
   const id = z.string().uuid();
 
   export const payment = z.object({
+    amount: z.string(),
+    createdAt: date,
     id,
-    status: z.string(),
     orderId: id,
     ownerId: id,
-    amount: z.number(),
-    createdAt: date,
+    status: z.string(),
   });
 
   export type Payment = z.infer<typeof payment>;
@@ -45,32 +45,36 @@ export namespace OrdersMapper {
     type: z.string(),
   });
 
+  const order = z.object({
+    category: z.string(),
+    createdAt: z.string().default(() => new Date().toISOString()),
+    currencyCode: z.string().default("BRL"),
+    id: z.string().default(() => uuidv7()),
+    lastUpdatedAt: z.string().datetime().optional().nullable(),
+    metadata: z.object({
+      base: z.number(),
+      additional: z.number(),
+      consumers: z.number(),
+      couvert: z.number(),
+      products: z.record(z.any()).default({}),
+    }),
+    ownerId: z.string(),
+    status: z.string(),
+    title: z.string(),
+    total: z.string(),
+    type: z.string(),
+  });
+
+  export const historySchema = z.object({
+    id: z.string(),
+    payments: z.array(payment),
+    items: z.array(orderItem),
+    order: order,
+  });
+
   export type OrderItem = z.infer<typeof orderItem>;
 
-  export const schema = z.object({
-    couvert: z.string(),
-    tip: z.string(),
-    id: z.string().uuid(),
-    title: z.string(),
-    createdAt: z.string().datetime().or(z.date()),
-    lastUpdatedAt: z.string().nullable().or(z.date()).nullable(),
-    total: z.coerce.number(),
-    type: z.string(),
-    category: z.string(),
-    status: z.string(),
-    currencyCode: z.string().default("BRL"),
-    ownerId: z.string(),
-    metadata: z
-      .object({
-        couvert: z.number(),
-        consumers: z.number(),
-        additional: z.number(),
-        percentAdditional: z.number().min(0).max(1),
-        names: z.record(z.string()),
-      })
-      .partial()
-      .default({}),
-  });
+  export const schema = order.extend({ couvert: z.string(), tip: z.string() });
 
   export type Order = z.infer<typeof schema>;
 
@@ -79,6 +83,7 @@ export namespace OrdersMapper {
     payments: DB.Payment[],
     date: Date,
     basePayment: number,
+    items: DB.OrderItem[],
   ): DB.Order => {
     const tip = calculateTip(order.tip);
     return {
@@ -99,6 +104,7 @@ export namespace OrdersMapper {
         base: basePayment,
         consumers: payments.length,
         couvert: calculateCouvert(order.couvert),
+        products: countProducts(items),
       },
     };
   };
@@ -146,6 +152,25 @@ export namespace OrdersMapper {
     return { amount, items, base };
   };
 
+  const countProducts = (
+    orderItems: DB.OrderItem[],
+  ): DB.Order["metadata"]["products"] => {
+    const group = Dict.groupBy("productId", orderItems);
+    return group.toArray().reduce((acc, cur) => {
+      const first = cur[0];
+      if (Product.isTipOrCouvert(first)) return acc;
+      const product = cur.reduce(
+        (x, y) => ({
+          ...x,
+          ...y,
+          consumed: ((x as any).consumed || 0) + fromStrNumber(x.quantity),
+        }),
+        { ...cur[0], consumed: 0 },
+      );
+      return { ...acc, [product.productId]: product };
+    }, {});
+  };
+
   const fetchPayments = (
     order: Order,
     orderItems: DB.OrderItem[],
@@ -180,7 +205,7 @@ export namespace OrdersMapper {
       id: order.id,
       items: x.items,
       payments: x.payments,
-      order: parseOrder(order, x.payments, now, x.base),
+      order: parseOrder(order, x.payments, now, x.base, x.items),
     };
   };
 
@@ -203,56 +228,15 @@ export namespace OrdersMapper {
       info.orderItem.push(order.orderItem);
       userInfo.set(order.user.id, info);
     });
-    return { ...order, users: Array.from(userInfo.values()) };
+    return {
+      ...order,
+      users: Array.from(userInfo.values()),
+      metadata: {
+        ...order.metadata,
+        products: countProducts(result.map((x) => x.orderItem)),
+      },
+    };
   };
-
-  export const historySchema = z.object({
-    id: z.string(),
-    payments: z.array(
-      z.object({
-        amount: z.string(),
-        createdAt: z.string(),
-        id: z.string(),
-        orderId: z.string(),
-        ownerId: z.string(),
-        status: z.string(),
-      }),
-    ),
-    items: z.array(
-      z.object({
-        category: z.string(),
-        createdAt: z.string(),
-        id: z.string(),
-        orderId: z.string(),
-        ownerId: z.string(),
-        price: z.string(),
-        productId: z.string(),
-        quantity: z.string(),
-        splitType: z.string(),
-        title: z.string(),
-        total: z.string(),
-        type: z.string(),
-      }),
-    ),
-    order: z.object({
-      id: z.string(),
-      ownerId: z.string(),
-      type: z.string(),
-      category: z.string(),
-      title: z.string(),
-      total: z.string(),
-      createdAt: z.string(),
-      currencyCode: z.string(),
-      status: z.string(),
-      lastUpdatedAt: z.string().datetime().optional().nullable(),
-      metadata: z.object({
-        base: z.number(),
-        additional: z.number(),
-        consumers: z.number(),
-        couvert: z.number(),
-      }),
-    }),
-  });
 
   export const parseProduct = (item: OrderItem): DB.OrderItem => ({
     ...item,
@@ -262,28 +246,53 @@ export namespace OrdersMapper {
     createdAt: new Date(item.createdAt),
   });
 
-  export const parseRawOrder = (x: Result, users: User[]) => {
+  export const parseOrderResponse = (
+    x: Result,
+    users: User[],
+  ): Orders.Shape => {
     const paymentUsers = Dict.from("ownerId", x.payments);
     const items = Dict.groupBy("ownerId", x.items);
     return {
       ...x.order,
+      metadata: {
+        ...x.order.metadata,
+        products: countProducts(x.items),
+      },
       createdAt: new Date(x.order.createdAt),
       users: users.reduce<Orders.UserInfo[]>((acc, el) => {
         if (!paymentUsers.has(el.id)) return acc;
+        const products = items.get(el.id)!;
         return acc.concat({
           id: el.id,
           data: el as any,
-          orderItem: items.get(el.id)!,
+          orderItem: products,
           payment: paymentUsers.get(el.id)!,
         });
       }, []),
     };
   };
 
-  export const parseToRawOrder = (
+  export const parseOrdersAsResponse = (
     orders: Result[],
     users: User[],
-  ): Orders.Shape[] => {
-    return orders.map((x) => parseRawOrder(x, users));
+  ): Orders.Shape[] => orders.map((x) => parseOrderResponse(x, users));
+
+  export const fromResponseToOrder = (order: Orders.Shape): Result => {
+    const result = order.users.reduce(
+      (acc, el) => ({
+        items: acc.items.concat(el.orderItem),
+        payments: acc.payments.concat(el.payment as DB.Payment),
+      }),
+      {
+        items: [] as DB.OrderItem[],
+        payments: [] as DB.Payment[],
+      },
+    );
+    return {
+      order,
+      id: order.id,
+      items: result.items,
+      payments: result.payments,
+    };
   };
 }
