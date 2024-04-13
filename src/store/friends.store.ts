@@ -10,7 +10,13 @@ const user = z.object({
   createdAt: z.date().or(z.string().datetime()),
 });
 
-const schemas = { v1: Store.validator(z.object({ users: z.array(user) })) };
+const schemas = {
+  v1: Store.validator(
+    z.object({
+      users: z.array(user),
+    }),
+  ),
+};
 
 export type User = { id: string; name: string; createdAt: Date };
 
@@ -34,6 +40,7 @@ export const Friends = Store.create(
   {
     order,
     schema: user,
+    getUserById: (id: string) => Friends.getCurrentState().users.get(id),
     hasUser: (userId: string, users: User[]) =>
       users.some((x) => x.name === userId),
     new: (name: string = ""): User => ({

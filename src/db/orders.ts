@@ -27,15 +27,17 @@ export const orders = pgTable("orders", {
 
 export const orderItems = pgTable("orderItems", {
   id: uuid("id").notNull().primaryKey(),
+  productId: uuid("productId").notNull(),
+  splitType: varchar("splitType", { length: 16 }).notNull(),
   title: varchar("title", { length: 256 }).notNull(),
-  category: varchar("category", { length: 32 }),
+  category: varchar("category", { length: 32 }).notNull(),
   orderId: uuid("orderId")
     .notNull()
     .references(() => orders.id),
   ownerId: uuid("ownerId")
     .notNull()
     .references(() => users.id),
-  type: varchar("type", { length: 32 }),
+  type: varchar("type", { length: 32 }).notNull(),
   price: decimal("price").notNull().default("0"),
   quantity: decimal("quantity").notNull().default("1"),
   total: decimal("total").notNull().default("0"),

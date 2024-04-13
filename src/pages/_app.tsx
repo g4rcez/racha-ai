@@ -1,4 +1,3 @@
-import { SessionProvider } from "next-auth/react";
 import Head from "next/head";
 import { Fragment, ReactElement } from "react";
 import DefaultTheme from "~/styles/default.json";
@@ -31,9 +30,7 @@ export default function App({
           {createCssTheme(DefaultTheme)}
         </style>
       </Head>
-      <SessionProvider session={session}>
-        {getLayout(<Component {...pageProps} />, session)}
-      </SessionProvider>
+      {getLayout(<Component {...pageProps} />, session)}
     </Fragment>
   );
 }

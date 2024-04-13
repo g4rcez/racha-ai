@@ -85,7 +85,7 @@ export const shortcuts: Shortcut[] = [
   },
   {
     type: "link",
-    href: Links.cart,
+    href: Links.newOrder,
     icon: ReceiptIcon,
     tags: ["home", "menu", "action"],
     title: "Comanda",

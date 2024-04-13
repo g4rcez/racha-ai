@@ -4,7 +4,7 @@ import { Division } from "../src/models/entity-types";
 import { OrdersMapper } from "../src/services/orders/orders.mapper";
 
 describe("Should test orders mapping", () => {
-  test("Should test simple order", () => {
+  test("Should test simple orders", () => {
     const me = { id: uuidv7(), name: "Me", createdAt: new Date() };
     const result = OrdersMapper.toDb({
       me,

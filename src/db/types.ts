@@ -1,12 +1,14 @@
-import { PgTransaction } from "drizzle-orm/pg-core";
 import type { InferSelectModel } from "drizzle-orm";
+import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { db } from "~/db/index";
-import type { users, secrets } from "~/db/users";
 import type { orderItems, orders, payments } from "~/db/orders";
-import { Override } from "~/types";
+import type { secrets, users } from "~/db/users";
+import type { Override } from "~/types";
 
 export namespace DB {
   export type User = InferSelectModel<typeof users>;
+
+  export type OrderItemMetadata = DB.OrderItem & { consumed: number };
 
   export type Order = Override<
     InferSelectModel<typeof orders>,
@@ -15,7 +17,8 @@ export namespace DB {
         couvert: number;
         consumers: number;
         additional: number;
-        percentAdditional: string;
+        base: number;
+        products: Record<string, OrderItemMetadata>;
       };
     }
   >;
