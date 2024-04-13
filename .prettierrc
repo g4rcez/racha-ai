@@ -1,10 +1,10 @@
 {
   "tabWidth": 4,
-  "printWidth": 150,
+  "printWidth": 180,
   "singleQuote": false,
   "semi": true,
   "rangeStart": 0,
-  "rangeEnd": 1,
+  "rangeEnd": 0,
   "trailingComma": "none",
   "useTabs": false,
   "arrowParens": "always",

@@ -176,7 +176,7 @@ const FriendsScreen = (props: ScreenProps) => (
   </AppFrame>
 );
 
-const ComandaPage = lazy(() => import("~/pages/app/cart/_old"));
+const ComandaPage = lazy(() => import("~/pages/app/orders/new"));
 
 function ComandaAppScreen(props: ScreenProps) {
   return (

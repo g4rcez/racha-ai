@@ -20,7 +20,6 @@ import { CanIUse } from "~/lib/can";
 import { Is } from "~/lib/is";
 import { Product } from "~/models/product";
 import { Orders } from "~/services/orders/orders.types";
-import { Cart } from "~/store/cart.store";
 import { Friends } from "~/store/friends.store";
 import { History } from "~/store/history.store";
 import { Platform } from "~/store/platform";
@@ -33,10 +32,8 @@ const CartId: NextPageWithLayout = () => {
   const router = useRouter();
   const paths = router.query;
   const i18n = useTranslations();
-  const [_] = Cart.use();
   const ref = useRef<HTMLDivElement>(null);
   const [order, setOrder] = useState<Nullable<Orders.Shape>>(null);
-  console.log(order);
 
   useEffect(
     () =>
