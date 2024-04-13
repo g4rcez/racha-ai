@@ -5,7 +5,7 @@
   "scripts": {
     "build": "NEXT_PUBLIC_TAG_VERSION=$(node -e 'console.log(require(\"./package.json\").version)') next build --no-lint",
     "dev": "next dev --experimental-https --port 1337",
-    "format": "prettier format ./src --write",
+    "format": "prettier ./src --write",
     "lint": "next lint",
     "prepare": "husky install",
     "preview": "vite preview",
