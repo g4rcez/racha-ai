@@ -1,8 +1,8 @@
 import { useRouter } from "next/router";
 import React from "react";
 import AdminLayout from "~/components/admin/layout";
-import { Button } from "~/components/button";
-import { Card } from "~/components/card";
+import { Button } from "~/components/core/button";
+import { Card } from "~/components/core/card";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { httpClient } from "~/lib/http-client";

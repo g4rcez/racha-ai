@@ -1,5 +1,5 @@
 import React from "react";
-import { PolymorphicProps } from "~/components/polymorph";
+import { PolymorphicProps } from "~/components/core/polymorph";
 import { css } from "~/lib/dom";
 import { Form } from "~/components/form/form";
 

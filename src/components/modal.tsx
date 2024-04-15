@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { XCircleIcon } from "lucide-react";
 import { PropsWithChildren } from "react";
-import { Title } from "~/components/typography";
+import { Title } from "~/components/core/typography";
 import { useTranslations } from "~/i18n";
 import { Label } from "~/types";
 

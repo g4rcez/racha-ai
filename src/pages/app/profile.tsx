@@ -1,11 +1,11 @@
 import { EyeIcon, EyeOff } from "lucide-react";
 import React, { useState } from "react";
 import AdminLayout from "~/components/admin/layout";
-import { Button } from "~/components/button";
+import { Button } from "~/components/core/button";
 import { ColorPicker } from "~/components/color-picker";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
-import { Title } from "~/components/typography";
+import { Title } from "~/components/core/typography";
 import { useTranslations } from "~/i18n";
 import { hexToHslProperty } from "~/lib/dom";
 import { Preferences } from "~/store/preferences.store";

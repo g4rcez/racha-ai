@@ -1,8 +1,8 @@
 import { PlusIcon } from "lucide-react";
 import React from "react";
 import AdminLayout from "~/components/admin/layout";
-import { Button } from "~/components/button";
-import { Card } from "~/components/card";
+import { Button } from "~/components/core/button";
+import { Card } from "~/components/core/card";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { EditUser } from "~/components/users/friends";
