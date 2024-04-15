@@ -11,14 +11,14 @@ export class Dict<K, V> extends Map<K, V> {
     }
 
     public static group<T, K extends keyof T | ((k: T) => string)>(key: K, array: T[]): Dict<K extends keyof T ? T[K] : string, T[]> {
-        const dict = new Dict();
+        const dict = new Dict<K extends keyof T ? T[K] : string, T[]>();
         const get = Is.function(key) ? key : (item: T) => (item as any)[key];
         array.forEach((item) => {
             const id: any = get(item);
             const group: any = dict.get(id) || [];
             dict.set(id, [...group, item]);
         });
-        return dict as any;
+        return dict;
     }
 
     public toArray() {

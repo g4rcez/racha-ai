@@ -14,33 +14,25 @@ export type LooseString<T extends string> = T | Omit<string, T>;
 export type NullToUndefined<T> = T extends null ? undefined : T;
 
 export type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: T[P] extends Date
-        ? T[P]
-        : T[P] extends any[]
-          ? T[P] | undefined
-          : DeepPartial<T[P]>;
-    }
-  : T;
+    ? {
+          [P in keyof T]?: T[P] extends Date ? T[P] : T[P] extends any[] ? T[P] | undefined : DeepPartial<T[P]>;
+      }
+    : T;
 
 export type ParseToRaw<T> = {
-  [K in keyof T]: T[K] extends Dict<any, infer Value>
-    ? ParseToRaw<Value>[]
-    : Date extends T[K]
-      ? null extends T[K]
-        ? string | null
-        : T[K] extends Date
-          ? string
-          : T[K]
-      : T[K];
+    [K in keyof T]: T[K] extends Dict<any, infer Value> ? ParseToRaw<Value>[] : Date extends T[K] ? (null extends T[K] ? string | null : T[K] extends Date ? string : T[K]) : T[K];
 };
 
 export type Nullable<T> = T | null;
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-  getLayout?: (page: ReactElement, session: any) => ReactNode;
+    getLayout?: (page: ReactElement, session: any) => ReactNode;
 };
 
 export type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout;
+    Component: NextPageWithLayout;
+};
+
+export type PrimitiveProps<T extends object> = {
+    [P in keyof T as T[P] extends Function ? never : P]: T[P];
 };

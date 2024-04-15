@@ -9,7 +9,7 @@ import {
   isShortcutLink,
   Shortcut,
 } from "~/components/admin/shortcuts";
-import { Drawer } from "~/components/drawer";
+import { Drawer } from "~/components/feedback/drawer";
 import { Logo } from "~/components/logo";
 import { css } from "~/lib/dom";
 import { Links } from "~/router";

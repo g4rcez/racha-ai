@@ -4,8 +4,8 @@ import { useRouter } from "next/router";
 import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import AdminLayout from "~/components/admin/layout";
-import { Button } from "~/components/button";
-import { Card } from "~/components/card";
+import { Button } from "~/components/core/button";
+import { Card } from "~/components/core/card";
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/table";
-import { Title } from "~/components/typography";
+import { Title } from "~/components/core/typography";
 import { useTranslations } from "~/i18n";
 import { CanIUse } from "~/lib/can";
 import { Is } from "~/lib/is";
