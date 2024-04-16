@@ -1,6 +1,6 @@
 import { CheckIcon, Edit2Icon, Trash2Icon, User2Icon } from "lucide-react";
 import React, { FormEvent, useState } from "react";
-import { Button } from "~/components/button";
+import { Button } from "~/components/core/button";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { useTranslations } from "~/i18n";

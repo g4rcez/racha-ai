@@ -108,7 +108,10 @@ export default {
       addVariant("landing", ["&"]);
       addVariant(
         "group-error",
-        ":merge(.group):invalid:has(.input:not(:focus):invalid[data-initialized=true]) &",
+        [
+          ":merge(.group):invalid:has(.input:not(:focus):invalid[data-initialized=true]) &",
+          ":merge(.group[data-error=true]) &",
+        ]
       );
       addVariant("group-assert", [
         ":merge(.group):valid:has(.input:valid:not(:placeholder-shown)) &",

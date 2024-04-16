@@ -1,8 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 import React, { ComponentProps, PropsWithChildren } from "react";
-import { Button } from "~/components/button";
-import { Title } from "~/components/typography";
+import { Button } from "~/components/core/button";
+import { Title } from "~/components/core/typography";
 import { css } from "~/lib/dom";
 
 export const DesktopDrawer = {

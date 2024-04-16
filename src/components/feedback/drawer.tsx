@@ -2,8 +2,8 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { DialogCloseProps } from "@radix-ui/react-dialog";
 import React, { ComponentProps, PropsWithChildren } from "react";
 import { DesktopDrawer } from "~/components/drawer/desktop";
+import { MobileDrawer } from "~/components/drawer/mobile";
 import { Platform } from "~/store/platform";
-import { MobileDrawer } from "./drawer/mobile";
 
 type DrawerProps = PropsWithChildren<
   Partial<{ open: boolean; onChange: (b: boolean) => void }>

@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Button } from "~/components/button";
+import { Button } from "~/components/core/button";
 import { useTranslations } from "~/i18n";
 
 type Props = {

@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import React, { forwardRef } from "react";
-import { Polymorph, PolymorphicProps } from "~/components/polymorph";
+import { Polymorph, PolymorphicProps } from "~/components/core/polymorph";
 import { css } from "~/lib/dom";
 import { Label } from "~/types";
 
