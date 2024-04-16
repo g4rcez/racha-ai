@@ -3,8 +3,8 @@ import React, { forwardRef } from "react";
 
 type NullToUndefined<T> = T extends null ? undefined : T;
 
-type RecNTU<T> = {
-    [K in keyof T]: T[K] extends {} ? RecNTU<T[K]> : T[K] extends any[] ? RecNTU<T[K]> : NullToUndefined<T[K]>;
+type RecursivePlain<T> = {
+    [K in keyof T]: T[K] extends {} ? RecursivePlain<T[K]> : T[K] extends any[] ? RecursivePlain<T[K]> : NullToUndefined<T[K]>;
 };
 
 const options: IParseOptions = {
@@ -21,7 +21,7 @@ const options: IParseOptions = {
     strictNullHandling: true
 };
 
-export const formToJson = <T extends any>(form: HTMLFormElement): RecNTU<T> => {
+export const formToJson = <T extends any>(form: HTMLFormElement): RecursivePlain<T> => {
     const formData = new FormData(form);
     const urlSearchParams = new URLSearchParams(formData as any);
     return parse(urlSearchParams.toString(), options) as never;
