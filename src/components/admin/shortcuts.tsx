@@ -120,11 +120,11 @@ export const shortcuts: Shortcut[] = [
       </Fragment>
     ),
     action: async () => {
-      const json = LocalStorage.json();
-      const content = JSON.stringify(json, null, 4);
-      const opts = { type: "application/json" };
-      const file = new File([content], "racha-ai.json", opts);
       if (Is.function(navigator.share)) {
+        const json = LocalStorage.json();
+        const content = btoa(JSON.stringify(json, null, 4));
+        const opts = { type: "application/json" };
+        const file = new File([content], "racha.ai", opts);
         try {
           await navigator.share({
             files: [file],

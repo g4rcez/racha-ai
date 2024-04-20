@@ -124,7 +124,7 @@ export namespace OrdersMapper {
             category: item.category,
             splitType: item.splitType
         };
-        if (numberTip > 0) {
+        if (numberTip > 1) {
             const total = amount * numberTip - amount;
             amount *= numberTip;
             items.push(Product.tip({ ...common, total: total.toString() }));

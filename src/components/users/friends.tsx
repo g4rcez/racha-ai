@@ -51,16 +51,16 @@ export const EditUser = (props: EditUserProps & { index: number }) => {
                                 title={i18n.get("updateFriendInput")}
                                 placeholder={i18n.get("userInputPlaceholder")}
                                 rightLabel={isOwner ? i18n.get("yourself") : undefined}
+                                right={<Button size="icon" type="submit" theme="transparent" icon={<CheckIcon className="text-success" />} />}
                             />
-                            <Button size="icon" type="submit" className="mb-1" theme="transparent" icon={<CheckIcon color="hsl(var(--success-DEFAULT))" />} />
                         </Form>
                     ) : null}
                 </div>
             </div>
             <div className="flex shrink-0 items-center gap-x-6">
                 <span className="flex flex-row flex-nowrap gap-2">
-                    <Button size="icon" theme="transparent" onClick={() => setMode("edit")} icon={<Edit2Icon size={18} color="hsl(var(--main-bg))" />} />
-                    <Button size="icon" onClick={onReset} theme="transparent" icon={<Trash2Icon size={18} color="hsl(var(--danger-DEFAULT))" />} />
+                    <Button size="icon" theme="transparent" onClick={() => setMode("edit")} icon={<Edit2Icon size={18} className="text-main-soft" />} />
+                    <Button size="icon" onClick={onReset} theme="transparent" icon={<Trash2Icon size={18} className="text-danger-mask" />} />
                 </span>
             </div>
         </li>

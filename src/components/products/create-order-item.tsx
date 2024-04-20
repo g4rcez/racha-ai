@@ -81,7 +81,7 @@ const parseFromStorage = (items: OrderState["items"], users: User[]): Partial<St
         quantity: Math.round(result.quantity),
         title: first.title,
         total: result.total,
-        users: result.users,
+        users: result.users
     };
 };
 
@@ -104,23 +104,23 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
             users:
                 initial.current.users ||
                 Product.division[d]({
-                    price: fromStrNumber(price || "0"),
                     quantity,
+                    price: fromStrNumber(price || "0"),
                     users: resetConsumers(users)
                 })
         } as State,
         (get) => ({
-            reset: () => emptyState,
+            reset: (users?: User[]) => ({
+                ...emptyState,
+                users: Array.isArray(users) ? resetConsumers(users) : emptyState.users
+            }),
+            set: (fn: (st: State) => State) => fn(get.state()),
+            setError: (errors: State["errors"]) => ({ errors }),
             clear: () => ({
                 ...get.initialState,
                 id: uuidv7(),
                 users: resetConsumers(get.state().users)
             }),
-            set: (fn: (st: State) => State) => {
-                const state = get.state();
-                return { ...state, ...fn(state) };
-            },
-            setError: (errors: State["errors"]) => ({ errors }),
             onValueChange: (d: DivisionType) => {
                 const state = get.state();
                 const fn = Product.division[d];
@@ -143,9 +143,18 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
                 const id = e.target.dataset.id || "";
                 return { users: state.users.map((user) => (user.id !== id ? user : { ...user, [name]: value })) };
             },
-            onSetUsers: (list: User[]) => {
+            onSetUsers: (list: User[], _: boolean) => {
                 const storage = (LocalStorage.get(KEY)! || {}) as State;
                 const users = Dict.from("id", storage.users ?? []);
+                if (users.size === 0) {
+                    const state = get.state();
+                    const users = Product.division[state.division]({
+                        users: resetConsumers(list),
+                        quantity: state.quantity,
+                        price: fromStrNumber(state.price)
+                    });
+                    return { users };
+                }
                 list.forEach((user) => {
                     if (users.has(user.id)) return;
                     users.set(user.id, { ...user, consummation: "", quantity: 0 });
@@ -179,10 +188,6 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
     );
 
     useEffect(() => {
-        r[1].onSetUsers(users);
-    }, [users]);
-
-    useEffect(() => {
         if (id !== null && items.length > 0) {
             return void r[1].set((state) => ({
                 ...state,
@@ -192,7 +197,8 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
                 )
             }));
         }
-        return void r[1].clear();
+        r[1].clear();
+        return void r[1].onSetUsers(users, true);
     }, [id, items, users]);
 
     return r;
@@ -255,6 +261,12 @@ export function CreateOrderItem(props: { id: Nullable<string> }) {
     const [state, dispatch] = Orders.use();
     const [product, action] = useProduct(props.id, state.items, state.users as User[]);
     const router = useRouter();
+
+    const onReset = () => {
+        LocalStorage.delete(KEY);
+        action.reset(state.users as User[]);
+    };
+
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.persist();
         const result = validate(product, e);
@@ -274,16 +286,13 @@ export function CreateOrderItem(props: { id: Nullable<string> }) {
             type: "default",
             users: product.users
         });
-        LocalStorage.delete(KEY);
-        action.reset();
+        onReset();
         await router.push(Links.newOrder);
     };
-    useEffect(() => {
-        console.log("->", product.users);
-    }, [product.users]);
+
     return (
         <main className="flex flex-col gap-8">
-            <Form onSubmit={onSubmit} className="flex flex-col gap-4">
+            <Form onReset={onReset} onSubmit={onSubmit} className="flex flex-col gap-4">
                 <Card title="Novo produto" className="flex flex-col gap-4" description="Anote o consumo e quem consumiu este produto">
                     <Input required name="title" value={product.title} title="Nome do produto" placeholder="Produto..." onChange={action.onChange} />
                     <div className="flex flex-row flex-nowrap gap-4">
@@ -320,6 +329,9 @@ export function CreateOrderItem(props: { id: Nullable<string> }) {
                     </ul>
                 </Card>
                 <Button type="submit">Adicionar produto</Button>
+                <Button type="reset" theme="transparent-danger">
+                    Limpar produto
+                </Button>
             </Form>
         </main>
     );

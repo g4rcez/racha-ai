@@ -53,6 +53,7 @@ export const fromStrNumber = (n: string) =>
 export const keys: <O>(o: O) => Array<keyof O> = Object.keys;
 
 export const sum = (a: number, b: number) => a + b;
+
 export const diff = (a: number, b: number) => a - b;
 
 export const clamp = (min: number, average: number, max: number) =>

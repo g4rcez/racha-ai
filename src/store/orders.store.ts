@@ -44,7 +44,7 @@ const emptyState = (): OrderState => ({
         title: "",
         total: "",
         type: "",
-        metadata: { couvert: 0, additional: 0, consumers: 0, base: 0, products: {} },
+        metadata: { couvert: 0, additional: 0, consumers: 0, base: 0, products: {} }
     }
 });
 
@@ -65,13 +65,7 @@ export const Orders = Store.create(
             currencyCode: state?.order?.currencyCode || "",
             id: state?.order?.id || uuidv7(),
             lastUpdatedAt: state?.order?.lastUpdatedAt ? new Date(state?.order?.lastUpdatedAt).toISOString() : "",
-            metadata: state?.order?.metadata || {
-                couvert: 0,
-                additional: 0,
-                consumers: 0,
-                base: 0,
-                products: {}
-            },
+            metadata: state?.order?.metadata || { couvert: 0, additional: 0, consumers: 0, base: 0, products: {} },
             ownerId: state?.order?.ownerId || "",
             status: state?.order?.status || "",
             tip: state?.order?.tip || "",
@@ -112,7 +106,10 @@ export const Orders = Store.create(
                     users: users.filter((user) => user.id !== id)
                 };
             const user = Friends.getUserById(id);
-            return user ? { users: [...users, user] } : state;
+            if (user) return { users: [...users, user] };
+            const me = Preferences.getCurrentState().user;
+            if (me && me.id === id) return { users: [...users, me] };
+            return state;
         },
         onAddUser: (e: React.FormEvent<HTMLFormElement>) => {
             const form = e.currentTarget;

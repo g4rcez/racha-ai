@@ -3,31 +3,32 @@
 @tailwind utilities;
 
 html,
-body {
-  @apply w-screen h-full overflow-x-hidden;
+body,
+#__next {
+    @apply w-screen h-full overflow-x-clip;
 }
 
 select.select {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  -webkit-print-color-adjust: exact;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
-  print-color-adjust: exact;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    -webkit-print-color-adjust: exact;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+    print-color-adjust: exact;
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 input[type="number"] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 input[type="color"],
@@ -46,69 +47,69 @@ input[type="url"],
 input[type="week"],
 select:focus,
 textarea {
-  font-size: 16px;
+    font-size: 16px;
 }
 
 @keyframes overlay-show {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes overlay-hide {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }
 
 @keyframes content-show {
-  from {
-    opacity: 0.5;
-    transform: translate(50%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(0);
-  }
+    from {
+        opacity: 0.5;
+        transform: translate(50%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0);
+    }
 }
 
 @keyframes content-hide {
-  from {
-    opacity: 1;
-    transform: translate(0);
-  }
-  to {
-    opacity: 0;
-    transform: translate(50%);
-  }
+    from {
+        opacity: 1;
+        transform: translate(0);
+    }
+    to {
+        opacity: 0;
+        transform: translate(50%);
+    }
 }
 
 @media screen(lg) {
-  @keyframes content-show {
-    from {
-      opacity: 0.5;
-      transform: translate(50%);
+    @keyframes content-show {
+        from {
+            opacity: 0.5;
+            transform: translate(50%);
+        }
+        to {
+            opacity: 1;
+            transform: translate(0);
+        }
     }
-    to {
-      opacity: 1;
-      transform: translate(0);
-    }
-  }
 
-  @keyframes content-hide {
-    from {
-      opacity: 1;
-      transform: translate(0);
+    @keyframes content-hide {
+        from {
+            opacity: 1;
+            transform: translate(0);
+        }
+        to {
+            opacity: 0;
+            transform: translate(70%);
+        }
     }
-    to {
-      opacity: 0;
-      transform: translate(70%);
-    }
-  }
 }
