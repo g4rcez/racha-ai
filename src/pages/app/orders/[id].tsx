@@ -1,16 +1,18 @@
 import { toBlob } from "html-to-image";
-import { ShareIcon } from "lucide-react";
+import { CheckCheckIcon, HandshakeIcon, ShareIcon } from "lucide-react";
 import { useRouter } from "next/router";
-import React, { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Is } from "sidekicker";
 import { toast } from "sonner";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/core/button";
 import { Card } from "~/components/core/card";
 import { Title } from "~/components/core/typography";
+import { AppDescription, Logo } from "~/components/logo";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/table";
 import { useTranslations } from "~/i18n";
 import { CanIUse } from "~/lib/can";
-import { Is } from "~/lib/is";
+import { PaymentStatus } from "~/models/payments";
 import { Product } from "~/models/product";
 import { Orders } from "~/services/orders/orders.types";
 import { Friends } from "~/store/friends.store";
@@ -27,8 +29,13 @@ const CartId: NextPageWithLayout = () => {
     const i18n = useTranslations();
     const ref = useRef<HTMLDivElement>(null);
     const [order, setOrder] = useState<Nullable<Orders.Shape>>(null);
+    const ID = paths.id as string;
 
-    useEffect(() => setOrder(History.get(paths.id as string, friends.users.toArray().concat(preferences.user))), [paths, friends.users]);
+    const setOrderFromId = useCallback((id: string) => setOrder(History.get(id, friends.users.toArray().concat(preferences.user))), [paths, friends.users]);
+
+    useEffect(() => {
+        setOrderFromId(ID);
+    }, [setOrderFromId, ID]);
 
     const sortedUsers = useMemo(() => (Is.nil(order) ? [] : order?.users.toSorted((a, b) => a.data.name.toLowerCase().localeCompare(b.data.name.toLowerCase()))), [order]);
 
@@ -76,7 +83,7 @@ const CartId: NextPageWithLayout = () => {
     const tip = (order.metadata.additional - 1) * order.metadata.base;
 
     return (
-        <main ref={ref} className="shareable group space-y-6 bg-body-bg text-body data-[image=true]:p-2">
+        <main ref={ref} className="group space-y-6 bg-body-bg text-body">
             <Card className="flex flex-col gap-2">
                 <Title>{order.title}</Title>
                 <p>Data do evento: {i18n.format.datetime(order.createdAt)}</p>
@@ -98,51 +105,70 @@ const CartId: NextPageWithLayout = () => {
             </Card>
             <Card>
                 <ul className="mt-6 space-y-8">
-                    {sortedUsers.map((user) => (
-                        <li
-                            id={user.id}
-                            key={user.id}
-                            className="shareable group flex flex-wrap justify-between space-y-6 data-[image=true]:space-y-0 data-[image=true]:bg-card-bg"
-                        >
-                            <header className="flex w-full items-center justify-between">
-                                <button data-id={user.id} onClick={onPersonShare} className="flex items-center gap-2 text-lg font-medium">
-                                    <ShareIcon absoluteStrokeWidth size={16} strokeWidth={2} />
-                                    {user.data.name}
-                                </button>
-                                <span>{i18n.format.money(Number(user.payment?.amount!))}</span>
-                            </header>
-                            {user.orderItem.length === 0 ? null : (
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableHeader>Produto</TableHeader>
-                                            <TableHeader>Total</TableHeader>
-                                            <TableHeader>Quantidade</TableHeader>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {user.orderItem.map((product) => (
-                                            <TableRow key={`${user.id}-${product.id}`}>
-                                                <TableCell>
-                                                    {product.title === Orders.OrderItem.Additional
-                                                        ? "Gorjeta"
-                                                        : product.title === Orders.OrderItem.Couvert
-                                                          ? "Couvert"
-                                                          : product.title}
-                                                </TableCell>
-                                                <TableCell>{i18n.format.money(Number(product.total))}</TableCell>
-                                                <TableCell>
-                                                    {Product.isTipOrCouvert(product)
-                                                        ? product.quantity
-                                                        : Product.formatQuantity(product.quantity, order.metadata.products[product.productId])}
-                                                </TableCell>
+                    {sortedUsers.map((user) => {
+                        const setPaymentForUser = () => {
+                            const newOrder = History.setPaymentStatus(order.id, user.payment?.id!, PaymentStatus.Paid);
+                            if (newOrder) setOrderFromId(newOrder.id);
+                        };
+                        return (
+                            <li id={user.id} key={user.id} className="group flex flex-wrap justify-between space-y-6 data-[image=true]:bg-card-bg data-[image=true]:p-4">
+                                <div hidden className="group-data-[image=true]:mb-4 group-data-[image=true]:block hidden space-y-2">
+                                    <Logo type="raw" />
+                                    <AppDescription />
+                                </div>
+                                <header className="flex w-full items-center justify-between">
+                                    <button data-id={user.id} onClick={onPersonShare} className="flex items-center gap-2 text-lg font-medium">
+                                        <ShareIcon absoluteStrokeWidth size={16} strokeWidth={2} />
+                                        {user.data.name}
+                                    </button>
+                                    <span>{i18n.format.money(Number(user.payment?.amount!))}</span>
+                                </header>
+                                <p className="text-sm">
+                                    {user.payment?.status === PaymentStatus.Paid ? (
+                                        <span className="flex items-center gap-2 text-success">
+                                            <CheckCheckIcon />
+                                            Pago
+                                        </span>
+                                    ) : (
+                                        <button className="flex items-center gap-2 text-main-soft" onClick={setPaymentForUser}>
+                                            <HandshakeIcon size={16} />
+                                            Marcar como pago
+                                        </button>
+                                    )}
+                                </p>
+                                {user.orderItem.length === 0 ? null : (
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableHeader>Produto</TableHeader>
+                                                <TableHeader>Total</TableHeader>
+                                                <TableHeader>Quantidade</TableHeader>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            )}
-                        </li>
-                    ))}
+                                        </TableHead>
+                                        <TableBody>
+                                            {user.orderItem.map((product) => (
+                                                <TableRow key={`${user.id}-${product.id}`}>
+                                                    <TableCell>
+                                                        {product.title === Orders.OrderItem.Additional
+                                                            ? "Gorjeta"
+                                                            : product.title === Orders.OrderItem.Couvert
+                                                              ? "Couvert"
+                                                              : product.title}
+                                                    </TableCell>
+                                                    <TableCell>{i18n.format.money(Number(product.total))}</TableCell>
+                                                    <TableCell>
+                                                        {Product.isTipOrCouvert(product)
+                                                            ? product.quantity
+                                                            : Product.formatQuantity(product.quantity, order.metadata.products[product.productId])}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                )}
+                            </li>
+                        );
+                    })}
                     <li className="flex justify-between pt-2">
                         <span>Consumo</span>
                         <b>{i18n.format.money(order.metadata.base)}</b>

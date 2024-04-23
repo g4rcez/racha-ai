@@ -10,7 +10,7 @@ import {
   Timezone,
   TranslationMap,
 } from "~/i18n/polyglot/types/types";
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 import { Numbers } from "./formatters/numbers";
 
 export const createPolyglotNative = <

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { has } from "~/lib/fn";
+import { has } from "sidekicker";
 import { Nullable } from "~/types";
 
 type Endpoint = (req: NextApiRequest, res: NextApiResponse) => any;

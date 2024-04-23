@@ -1,4 +1,4 @@
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 
 export class Dict<K, V> extends Map<K, V> {
     public static from<Item, K extends keyof Item | ((k: Item) => string), Fn extends ((item: Item) => any) | undefined>(key: K, list: Item[], fn?: Fn) {

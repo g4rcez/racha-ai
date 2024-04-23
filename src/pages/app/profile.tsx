@@ -2,7 +2,7 @@ import { EyeIcon, EyeOff } from "lucide-react";
 import React, { useState } from "react";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/core/button";
-import { ColorPicker } from "~/components/color-picker";
+import { ColorPicker } from "~/components/form/color-picker";
 import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { Title } from "~/components/core/typography";

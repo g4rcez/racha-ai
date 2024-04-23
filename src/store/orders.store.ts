@@ -1,4 +1,5 @@
 import { uuidv7 } from "@kripod/uuidv7";
+import { Linq } from "linq-arrays";
 import React from "react";
 import { LocalStorage } from "storage-manager-js";
 import { z } from "zod";
@@ -101,10 +102,7 @@ export const Orders = Store.create(
             const checked = e.target.checked;
             const state = get.state();
             const users = state.users;
-            if (!checked)
-                return {
-                    users: users.filter((user) => user.id !== id)
-                };
+            if (!checked) return { users: new Linq(users).Where("id", "!==", id).Select() };
             const user = Friends.getUserById(id);
             if (user) return { users: [...users, user] };
             const me = Preferences.getCurrentState().user;

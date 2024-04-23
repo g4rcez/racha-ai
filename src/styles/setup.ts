@@ -1,5 +1,5 @@
 import { flatTuples, reduceObject } from "~/lib/fn";
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 import { ColorThemes } from "~/store/preferences.store";
 
 type VariableValue = string | Record<string, string>;

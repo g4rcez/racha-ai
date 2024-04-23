@@ -8,7 +8,7 @@ import {
 } from "use-typed-reducer";
 import { z } from "zod";
 import { isServerSide } from "~/lib/fn";
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 import { FN } from "~/types";
 
 export namespace Store {

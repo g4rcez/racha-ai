@@ -2,7 +2,7 @@ import clsx from "clsx";
 import Link from "next/link";
 import React from "react";
 import { ClientSide } from "~/components/client-side";
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 import { Links } from "~/router";
 import { Preferences } from "~/store/preferences.store";
 

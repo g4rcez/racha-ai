@@ -1,5 +1,6 @@
 import { PlusIcon } from "lucide-react";
 import React from "react";
+import { normalize } from "sidekicker";
 import AdminLayout from "~/components/admin/layout";
 import { Button } from "~/components/core/button";
 import { Card } from "~/components/core/card";
@@ -8,7 +9,6 @@ import { Input } from "~/components/form/input";
 import { EditUser } from "~/components/users/friends";
 import { useTranslations } from "~/i18n";
 import { getHtmlInput } from "~/lib/dom";
-import { sanitize } from "~/lib/fn";
 import { Friends } from "~/store/friends.store";
 import { Platform } from "~/store/platform";
 import { Preferences } from "~/store/preferences.store";
@@ -23,7 +23,7 @@ const FriendsPage: NextPageWithLayout = () => {
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         const form = e.currentTarget;
         const input = getHtmlInput(form, "user");
-        const name = sanitize(input.value);
+        const name = normalize(input.value);
         if (name === "") return;
         const hasUserName = Friends.hasUser(name, Array.from(state.users.values()));
         if (!hasUserName) {

@@ -4,7 +4,7 @@ import { Numbers } from "~/i18n/polyglot/formatters/numbers";
 import { PolyglotConfig } from "~/i18n/polyglot/types/types";
 import { Unit } from "~/i18n/polyglot/types/unit";
 import { noop } from "~/lib/fn";
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 
 export const createFormatters = (lang: string, options?: PolyglotConfig) => {
   const formatters = {

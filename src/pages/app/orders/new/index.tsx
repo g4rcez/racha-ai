@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableRow } from "~/components/t
 import { i18n, useI18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
+import { Categories } from "~/models/categories";
 import { Links } from "~/router";
 import { Friends } from "~/store/friends.store";
 import { History } from "~/store/history.store";
@@ -23,7 +24,8 @@ const InitialData = () => {
     const [state, dispatch] = Orders.use(undefined, () => {
         Orders.action.init((prev) => {
             if (!prev.currencyCode) prev.currencyCode = i18n.getCurrency()!;
-            return { ...prev };
+            prev.category = Categories.restaurant.name;
+            return { ...prev  };
         });
     });
 

@@ -1,7 +1,7 @@
 import { User2Icon } from "lucide-react";
 import Link from "next/link";
 import { Fragment } from "react";
-import { Category } from "~/components/category";
+import { Category } from "~/components/admin/category";
 import { useI18n } from "~/i18n";
 import { Links } from "~/router";
 import { Orders } from "~/services/orders/orders.types";

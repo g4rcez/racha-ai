@@ -1,7 +1,9 @@
 import { uuidv7 } from "@kripod/uuidv7";
+import { Linq } from "linq-arrays";
 import { BlendIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { Fragment, useEffect, useRef } from "react";
+import { Is } from "sidekicker";
 import { LocalStorage } from "storage-manager-js";
 import { createLocalStoragePlugin, useReducer } from "use-typed-reducer";
 import { Button } from "~/components/core/button";
@@ -12,7 +14,6 @@ import { RadioGroup } from "~/components/form/radio-group";
 import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
-import { Is } from "~/lib/is";
 import { Consumer, DivisionType } from "~/models/globals";
 import { Product } from "~/models/product";
 import { Links } from "~/router";
@@ -191,10 +192,7 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
         if (id !== null && items.length > 0) {
             return void r[1].set((state) => ({
                 ...state,
-                ...parseFromStorage(
-                    items.filter((x) => x.productId === id),
-                    users
-                )
+                ...parseFromStorage(new Linq(items).Where("productId", "===", id).Select(), users)
             }));
         }
         r[1].clear();

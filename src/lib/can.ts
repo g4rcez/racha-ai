@@ -1,4 +1,4 @@
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 
 const webShareAPI = () =>
   !!Is.function(navigator.share) && !!Is.function(navigator.canShare);

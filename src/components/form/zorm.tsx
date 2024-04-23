@@ -3,7 +3,7 @@ import { z } from "zod";
 import { Button } from "~/components/core/button";
 import { Form, formToJson } from "~/components/form/form";
 import { Input, InputProps } from "~/components/form/input";
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 import { Objects } from "~/lib/objects";
 import { PrimitiveProps } from "~/types";
 

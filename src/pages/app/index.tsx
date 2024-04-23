@@ -8,7 +8,7 @@ import { Form } from "~/components/form/form";
 import { Input } from "~/components/form/input";
 import { i18n, useTranslations } from "~/i18n";
 import { noop } from "~/lib/fn";
-import { Is } from "~/lib/is";
+import { Is } from "sidekicker";
 import { Statistics } from "~/models/statistics";
 import { OrdersMapper } from "~/services/orders/orders.mapper";
 import { Friends } from "~/store/friends.store";
