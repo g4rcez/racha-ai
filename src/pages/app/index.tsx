@@ -1,4 +1,5 @@
 import { BanknoteIcon } from "lucide-react";
+import posthog from "posthog-js";
 import { useEffect, useMemo, useState } from "react";
 import { Is } from "sidekicker";
 import { Button, Card, Form, Input } from "~/components";
@@ -61,6 +62,7 @@ const AppPage: NextPageWithLayout = () => {
     const statistics = Statistics.summary(items, user);
 
     useEffect(() => {
+        if (user.id) posthog.capture("userOnAppPage", { id: user.id });
         setFirstNameState(name);
         historyDispatch.refresh(History.init());
     }, []);
