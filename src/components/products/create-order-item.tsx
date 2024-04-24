@@ -6,11 +6,7 @@ import React, { Fragment, useEffect, useRef } from "react";
 import { Is } from "sidekicker";
 import { LocalStorage } from "storage-manager-js";
 import { createLocalStoragePlugin, useReducer } from "use-typed-reducer";
-import { Button } from "~/components/core/button";
-import { Card } from "~/components/core/card";
-import { Form } from "~/components/form/form";
-import { Input } from "~/components/form/input";
-import { RadioGroup } from "~/components/form/radio-group";
+import { Button, Card, Form, Input, RadioGroup } from "~/components";
 import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
@@ -51,6 +47,8 @@ const operations = {
     noop: (a: number) => a
 };
 
+const resetConsumers = (users: User[]) => users.map((user): Consumer => ({ ...user, consummation: "", quantity: 0 }));
+
 const parseFromStorage = (items: OrderState["items"], users: User[]): Partial<State> => {
     if (items.length === 0) return {};
     const dict = Dict.from("id", users);
@@ -86,30 +84,29 @@ const parseFromStorage = (items: OrderState["items"], users: User[]): Partial<St
     };
 };
 
-const resetConsumers = (users: User[]) => users.map((user): Consumer => ({ ...user, consummation: "", quantity: 0 }));
-
 const useProduct = (id: Nullable<string>, items: OrderState["items"], users: User[]) => {
     const initial = useRef<Partial<State>>((LocalStorage.get(KEY) as any) || {});
     const d = (initial.current.division || DivisionType.Equality) as DivisionType;
     const total = initial.current.total || 0;
     const price = initial.current.price || "";
     const quantity = initial.current.quantity || 0;
+    const initialState = {
+        ...emptyState,
+        division: d,
+        price,
+        quantity,
+        title: initial.current.title || "",
+        total,
+        users:
+            initial.current.users ||
+            Product.division[d]({
+                quantity,
+                price: fromStrNumber(price || "0"),
+                users: resetConsumers(users)
+            })
+    };
     const r = useReducer(
-        {
-            ...emptyState,
-            division: d,
-            price,
-            quantity,
-            title: initial.current.title || "",
-            total,
-            users:
-                initial.current.users ||
-                Product.division[d]({
-                    quantity,
-                    price: fromStrNumber(price || "0"),
-                    users: resetConsumers(users)
-                })
-        } as State,
+        initialState as State,
         (get) => ({
             reset: (users?: User[]) => ({
                 ...emptyState,
@@ -189,12 +186,11 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
     );
 
     useEffect(() => {
-        if (id !== null && items.length > 0) {
+        if (id !== null)
             return void r[1].set((state) => ({
                 ...state,
                 ...parseFromStorage(new Linq(items).Where("productId", "===", id).Select(), users)
             }));
-        }
         r[1].clear();
         return void r[1].onSetUsers(users, true);
     }, [id, items, users]);
@@ -248,10 +244,11 @@ const UserConsummation = (props: ConsummationProps) => (
 );
 
 const validate = (state: State, _e: React.FormEvent<HTMLFormElement>) => {
-    let errors: State["errors"] = {};
+    const errors: State["errors"] = {};
+    const allHaveSameValue = new Set(state.users.map((x) => x.consummation)).size === 1;
     const sum = state.users.reduce((acc, x) => acc + fromStrNumber(x.consummation), 0);
     const productTotal = fromStrNumber(state.price) * state.quantity;
-    if (sum !== productTotal) errors.users = "A soma dos pagamentos é maior que o valor do produto";
+    if (sum !== productTotal && !allHaveSameValue) errors.users = "A soma dos pagamentos é maior que o valor do produto";
     return errors;
 };
 
@@ -268,10 +265,7 @@ export function CreateOrderItem(props: { id: Nullable<string> }) {
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.persist();
         const result = validate(product, e);
-        if (!Is.empty(result)) {
-            console.log(result);
-            return action.setError(result);
-        }
+        if (!Is.empty(result)) return action.setError(result);
         dispatch.upsertProduct({
             category: "default",
             orderId: state.order.id,

@@ -1,7 +1,7 @@
 import React from "react";
 import { AppConfig } from "~/components/admin/app-config";
 import { MobileLayout } from "~/components/admin/mobile.layout";
-import { ClientSide } from "~/components/client-side";
+import { ClientSide } from "~/components";
 
 export default function AdminLayout(page: React.ReactElement) {
     return (

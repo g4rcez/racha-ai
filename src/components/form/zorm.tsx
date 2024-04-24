@@ -3,8 +3,7 @@ import { z } from "zod";
 import { Button } from "~/components/core/button";
 import { Form, formToJson } from "~/components/form/form";
 import { Input, InputProps } from "~/components/form/input";
-import { Is } from "sidekicker";
-import { Objects } from "~/lib/objects";
+import { Is, Objects } from "sidekicker";
 import { PrimitiveProps } from "~/types";
 
 namespace Defs {
@@ -185,7 +184,7 @@ export const Zorm = <T extends z.ZodObject<any>>(props: PropsWithChildren<Props<
             : setErrors((prev) =>
                   validation.error.issues.reduce((acc, el) => {
                       const path = el.path.join(".");
-                      return Objects.set(acc, path, Objects.getPath(prev, path, el.message));
+                      return Objects.set(acc, path, Objects.get(prev, path, el.message));
                   }, prev)
               );
     };
@@ -193,7 +192,7 @@ export const Zorm = <T extends z.ZodObject<any>>(props: PropsWithChildren<Props<
     return (
         <Form ref={form} className={props.className} onSubmit={onSubmit} onInvalidCapture={onInvalid}>
             {elements.map(({ Component, ...element }) => (
-                <Component {...element} error={Objects.getPath(errors, element.name)} key={element.name} onChange={onChange} />
+                <Component {...element} error={Objects.get(errors, element.name)} key={element.name} onChange={onChange} />
             ))}
             {props.children ? props.children : <Button type="submit">Submit</Button>}
         </Form>

@@ -2,13 +2,8 @@ import { ExternalLinkIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useMemo } from "react";
+import { Button, Card, Checkbox, Form, Input, Table, TableBody, TableCell, TableHead, TableRow } from "~/components";
 import AdminLayout from "~/components/admin/layout";
-import { Button } from "~/components/core/button";
-import { Card } from "~/components/core/card";
-import { Checkbox } from "~/components/form/checkbox";
-import { Form } from "~/components/form/form";
-import { Input } from "~/components/form/input";
-import { Table, TableBody, TableCell, TableHead, TableRow } from "~/components/table";
 import { i18n, useI18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
@@ -25,7 +20,7 @@ const InitialData = () => {
         Orders.action.init((prev) => {
             if (!prev.currencyCode) prev.currencyCode = i18n.getCurrency()!;
             prev.category = Categories.restaurant.name;
-            return { ...prev  };
+            return { ...prev };
         });
     });
 
@@ -44,7 +39,6 @@ const MyFriends = () => {
     const [order, dispatch] = Orders.use();
     const [me] = Preferences.use();
     const users = useMemo(() => Dict.from("id", order.users), [order.users]);
-    const hasMe = users.has(me.user.id);
     return (
         <Card title="Quem foi a galera?" description="Marque todo mundo que vai dividir a conta com você">
             <Form onSubmit={dispatch.onAddUser}>
@@ -62,7 +56,7 @@ const MyFriends = () => {
             <Form>
                 <ul className="mt-4 list-inside space-y-3">
                     <li key={me.user.id}>
-                        <Checkbox name={me.user.id} value={me.user.id} checked={hasMe} onChange={dispatch.onCheckUser}>
+                        <Checkbox readOnly name={me.user.id} value={me.user.id} checked>
                             {me.user.name} - <span className="text-main-soft">Você</span>
                         </Checkbox>
                     </li>

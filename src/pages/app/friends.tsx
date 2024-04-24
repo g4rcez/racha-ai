@@ -1,11 +1,8 @@
 import { PlusIcon } from "lucide-react";
 import React from "react";
 import { normalize } from "sidekicker";
+import { Button, Card, Form, Input } from "~/components";
 import AdminLayout from "~/components/admin/layout";
-import { Button } from "~/components/core/button";
-import { Card } from "~/components/core/card";
-import { Form } from "~/components/form/form";
-import { Input } from "~/components/form/input";
 import { EditUser } from "~/components/users/friends";
 import { useTranslations } from "~/i18n";
 import { getHtmlInput } from "~/lib/dom";

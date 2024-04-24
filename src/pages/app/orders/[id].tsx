@@ -4,12 +4,8 @@ import { useRouter } from "next/router";
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Is } from "sidekicker";
 import { toast } from "sonner";
+import { AppDescription, Button, Card, Logo, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Title } from "~/components/";
 import AdminLayout from "~/components/admin/layout";
-import { Button } from "~/components/core/button";
-import { Card } from "~/components/core/card";
-import { Title } from "~/components/core/typography";
-import { AppDescription, Logo } from "~/components/logo";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/table";
 import { useTranslations } from "~/i18n";
 import { CanIUse } from "~/lib/can";
 import { PaymentStatus } from "~/models/payments";
@@ -112,7 +108,7 @@ const CartId: NextPageWithLayout = () => {
                         };
                         return (
                             <li id={user.id} key={user.id} className="group flex flex-wrap justify-between space-y-6 data-[image=true]:bg-card-bg data-[image=true]:p-4">
-                                <div hidden className="group-data-[image=true]:mb-4 group-data-[image=true]:block hidden space-y-2">
+                                <div hidden className="hidden space-y-2 group-data-[image=true]:mb-4 group-data-[image=true]:block">
                                     <Logo type="raw" />
                                     <AppDescription />
                                 </div>
