@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@floating-ui/react':
-    specifier: 0.26.12
-    version: 0.26.12(react-dom@18.2.0)(react@18.2.0)
   '@headlessui/react':
     specifier: 1.7.19
     version: 1.7.19(react-dom@18.2.0)(react@18.2.0)
@@ -41,15 +38,9 @@ dependencies:
   clsx:
     specifier: 2.1.1
     version: 2.1.1
-  date-fns:
-    specifier: 3.6.0
-    version: 3.6.0
   drizzle-orm:
     specifier: ^0.30.9
     version: 0.30.9(@types/react@18.2.79)(postgres@3.4.4)(react@18.2.0)
-  fraction.js:
-    specifier: 4.3.7
-    version: 4.3.7
   framer-motion:
     specifier: 11.1.7
     version: 11.1.7(react-dom@18.2.0)(react@18.2.0)
@@ -107,9 +98,6 @@ dependencies:
   use-debounce:
     specifier: 10.0.0
     version: 10.0.0(react@18.2.0)
-  use-sync-external-store:
-    specifier: 1.2.0
-    version: 1.2.0(react@18.2.0)
   use-typed-reducer:
     specifier: 4.2.0
     version: 4.2.0(react@18.2.0)
@@ -2029,19 +2017,6 @@ packages:
       '@floating-ui/dom': 1.6.3
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /@floating-ui/react@0.26.12(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-D09o62HrWdIkstF2kGekIKAC0/N/Dl6wo3CQsnLcOmO3LkW6Ik8uIb3kw8JYkwxNCcg+uJ2bpWUiIijTBep05w==}
-    peerDependencies:
-      react: '>=16.8.0'
-      react-dom: '>=16.8.0'
-    dependencies:
-      '@floating-ui/react-dom': 2.0.8(react-dom@18.2.0)(react@18.2.0)
-      '@floating-ui/utils': 0.2.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      tabbable: 6.2.0
     dev: false
 
   /@floating-ui/utils@0.2.1:
@@ -4202,10 +4177,6 @@ packages:
       is-data-view: 1.0.1
     dev: false
 
-  /date-fns@3.6.0:
-    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
-    dev: false
-
   /debug@4.3.4:
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
     engines: {node: '>=6.0'}
@@ -4890,6 +4861,7 @@ packages:
 
   /fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
+    dev: true
 
   /framer-motion@11.1.7(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-cW11Pu53eDAXUEhv5hEiWuIXWhfkbV32PlgVISn7jRdcAiVrJ1S03YQQ0/DzoswGYYwKi4qYmHHjCzAH52eSdQ==}
@@ -6971,10 +6943,6 @@ packages:
       client-only: 0.0.1
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
-    dev: false
-
-  /tabbable@6.2.0:
-    resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
     dev: false
 
   /tailwind-merge@2.3.0:

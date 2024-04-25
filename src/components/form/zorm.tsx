@@ -1,9 +1,7 @@
 import React, { PropsWithChildren, useCallback, useMemo, useRef, useState } from "react";
-import { z } from "zod";
-import { Button } from "~/components/core/button";
-import { Form, formToJson } from "~/components/form/form";
-import { Input, InputProps } from "~/components/form/input";
 import { Is, Objects } from "sidekicker";
+import { z } from "zod";
+import { Button, Form, formToJson, Input, InputProps } from "~/components";
 import { PrimitiveProps } from "~/types";
 
 namespace Defs {
