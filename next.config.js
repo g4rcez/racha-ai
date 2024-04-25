@@ -32,34 +32,30 @@ const withNextPWA = withPlugins(
     }
 );
 
-const withSentry = process.env.NODE_ENV === "production" ? withSentryConfig : withPlugins;
+module.exports = withSentryConfig(
+    withNextPWA,
+    {
+        silent: true,
+        org: "g4rcez",
+        project: "racha-ai"
+    },
+    {
+        // For all available options, see:
+        // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
-module.exports = withNextPWA(
-    withSentry(
-        module.exports,
-        {
-            silent: true,
-            org: "g4rcez",
-            project: "racha-ai"
-        },
-        {
-            // For all available options, see:
-            // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
-
-            // Upload a larger set of source maps for prettier stack traces (increases build time)
-            widenClientFileUpload: true,
-            // Transpiles SDK to be compatible with IE11 (increases bundle size)
-            transpileClientSDK: false,
-            tunnelRoute: "/monitoring",
-            // Hides source maps from generated client bundles
-            hideSourceMaps: true,
-            // Automatically tree-shake Sentry logger statements to reduce bundle size
-            disableLogger: true,
-            // Enables automatic instrumentation of Vercel Cron Monitors.
-            // See the following for more information:
-            // https://docs.sentry.io/product/crons/
-            // https://vercel.com/docs/cron-jobs
-            automaticVercelMonitors: true
-        }
-    )
+        // Upload a larger set of source maps for prettier stack traces (increases build time)
+        widenClientFileUpload: true,
+        // Transpiles SDK to be compatible with IE11 (increases bundle size)
+        transpileClientSDK: false,
+        tunnelRoute: "/monitoring",
+        // Hides source maps from generated client bundles
+        hideSourceMaps: true,
+        // Automatically tree-shake Sentry logger statements to reduce bundle size
+        disableLogger: true,
+        // Enables automatic instrumentation of Vercel Cron Monitors.
+        // See the following for more information:
+        // https://docs.sentry.io/product/crons/
+        // https://vercel.com/docs/cron-jobs
+        automaticVercelMonitors: true
+    }
 );
