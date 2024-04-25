@@ -78,8 +78,8 @@ dependencies:
     specifier: 4.0.13
     version: 4.0.13(react@18.2.0)
   sidekicker:
-    specifier: 0.1.3
-    version: 0.1.3
+    specifier: 0.1.4
+    version: 0.1.4
   sonner:
     specifier: 1.4.41
     version: 1.4.41(react-dom@18.2.0)(react@18.2.0)
@@ -6681,8 +6681,8 @@ packages:
       object-inspect: 1.13.1
     dev: false
 
-  /sidekicker@0.1.3:
-    resolution: {integrity: sha512-7zoNEPB1r3P69R8qg26CGHd9FYyHV90Yl89MTQnXoFKvGrAkOwP47lgfK1LqLIwG2Vhmb8bINAih3BamwnEH/A==}
+  /sidekicker@0.1.4:
+    resolution: {integrity: sha512-dw9gFm4/Oo/8cafVfBkmF5NjgH45lqbuaEVObVQ3z+Dhco42H8rNVcHtlVGbwzEbAxYjktpVYEU626mkw5OyNA==}
     dependencies:
       qs: 6.11.2
     dev: false

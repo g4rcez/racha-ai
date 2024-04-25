@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Is } from "sidekicker";
 import { toast } from "sonner";
-import { AppDescription, Button, Card, Logo, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Title } from "~/components/";
+import { AppDescription, Card, Logo, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Title } from "~/components/";
 import AdminLayout from "~/components/admin/layout";
 import { useTranslations } from "~/i18n";
 import { CanIUse } from "~/lib/can";
@@ -63,8 +63,6 @@ const CartId: NextPageWithLayout = () => {
         }
     };
 
-    const onShare = () => (ref.current ? onShareElement(ref.current) : undefined);
-
     const onPersonShare = (e: React.MouseEvent<HTMLButtonElement>) => {
         const element = document.getElementById(e.currentTarget.dataset.id ?? "");
         if (element) return onShareElement(element);
@@ -83,9 +81,12 @@ const CartId: NextPageWithLayout = () => {
             <Card className="flex flex-col gap-2">
                 <Title>{order.title}</Title>
                 <p>Data do evento: {i18n.format.datetime(order.createdAt)}</p>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col justify-between gap-2">
                     <p>
                         Total: <b className="text-main-bg">{total}</b>
+                    </p>
+                    <p>
+                        Pessoas na conta: {sortedUsers.length}
                     </p>
                     {/*<Link*/}
                     {/*  href={Links.cart}*/}
@@ -95,9 +96,6 @@ const CartId: NextPageWithLayout = () => {
                     {/*  Editar comanda*/}
                     {/*</Link>*/}
                 </div>
-                <Button onClick={onShare} className="my-4 w-full group-data-[image=true]:hidden print:hidden" icon={<ShareIcon absoluteStrokeWidth size={18} strokeWidth={2} />}>
-                    Compartilhar comanda
-                </Button>
             </Card>
             <Card>
                 <ul className="mt-6 space-y-8">
@@ -113,7 +111,12 @@ const CartId: NextPageWithLayout = () => {
                                     <AppDescription />
                                 </div>
                                 <header className="flex w-full items-center justify-between">
-                                    <button data-id={user.id} onClick={onPersonShare} className="flex items-center gap-2 text-lg font-medium">
+                                    <button
+                                        className="flex items-center gap-2 text-lg font-medium"
+                                        data-id={user.id}
+                                        onClick={onPersonShare}
+                                        title={`Compartilhar comanda de ${user.data.name}`}
+                                    >
                                         <ShareIcon absoluteStrokeWidth size={16} strokeWidth={2} />
                                         {user.data.name}
                                     </button>
