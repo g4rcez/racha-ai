@@ -85,9 +85,7 @@ const CartId: NextPageWithLayout = () => {
                     <p>
                         Total: <b className="text-main-bg">{total}</b>
                     </p>
-                    <p>
-                        Pessoas na conta: {sortedUsers.length}
-                    </p>
+                    <p>Pessoas na conta: {sortedUsers.length}</p>
                     {/*<Link*/}
                     {/*  href={Links.cart}*/}
                     {/*  onClick={() => dispatch.set(History.parseToCart(order))}*/}
@@ -111,30 +109,33 @@ const CartId: NextPageWithLayout = () => {
                                     <AppDescription />
                                 </div>
                                 <header className="flex w-full items-center justify-between">
+                                    {user.data.name}
+                                    <span>{i18n.format.money(Number(user.payment?.amount!))}</span>
+                                </header>
+                                <section className="flex w-full flex-row items-center justify-between">
+                                    <p className="text-sm">
+                                        {user.payment?.status === PaymentStatus.Paid ? (
+                                            <span className="flex items-center gap-2 text-success">
+                                                <CheckCheckIcon />
+                                                Pago
+                                            </span>
+                                        ) : (
+                                            <button className="flex items-center gap-2 text-main-soft" onClick={setPaymentForUser}>
+                                                <HandshakeIcon size={16} />
+                                                Marcar como pago
+                                            </button>
+                                        )}
+                                    </p>
                                     <button
-                                        className="flex items-center gap-2 text-lg font-medium"
+                                        className="flex items-center gap-2 text-sm font-medium group-data-[image=true]:hidden"
                                         data-id={user.id}
                                         onClick={onPersonShare}
                                         title={`Compartilhar comanda de ${user.data.name}`}
                                     >
                                         <ShareIcon absoluteStrokeWidth size={16} strokeWidth={2} />
-                                        {user.data.name}
+                                        Compartilhar
                                     </button>
-                                    <span>{i18n.format.money(Number(user.payment?.amount!))}</span>
-                                </header>
-                                <p className="text-sm">
-                                    {user.payment?.status === PaymentStatus.Paid ? (
-                                        <span className="flex items-center gap-2 text-success">
-                                            <CheckCheckIcon />
-                                            Pago
-                                        </span>
-                                    ) : (
-                                        <button className="flex items-center gap-2 text-main-soft" onClick={setPaymentForUser}>
-                                            <HandshakeIcon size={16} />
-                                            Marcar como pago
-                                        </button>
-                                    )}
-                                </p>
+                                </section>
                                 {user.orderItem.length === 0 ? null : (
                                     <Table>
                                         <TableHead>
