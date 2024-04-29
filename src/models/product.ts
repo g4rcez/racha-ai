@@ -39,9 +39,11 @@ export namespace Product {
 
     export const isTipOrCouvert = (product: DB.OrderItem) => product.productId === tipId || product.productId === couvertId;
 
-    export const formatQuantity = (quantity: string, product: DB.OrderItemMetadata): string => i18n.format.percent(
-        ((fromStrNumber(quantity) * 100) / product.consumed / 100)
-    );
+    export const formatQuantity = (quantity: string, product: DB.OrderItemMetadata): string => {
+        const q = fromStrNumber(quantity);
+        if (q === 0 || product.consumed === 0) return "0";
+        return i18n.format.percent((q * 100) / product.consumed / 100);
+    };
 
     export type Shape = {
         category: string;
