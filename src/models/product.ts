@@ -1,11 +1,11 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { z } from "zod";
-import { DB } from "~/db/types";
 import { i18n } from "~/i18n";
 import { fromStrNumber } from "~/lib/fn";
 import { Consumer, DivisionType } from "~/models/globals";
 import { Store } from "~/models/store";
 import { Orders } from "~/services/orders/orders.types";
+import { DbOrderItem, OrderItemMetadata } from "~/types";
 
 export type Product = Store.New<{
     name: string;
@@ -37,9 +37,9 @@ export namespace Product {
 
     export const couvertId = "22222222-2222-2222-2222-222222222222";
 
-    export const isTipOrCouvert = (product: DB.OrderItem) => product.productId === tipId || product.productId === couvertId;
+    export const isTipOrCouvert = (product: DbOrderItem) => product.productId === tipId || product.productId === couvertId;
 
-    export const formatQuantity = (quantity: string, product: DB.OrderItemMetadata): string => {
+    export const formatQuantity = (quantity: string, product: OrderItemMetadata): string => {
         const q = fromStrNumber(quantity);
         if (q === 0 || product.consumed === 0) return "0";
         return i18n.format.percent((q * 100) / product.consumed / 100);
@@ -60,9 +60,9 @@ export namespace Product {
         type: string;
     };
 
-    type Base = Omit<DB.OrderItem, "createdAt" | "id">;
+    type Base = Omit<DbOrderItem, "createdAt" | "id">;
 
-    export const New = (props: Base): DB.OrderItem => ({
+    export const New = (props: Base): DbOrderItem => ({
         id: uuidv7(),
         category: props.category || "",
         createdAt: new Date(),
@@ -77,7 +77,7 @@ export namespace Product {
         type: props.type || ""
     });
 
-    export const tip = (props: Omit<DB.OrderItem, "createdAt" | "id" | "quantity" | "productId" | "title" | "price">) => {
+    export const tip = (props: Omit<DbOrderItem, "createdAt" | "id" | "quantity" | "productId" | "title" | "price">) => {
         const newProps = props as any as Base;
         newProps.productId = tipId;
         newProps.quantity = "1";
@@ -86,7 +86,7 @@ export namespace Product {
         return New(newProps);
     };
 
-    export const couvert = (props: Omit<DB.OrderItem, "createdAt" | "id" | "quantity" | "productId" | "title" | "price">) => {
+    export const couvert = (props: Omit<DbOrderItem, "createdAt" | "id" | "quantity" | "productId" | "title" | "price">) => {
         const newProps = props as any as Base;
         newProps.productId = couvertId;
         newProps.quantity = "1";
@@ -113,13 +113,24 @@ export namespace Product {
 
     export const division = {
         [DivisionType.Equality]: fnBase(),
-        [DivisionType.Amount]: fnBase((n) => i18n.format.money(n))
+        [DivisionType.Amount]: fnBase((n) => i18n.format.money(n)),
+        [DivisionType.None]: (args) => {
+            const users = args.users;
+            const total = args.price * args.quantity;
+            if (total === 0) return users.map((x): Consumer => ({ ...x, consummation: "" }));
+            return users.map((x): Consumer => ({ ...x, consummation: "", quantity: 0 }));
+        }
         // [DivisionType.Percent]: fnBase,
         // [DivisionType.Share]: fnBase,
         // [DivisionType.Adjustment]: fnBase,
     } satisfies Record<string, ProductCalculus>;
 
     export const divisions = [
+        {
+            label: "Divisão manual",
+            description: "Manual",
+            value: DivisionType.None
+        },
         {
             label: "Divisão por consumo",
             description: "Igualdade",

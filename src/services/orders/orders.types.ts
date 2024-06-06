@@ -1,24 +1,24 @@
-import { DB } from "~/db/types";
+import { DbOrder, DbOrderItem, DbPayments, DbUser } from "~/types";
 
 export namespace Orders {
-  export type UserInfo = {
-    id: string;
-    data: DB.User;
-    payment: DB.Payment | null;
-    orderItem: DB.OrderItem[];
-  };
+    export type UserInfo = {
+        id: string;
+        data: DbUser;
+        payment: DbPayments | null;
+        orderItem: DbOrderItem[];
+    };
 
-  export type Shape = DB.Order & { users: UserInfo[] };
+    export type Shape = DbOrder & { users: UserInfo[] };
 
-  export type DB = {
-    orders: DB.Order;
-    user: DB.User;
-    payments: DB.Payment;
-    orderItem: DB.OrderItem;
-  };
+    export type DB = {
+        orders: DbOrder;
+        user: any;
+        payments: DbPayments;
+        orderItem: DbOrderItem;
+    };
 
-  export enum OrderItem {
-    Couvert = "@racha-ai/couvert",
-    Additional = "@racha-ai/tip",
-  }
+    export enum OrderItem {
+        Couvert = "@racha-ai/couvert",
+        Additional = "@racha-ai/tip"
+    }
 }

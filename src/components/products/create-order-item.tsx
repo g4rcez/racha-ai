@@ -86,7 +86,7 @@ const parseFromStorage = (items: OrderState["items"], users: User[]): Partial<St
 
 const useProduct = (id: Nullable<string>, items: OrderState["items"], users: User[]) => {
     const initial = useRef<Partial<State>>((LocalStorage.get(KEY) as any) || {});
-    const d = (initial.current.division || DivisionType.Equality) as DivisionType;
+    const d = (initial.current.division || DivisionType.None) as DivisionType;
     const total = initial.current.total || 0;
     const price = initial.current.price || "";
     const quantity = initial.current.quantity || 0;

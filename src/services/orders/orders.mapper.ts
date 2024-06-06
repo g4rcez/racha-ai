@@ -1,18 +1,19 @@
 import { uuidv7 } from "@kripod/uuidv7";
 import { z } from "zod";
-import type { DB } from "~/db/types";
 import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
 import { Product } from "~/models/product";
 import { Orders } from "~/services/orders/orders.types";
 import { User } from "~/store/friends.store";
+import { DbOrder, DbOrderItem, DbPayments } from "~/types";
 
 export namespace OrdersMapper {
+
     export type Result = {
         id: string;
-        order: DB.Order;
-        payments: DB.Payment[];
-        items: DB.OrderItem[];
+        order: DbOrder;
+        payments: DbPayments[];
+        items: DbOrderItem[];
     };
 
     const date = z.string().datetime().or(z.date());
@@ -78,7 +79,7 @@ export namespace OrdersMapper {
 
     export type Order = z.infer<typeof schema>;
 
-    const parseOrder = (order: Order, payments: DB.Payment[], date: Date, basePayment: number, items: DB.OrderItem[]): DB.Order => {
+    const parseOrder = (order: Order, payments: DbPayments[], date: Date, basePayment: number, items: DbOrderItem[]): DbOrder => {
         const tip = calculateTip(order.tip);
         return {
             id: order.id,
@@ -102,8 +103,8 @@ export namespace OrdersMapper {
     };
 
     type OrderItemPayments = {
-        payment: DB.Payment;
-        items: DB.OrderItem[];
+        payment: DbPayments;
+        items: DbOrderItem[];
         base: number;
     };
 
@@ -111,7 +112,7 @@ export namespace OrdersMapper {
 
     const calculateCouvert = (couvert: string) => (couvert === "" ? 0 : fromStrNumber(couvert));
 
-    const calculateTotal = (items: DB.OrderItem[], tip: string, couvert: string) => {
+    const calculateTotal = (items: DbOrderItem[], tip: string, couvert: string) => {
         const item = items[0];
         const base = items.reduce((acc, cur) => acc + Number(cur.total), 0);
         let amount = base;
@@ -136,7 +137,7 @@ export namespace OrdersMapper {
         return { amount, items, base };
     };
 
-    const countProducts = (orderItems: DB.OrderItem[]): DB.Order["metadata"]["products"] => {
+    const countProducts = (orderItems: DbOrderItem[]): DbOrder["metadata"]["products"] => {
         const group = Dict.group("productId", orderItems);
         return group.toArray().reduce((acc, cur) => {
             const first = cur[0];
@@ -153,11 +154,11 @@ export namespace OrdersMapper {
         }, {});
     };
 
-    const fetchPayments = (order: Order, orderItems: DB.OrderItem[], date: Date): OrderItemPayments[] =>
+    const fetchPayments = (order: Order, orderItems: DbOrderItem[], date: Date): OrderItemPayments[] =>
         Dict.group("ownerId", orderItems).arrayMap((value): OrderItemPayments => {
             const product = value[0];
             const result = calculateTotal(value, order.tip, order.couvert);
-            const payment: DB.Payment = {
+            const payment: DbPayments = {
                 amount: result.amount.toString(),
                 createdAt: date,
                 id: uuidv7(),
@@ -168,7 +169,7 @@ export namespace OrdersMapper {
             return { payment, items: result.items, base: result.base };
         });
 
-    export const splitBills = (order: Order, items: DB.OrderItem[]): Result => {
+    export const splitBills = (order: Order, items: DbOrderItem[]): Result => {
         const now = new Date();
         const result = fetchPayments(order, items, now);
         const x = result.reduce(
@@ -177,7 +178,7 @@ export namespace OrdersMapper {
                 items: acc.items.concat(el.items),
                 payments: acc.payments.concat(el.payment)
             }),
-            { items: [] as DB.OrderItem[], payments: [] as DB.Payment[], base: 0 }
+            { items: [] as DbOrderItem[], payments: [] as DbPayments[], base: 0 }
         );
         return {
             id: order.id,
@@ -215,7 +216,7 @@ export namespace OrdersMapper {
         };
     };
 
-    export const parseProduct = (item: OrderItem): DB.OrderItem => ({
+    export const parseProduct = (item: OrderItem): DbOrderItem => ({
         ...item,
         createdAt: new Date(item.createdAt),
         price: fromStrNumber(item.price).toString(),
@@ -249,12 +250,14 @@ export namespace OrdersMapper {
     export const parseOrdersAsResponse = (orders: Result[], users: User[]): Orders.Shape[] => orders.map((x) => parseOrderResponse(x, users));
 
     export const fromResponseToOrder = (order: Orders.Shape): Result => {
+        const initialState = { items: [] as DbOrderItem[], payments: [] as DbPayments[] };
+        type State = typeof initialState
         const result = order.users.reduce(
-            (acc, el) => ({
+            (acc: State, el) => ({
                 items: acc.items.concat(el.orderItem),
-                payments: acc.payments.concat(el.payment as DB.Payment)
+                payments: acc.payments.concat(el.payment as DbPayments)
             }),
-            { items: [] as DB.OrderItem[], payments: [] as DB.Payment[] }
+            initialState
         );
         return { order, id: order.id, items: result.items, payments: result.payments };
     };

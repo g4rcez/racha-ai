@@ -26,7 +26,7 @@ const InitialData = () => {
 
     return (
         <Card title="Nosso role" className="flex flex-col gap-2" description="Onde foi o role com a galera?">
-            <Input required name="title" form="form" title="Nome do local" value={state.order.title} onChange={dispatch.onChange} />
+            <Input autoFocus required name="title" form="form" title="Nome do local" value={state.order.title} onChange={dispatch.onChange} />
             {/*<Button theme="transparent" className="underline w-full text-center">*/}
             {/*  Adicionar mais informações*/}
             {/*</Button>*/}
