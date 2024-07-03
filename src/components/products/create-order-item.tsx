@@ -2,11 +2,11 @@ import { uuidv7 } from "@kripod/uuidv7";
 import { Linq } from "linq-arrays";
 import { BlendIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { useRouter } from "next/router";
-import React, { Fragment, useEffect, useRef } from "react";
+import React, { Fragment, useEffect, useMemo, useRef } from "react";
 import { Is } from "sidekicker";
 import { LocalStorage } from "storage-manager-js";
 import { createLocalStoragePlugin, useReducer } from "use-typed-reducer";
-import { Button, Card, Form, Input, RadioGroup } from "~/components";
+import { Alert, Button, Card, Form, Input, RadioGroup } from "~/components";
 import { i18n } from "~/i18n";
 import { Dict } from "~/lib/dict";
 import { fromStrNumber } from "~/lib/fn";
@@ -15,6 +15,7 @@ import { Product } from "~/models/product";
 import { Links } from "~/router";
 import type { User } from "~/store/friends.store";
 import { Orders, OrderState } from "~/store/orders.store";
+import { Preferences } from "~/store/preferences.store";
 import { Nullable } from "~/types";
 
 type State = {
@@ -42,8 +43,8 @@ const emptyState: State = {
 };
 
 const operations = {
-    quantitySum: (a: number, user: Consumer) => a + user.quantity,
-    quantityDiff: (a: number, user: Consumer) => user.quantity - a,
+    quantitySum: (a: number, user: Consumer) => a + Number(user.quantity),
+    quantityDiff: (a: number, user: Consumer) => Number(user.quantity) - a,
     noop: (a: number) => a
 };
 
@@ -85,6 +86,11 @@ const parseFromStorage = (items: OrderState["items"], users: User[]): Partial<St
 };
 
 const useProduct = (id: Nullable<string>, items: OrderState["items"], users: User[]) => {
+    const [me] = Preferences.use();
+    const userSorter = <T extends { id: string }>(a: T, b: T) => {
+        if (a.id === me.user.id) return -1;
+        return a.id > b.id ? 1 : -1;
+    };
     const initial = useRef<Partial<State>>((LocalStorage.get(KEY) as any) || {});
     const d = (initial.current.division || DivisionType.None) as DivisionType;
     const total = initial.current.total || 0;
@@ -97,15 +103,16 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
         quantity,
         title: initial.current.title || "",
         total,
-        users:
+        users: (
             initial.current.users ||
             Product.division[d]({
                 quantity,
                 price: fromStrNumber(price || "0"),
                 users: resetConsumers(users)
             })
+        ).sort(userSorter)
     };
-    const r = useReducer(
+    const [state, dispatch] = useReducer(
         initialState as State,
         (get) => ({
             reset: (users?: User[]) => ({
@@ -132,7 +139,7 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
                 };
             },
             onChangeValue: (name: string, value: number, id: string, operation: (a: number, user: Consumer) => number) => ({
-                users: get.state().users.map((x) => (x.id === id ? { ...x, [name]: operation(value, x) } : x))
+                users: get.state().users.map((x) => (x.id === id ? { ...x, [name]: operation(Number(value), x) } : x))
             }),
             onChangeUser: (e: React.ChangeEvent<HTMLInputElement>) => {
                 const state = get.state();
@@ -187,18 +194,25 @@ const useProduct = (id: Nullable<string>, items: OrderState["items"], users: Use
 
     useEffect(() => {
         if (id !== null)
-            return void r[1].set((state) => ({
+            return void dispatch.set((state) => ({
                 ...state,
-                ...parseFromStorage(new Linq(items).Where("productId", "===", id).Select(), users)
+                ...parseFromStorage(new Linq(items).Where("productId", "===", id).Sort(userSorter), users)
             }));
-        r[1].clear();
-        return void r[1].onSetUsers(users, true);
+        dispatch.clear();
+        return void dispatch.onSetUsers(users, true);
     }, [id, items, users]);
 
-    return r;
+    return [state, dispatch] as const;
 };
 
-type ConsummationProps = { users: number; dispatch: any; user: Consumer; product: Omit<State, "consumers"> };
+type ConsummationProps = {
+    users: number;
+    dispatch: any;
+    user: Consumer;
+    product: Omit<State, "consumers">;
+    total: number;
+    error?: string;
+};
 
 const getConsummationProps = (props: ConsummationProps) => {
     if (props.product.division === DivisionType.Amount) {
@@ -206,20 +220,22 @@ const getConsummationProps = (props: ConsummationProps) => {
         return {
             mask: "money",
             max: total,
-            name: "consummation",
+            name: `consummation-${props.user.id}`,
             placeholder: "Valor de consumo...",
             title: `Valor pago por ${props.user.name}`,
             value: props.user.consummation
         } as const;
     }
-    const minQuantity = props.product.quantity / props.users;
+    const minQuantity = props.product.division === DivisionType.None ? 1 : props.product.quantity / props.users;
     return {
+        min: 0,
         max: props.product.quantity,
-        name: "quantity",
+        name: `quantity-${props.user.id}`,
         placeholder: "Total do consumo...",
         step: 0.000000000000000000000001,
         title: `Consumo de ${props.user.name}`,
         type: "number",
+        error: props.user.quantity > Number(props.product.quantity) ? "O consumo não pode ser maior que a quantidade do produto" : props.error ?? undefined,
         value: props.user.quantity,
         right: (
             <Fragment>
@@ -236,12 +252,6 @@ const getConsummationProps = (props: ConsummationProps) => {
         )
     } as const;
 };
-
-const UserConsummation = (props: ConsummationProps) => (
-    <li>
-        <Input {...getConsummationProps(props)} data-id={props.user.id} min={0} onChange={props.dispatch.onChangeUser} required />
-    </li>
-);
 
 const validate = (state: State, _e: React.FormEvent<HTMLFormElement>) => {
     const errors: State["errors"] = {};
@@ -282,18 +292,44 @@ export function CreateOrderItem(props: { id: Nullable<string> }) {
         await router.push(Links.newOrder);
     };
 
+    const totalConsume = useMemo(() => product.users.reduce((acc, el) => acc + Number(el.quantity), 0), [product.users]);
+
+    const allHasError = totalConsume > Number(product.quantity);
+
     return (
         <main className="flex flex-col gap-8">
             <Form onReset={onReset} onSubmit={onSubmit} className="flex flex-col gap-4">
                 <Card title="Novo produto" className="flex flex-col gap-4" description="Anote o consumo e quem consumiu este produto">
-                    <Input required name="title" value={product.title} title="Nome do produto" placeholder="Produto..." onChange={action.onChange} />
+                    <Input
+                        enterKeyHint="next"
+                        next="quantity"
+                        required
+                        name="title"
+                        value={product.title}
+                        title="Nome do produto"
+                        placeholder="Produto..."
+                        onChange={action.onChange}
+                    />
                     <div className="flex flex-row flex-nowrap gap-4">
-                        <Input required min={1} type="number" name="quantity" value={product.quantity} title="Quantidade" onChange={action.onChange} placeholder="Quantidade..." />
                         <Input
+                            enterKeyHint="next"
+                            required
+                            min={1}
+                            type="number"
+                            name="quantity"
+                            next="price"
+                            value={product.quantity}
+                            title="Quantidade"
+                            onChange={action.onChange}
+                            placeholder="Quantidade..."
+                        />
+                        <Input
+                            enterKeyHint="next"
                             required
                             mask="money"
                             name="price"
                             title="Preço"
+                            next="division"
                             value={product.price}
                             locale={i18n.language}
                             onChange={action.onChange}
@@ -316,11 +352,34 @@ export function CreateOrderItem(props: { id: Nullable<string> }) {
                     </section>
                     <ul className="space-y-4">
                         {product.users.map((user) => (
-                            <UserConsummation dispatch={action} key={user.id} product={product} user={user} users={product.users.length} />
+                            <li>
+                                <Input
+                                    {...getConsummationProps({
+                                        error: allHasError ? "O consumo é maior que a quantidade consumida" : "",
+                                        total: totalConsume,
+                                        dispatch: action,
+                                        product,
+                                        user,
+                                        users: product.users.length
+                                    })}
+                                    enterKeyHint="next"
+                                    data-id={user.id}
+                                    min={0}
+                                    onChange={action.onChangeUser}
+                                    required
+                                />
+                            </li>
                         ))}
                     </ul>
+                    {allHasError ? (
+                        <Alert className="mt-4" theme="warn" title="Aviso">
+                            O consumo é maior que a quantidade consumida, fica de olho pra não pagar a mais
+                        </Alert>
+                    ) : null}
                 </Card>
-                <Button type="submit">Adicionar produto</Button>
+                <Button disabled={allHasError} type="submit">
+                    Adicionar produto
+                </Button>
                 <Button type="reset" theme="transparent-danger">
                     Limpar produto
                 </Button>

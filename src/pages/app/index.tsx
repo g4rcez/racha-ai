@@ -78,6 +78,8 @@ const AppPage: NextPageWithLayout = () => {
                             required
                             name="name"
                             value={name}
+                            autoComplete="name"
+                            autoCapitalize="words"
                             title={i18n.get("welcomeInputTitle")}
                             placeholder={i18n.get("welcomeInputPlaceholder")}
                             onChange={(e) => dispatch.onChangeName(e.target.value)}

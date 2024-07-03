@@ -127,12 +127,12 @@ export namespace Product {
 
     export const divisions = [
         {
-            label: "Divisão manual",
+            label: "Manual",
             description: "Manual",
             value: DivisionType.None
         },
         {
-            label: "Divisão por consumo",
+            label: "Consumo do produto",
             description: "Igualdade",
             value: DivisionType.Equality
         },
@@ -147,7 +147,7 @@ export namespace Product {
         //   value: DivisionType.Percent,
         // },
         {
-            label: "Valor absoluto",
+            label: "Por valores",
             description: "Valor absoluto",
             value: DivisionType.Amount
         }

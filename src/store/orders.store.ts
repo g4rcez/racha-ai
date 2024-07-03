@@ -116,6 +116,7 @@ export const Orders = Store.create(
             const user = Friends.new(name);
             Friends.action.upsert(user);
             input.focus({ preventScroll: false });
+            input.value = "";
             form.reset();
             return { users: get.state().users.concat(user) };
         },

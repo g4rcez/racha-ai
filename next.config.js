@@ -6,7 +6,6 @@ const withPlugins = (t) => t;
 const nextConfig = {
     reactStrictMode: true,
     poweredByHeader: false,
-    experimental: { instrumentationHook: true },
     compiler: {
         reactRemoveProperties: { properties: ["^data-test$", "^data-testid$"] }
     }
